@@ -1,6 +1,21 @@
 local addon = DiminishingReturns
 if not addon then return end
 
+local FONT_NAME, FONT_SIZE, FONT_FLAGS = GameFontNormal:GetFont(), 24, "OUTLINE"
+
+local ANCHORING = {
+	LEFT   = { "RIGHT",  "LEFT",   -1,  0 },
+	RIGHT  = { "LEFT",   "RIGHT",   1,  0 },
+	TOP    = { "BOTTOM", "TOP",     0,  1 },
+	BOTTOM = { "TOP",    "BOTTOM",  0, -1 },
+}
+
+local TEXTS = {
+	{ "50%", 1.0, 1.0, 0.0 },
+	{ "25%", 1.0, 0.5, 0.0 },
+	{ "IMM", 1.0, 0.0, 0.0 }
+}
+
 local function SpawnIcon(self)
 	local icon = CreateFrame("Frame", nil, self)
 	icon:SetWidth(self.iconSize)
@@ -8,7 +23,7 @@ local function SpawnIcon(self)
 	
 	local texture = icon:CreateTexture(nil, "ARTWORK")
 	texture:SetAllPoints(icon)
-	--texture:SetTexCoord(0.05, 0.95, 0.05, 0.95)
+	texture:SetTexCoord(0.05, 0.95, 0.05, 0.95)
 	texture:SetTexture(1,1,1,1)
 	icon.texture = texture
 	
@@ -19,7 +34,7 @@ local function SpawnIcon(self)
 	icon.cooldown = cooldown
 	
 	local text = icon:CreateFontString(nil, "ARTWORK")
-	text:SetFont(GameFontNormal:GetFont(), 10, "OUTLINE")
+	text:SetFont(FONT_NAME, FONT_SIZE, FONT_FLAGS)
 	text:SetTextColor(1, 1, 1, 1)	
 	text:SetAllPoints(icon)
 	text:SetJustifyH("CENTER")
@@ -29,17 +44,10 @@ local function SpawnIcon(self)
 	return icon
 end
 
-local anchoring = {
-	LEFT   = { "RIGHT",  "LEFT",   -1,  0 },
-	RIGHT  = { "LEFT",   "RIGHT",   1,  0 },
-	TOP    = { "BOTTOM", "TOP",     0,  1 },
-	BOTTOM = { "TOP",    "BOTTOM",  0, -1 },
-}
-
 function SetAnchor(self, to, direction, spacing, defaultAnchor, defaultTo)
 	self:ClearAllPoints()
 	if to then
-		local anchor, relPoint, xOffset, yOffset = unpack(anchoring[direction])
+		local anchor, relPoint, xOffset, yOffset = unpack(ANCHORING[direction])
 		self:SetPoint(anchor, to, relPoint, spacing * xOffset, spacing * yOffset)
 	else
 		self:SetPoint(defaultAnchor, defaultTo)
@@ -63,22 +71,22 @@ function RemoveDR(self, event, guid, cat)
 	SetAnchor(activeIcons[index], activeIcons[index-1], self.direction, self.spacing, self.anchorPoint, self)
 end
 
-local textDisplay = {
-	{ "50%", 1.0, 1.0, 0.0 },
-	{ "25%", 1.0, 0.5, 0.0 },
-	{ "IMM", 1.0, 0.0, 0.0 }
-}
-
 function UpdateIcon(icon, texture, count, duration, expireTime)
 	local txt, r, g, b = tostring(count), 1, 1, 1
-	if textDisplay[count] then
-		txt, r, g, b = unpack(textDisplay[count])
+	if TEXTS[count] then
+		txt, r, g, b = unpack(TEXTS[count])
 	end
-	icon.text:SetText(txt)
-	icon.text:SetTextColor(r, g, b)
 	icon.texture:SetTexture(texture)
-	--icon.texture:SetVertexColor(r, g, b, a)
 	icon.cooldown:SetCooldown(expireTime-duration, duration)
+
+	local text = icon.text
+	text:SetText(txt)
+	text:SetTextColor(r, g, b)
+	text:SetFont(FONT_NAME, FONT_SIZE, FONT_FLAGS)
+	local sizeRatio = text:GetStringWidth() / (icon:GetWidth()-4)
+	if sizeRatio > 1 then
+		text:SetFont(FONT_NAME, FONT_SIZE / sizeRatio, FONT_FLAGS)
+	end
 end
 
 function UpdateDR(self, event, guid, cat, texture, count, duration, expireTime)
@@ -94,8 +102,8 @@ function UpdateDR(self, event, guid, cat, texture, count, duration, expireTime)
 	icon.category = cat
 	tinsert(activeIcons, icon)
 	SetAnchor(icon, activeIcons[previous], self.direction, self.spacing, self.anchorPoint, self)
-	UpdateIcon(icon, texture, count, duration, expireTime)
 	icon:Show()
+	UpdateIcon(icon, texture, count, duration, expireTime)
 end
 
 local function UpdateGUID(self)
@@ -144,7 +152,7 @@ local lae = LibStub('LibAdiEvent-1.0')
 function addon:SpawnFrame(anchor, secure, iconSize, direction, spacing, anchorPoint, relPoint, x, y)
 	local frame = CreateFrame("Frame", nil, anchor)
 	frame:Hide()
-	
+
 	frame.secure = secure
 	frame.activeIcons = {}
 	frame.iconHeap = {}
@@ -153,7 +161,7 @@ function addon:SpawnFrame(anchor, secure, iconSize, direction, spacing, anchorPo
 	frame.spacing = spacing or 2
 	
 	if not anchorPoint then
-		anchorPoint, relPoint, x, y = unpack(anchoring[direction])
+		anchorPoint, relPoint, x, y = unpack(ANCHORING[direction])
 	end
 	frame.anchorPoint = anchorPoint
 	frame:SetWidth(1)

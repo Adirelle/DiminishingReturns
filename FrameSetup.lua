@@ -21,7 +21,7 @@ end
 
 local pendingSetup
 
-local function RegisterUnitWatchHook(frame)
+local function CheckPendingSetup(frame)
 	local name = frame and frame:GetName()
 	local setup = name and pendingSetup[name]
 	if setup then
@@ -37,7 +37,7 @@ local function RegisterFrameSetup(frameName, setupFunc)
 	else
 		if not pendingSetup then
 			pendingSetup = {}
-			hooksecurefunc('RegisterUnitWatch', RegisterUnitWatchHook)
+			hooksecurefunc('RegisterUnitWatch', CheckPendingSetup)
 		end
 		pendingSetup[frameName] = setupFunc
 	end
@@ -48,13 +48,14 @@ end
 -- Shadowed Unit Frames
 RegisterAddonSetup('ShadowedUnitFrames', function()
 	local function SetupFrame(frame)
+		print('ShadowedUnitFrames frame:', frame:GetName())
 		return addon:SpawnFrame(frame, frame, 24, 'RIGHT', 2, 'TOPLEFT', 'BOTTOMLEFT', 0, -4)
 	end
-	RegisterFrameSetup('SUFUnitplayer', SetupFrame)
+	--RegisterFrameSetup('SUFUnitplayer', SetupFrame)
 	RegisterFrameSetup('SUFUnittarget', SetupFrame)
 end)
 
--- oUF_Adirelle
+--[[ oUF_Adirelle
 RegisterAddonSetup('oUF_Adirelle', function()
 	local function SetupFrame(frame)
 		return addon:SpawnFrame(frame, frame, 16, 'RIGHT', 2, 'TOPLEFT', 'BOTTOMLEFT', 0, -4)
@@ -62,18 +63,19 @@ RegisterAddonSetup('oUF_Adirelle', function()
 	for i = 1,5 do
 		RegisterFrameSetup('oUF_Raid1UnitButton'..i, SetupFrame)
 	end
-end)
+end)]]
 
 -- Gladius
 RegisterAddonSetup('Gladius', function()
 	local function SetupFrame(frame)
+		print('Gladius frame:', frame:GetName())
 		return addon:SpawnFrame(frame:GetParent(), frame, 32, 'LEFT', 2, 'TOPRIGHT', 'TOPLEFT', -10, 0)
 	end
 	for i = 1,5 do
 		RegisterFrameSetup('GladiusButton'..i, SetupFrame)
 	end
 	hooksecurefunc(Gladius, 'UpdateAttribute', function(gladius, unit)
-		SetupFrame(gladius.buttons[unit].secure)
+		CheckPendingSetup(gladius.buttons[unit].secure)
 	end)
 end)
 
