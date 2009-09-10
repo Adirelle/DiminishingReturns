@@ -1,85 +1,138 @@
 DiminishingReturns = CreateFrame("Frame")
 local addon = DiminishingReturns
+LibStub('LibAdiEvent-1.0').Embed(addon)
 
---------------------------------------------------------------------------------
--- Smart event handling
---------------------------------------------------------------------------------
-
-local eventMeta = { __call = function(funcs, ...) for _, func in pairs(funcs) do func(...) end end}
-
-local function OnEvent(self, event, ...)
-	local handler = self[event]
-	if handler then
-		handler(self, event, ...)
+local new, del
+do
+	local heap = setmetatable({},{__mode='k'})
+	function new()
+		local t = tremove(heap) or {}
+		heap[t] = nil
+		return t
+	end
+	function del(t)
+		wipe(t)
+		heap[t] = true
 	end
 end
 
-local function RegisterEvent(self, event, handler)
-	assert(type(event) == "string", "RegisterEvent(event, handler): event must be a string")
-	handler = handler or event
-	if type(handler) ~= "function" then
-		func = self[tostring(handler)]
-	end
-	assert(type(handler) == "function", "RegisterEvent(event, handler): handler must resolve to a function or a method name")
-	local prevHandler = self[event]
-	if not prevHandler then
-		self[event] = handler
-		self:__RegisterEvent( event)
-	elseif type(prevHandler) == "function" and handler ~= prevHandler then
-		self[event] = setmetatable({prevHandler, handler}, eventMeta)
-	elseif type(prevHandler) == "table" then
-		for i, func in pairs(prevHandler) do
-			if func == handler then return end
-		end
-		if #prevHandler == 0 then
-			self:__RegisterEvent( event)
-		end
-		tinsert(prevHandler, handler)
-	end
-end
+local runningDR = {}
 
-local function UnregisterEvent(self, event, handler)
-	assert(type(event) == "string", "UnregisterEvent(event, handler): event must be a string")
-	handler = handler or event
-	if type(handler) ~= "function" then
-		func = self[tostring(handler)]
-	end
-	assert(type(handler) == "function", "UnregisterEvent(event, handler): handler must resolve to a function or a method name")
-	local prevHandler = self[event]
-	if type(prevHandler) == "function" and handler == prevHandler then
-		self:__UnregisterEvent( event)
-		self[event] = nil
-	elseif type(prevHandler) == "table" then
-		for i, func in pairs(prevHandler) do
-			if func == handler then
-				tremove(prevHandler, i)
-				break
+local timerFrame = CreateFrame("Frame")
+
+local function RemoveDR(guid, cat)
+	local targetDR = runningDR[guid]
+	local dr = targetDR and targetDR[cat]
+	if dr then
+		if dr.count > 0 then
+			addon:TriggerMessage('RemoveDR', guid, cat)
+		end
+		targetDR[cat] = del(dr)
+		if not next(targetDR) then
+			runningDR[guid] = del(targetDR)
+			if not next(runningDR) then
+				timerFrame:Hide()
 			end
 		end
-		if #prevHandler == 0 then
-			self:__UnregisterEvent( event)
+	end
+end
+
+local function RemoveAllDR(guid)
+	if runningDR[guid] then
+		for cat in pairs(runningDR[guid]) do
+			RemoveDR(guid, cat)
 		end
 	end
 end
 
-local embeds = {}
+local drEvents = {
+	SPELL_AURA_APPLIED = 0,
+	SPELL_AURA_REFRESH = 1,
+	SPELL_AURA_REMOVED = 1,
+}
 
-local function TriggerMessage(self, ...)
-	for frame in pairs(embeds) do
-		frame:TriggerEvent(...)
+local function ParseCLEU(self, _, timestamp, event, ...)	
+	local guid, name, flags, spellId, spell = select(4, ...)
+	--if bit.band(flags, COMBATLOG_OBJECT_CONTROL_MASK) ~= COMBATLOG_OBJECT_CONTROL_PLAYER then return end
+	--[[if event:match('^SPELL_AURA_') and watchedSpells[spell] then 
+		print(event, ...)
+	end]]
+	local increase = drEvents[event]
+	if increase and addon.WatchedSpells[spell] then 
+		local targetDR = runningDR[guid]
+		if not targetDR then
+			targetDR = new()
+			runningDR[guid] = targetDR
+		end
+		for category, spells in pairs(self.Categories) do
+			if spells[spell] then
+				local dr = targetDR[category]
+				local now = GetTime()
+				if not dr then
+					dr = new()
+					dr.name = name
+					dr.texture = self.CatIcons[category] or select(3, GetSpellInfo(spellId))
+					dr.count = 0
+					targetDR[category] = dr
+				end
+				dr.count = dr.count + increase
+				dr.expireTime = now + 16
+				if dr.count > 0 then
+					self:TriggerMessage('UpdateDR', guid, category, dr.texture, dr.count, 15, dr.expireTime)
+				end
+				timerFrame:Show()
+			end
+		end
+	elseif event == 'UNIT_DIED' and runningDR[guid] then
+		RemoveAllDR(guid)
+	end	
+end
+
+local function WipeAll(self)
+	for guid, drs in pairs(runningDR) do
+		for category in pairs(drs) do
+			RemoveDR(guid, category)
+		end
 	end
 end
-	
-function addon.EmbedEventHandler(target)
-	if embeds[target] then return end
-	embeds[target] = true
-	target:SetScript('OnEvent', OnEvent)
-	target.TriggerEvent = OnEvent
-	target.__RegisterEvent = target.RegisterEvent
-	target.__UnregisterEvent = target.UnregisterEvent
-	target.RegisterEvent = RegisterEvent
-	target.UnregisterEvent = UnregisterEvent
-	target.TriggerMessage = TriggerMessage
+
+local timer = 0
+timerFrame:Hide()
+timerFrame:SetScript('OnShow', function() timer = 0 end)
+timerFrame:SetScript('OnUpdate', function(self, elapsed)
+	if timer > 0 then
+		timer = timer - elapsed
+		return
+	end
+	local now = GetTime()
+	timer = 0.1
+	for guid, drs in pairs(runningDR) do
+		for cat, dr in pairs(drs) do
+			if now >= dr.expireTime then
+				RemoveDR(guid, cat)
+			end
+		end
+	end
+end)
+
+local function IterFunc(targetDR, cat)
+	local dr
+	cat, dr = next(targetDR, cat)
+	if cat then
+		return cat, dr.texture, dr.count, 15, dr.count, dr.expireTime
+	end
 end
 
-addon:EmbedEventHandler()
+local function noop() end
+
+function addon:IterateDR(guid)
+	if runningDR[guid] then
+		return IterFunc, runningDR[guid]
+	else
+		return noop
+	end
+end
+
+addon:RegisterEvent('COMBAT_LOG_EVENT_UNFILTERED', ParseCLEU)
+addon:RegisterEvent('PLAYER_LEAVING_WORLD', WipeAll)
+

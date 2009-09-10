@@ -8,8 +8,9 @@
 
 ## OptionalDeps: LibStub, CallbackHandler-1.0, Ace3, Gladius, ShadowedUnitFrames, oUF_Adirelle
 
+LibAdiEvent-1.0.lua
 DiminishingReturns.lua
-DRList.lua
-Tracking.lua
+SpellList.lua
 Display.lua
-Bootstrap.lua
+FrameSetup.lua
+

@@ -15,14 +15,15 @@ local function SpawnIcon(self)
 	local cooldown = CreateFrame("Cooldown", nil, icon)
 	cooldown:SetAllPoints(icon)
 	cooldown:SetReverse(true)
+	cooldown.noCooldownCount = true
 	icon.cooldown = cooldown
 	
 	local text = icon:CreateFontString(nil, "ARTWORK")
-	text:SetFont(GameFontNormal:GetFont(), 8, "OUTLINE")
+	text:SetFont(GameFontNormal:GetFont(), 10, "OUTLINE")
 	text:SetTextColor(1, 1, 1, 1)	
 	text:SetAllPoints(icon)
 	text:SetJustifyH("CENTER")
-	text:SetJustifyV("BOTTOM")
+	text:SetJustifyV("CENTER")
 	icon.text = text
 	
 	return icon
@@ -62,20 +63,21 @@ function RemoveDR(self, event, guid, cat)
 	SetAnchor(activeIcons[index], activeIcons[index-1], self.direction, self.spacing, self.anchorPoint, self)
 end
 
-local aspect = {
-	{ "50%", 1, 1, 1, 1 },
-	{ "25%", 1, 1, 1, 1 },
-	{ "IMM", 1, 0, 0, 1 }
+local textDisplay = {
+	{ "50%", 1.0, 1.0, 0.0 },
+	{ "25%", 1.0, 0.5, 0.0 },
+	{ "IMM", 1.0, 0.0, 0.0 }
 }
 
 function UpdateIcon(icon, texture, count, duration, expireTime)
-	local txt, r, g, b, a = tostring(count), 1, 1, 1, 1
-	if aspect[count] then
-		txt, r, g, b, a = unpack(aspect[count])
+	local txt, r, g, b = tostring(count), 1, 1, 1
+	if textDisplay[count] then
+		txt, r, g, b = unpack(textDisplay[count])
 	end
 	icon.text:SetText(txt)
+	icon.text:SetTextColor(r, g, b)
 	icon.texture:SetTexture(texture)
-	icon.texture:SetVertexColor(r, g, b, a)
+	--icon.texture:SetVertexColor(r, g, b, a)
 	icon.cooldown:SetCooldown(expireTime-duration, duration)
 end
 
@@ -137,6 +139,8 @@ local function UpdateUnit(self, unit)
 	UpdateGUID(self)
 end
 
+local lae = LibStub('LibAdiEvent-1.0')
+
 function addon:SpawnFrame(anchor, secure, iconSize, direction, spacing, anchorPoint, relPoint, x, y)
 	local frame = CreateFrame("Frame", nil, anchor)
 	frame:Hide()
@@ -156,7 +160,7 @@ function addon:SpawnFrame(anchor, secure, iconSize, direction, spacing, anchorPo
 	frame:SetHeight(1)
 	frame:SetPoint(anchorPoint, anchor, relPoint, x, y)	
 	
-	addon.EmbedEventHandler(frame)
+	lae.Embed(frame)
 	
 	frame:RegisterEvent('UpdateDR', UpdateDR)
 	frame:RegisterEvent('RemoveDR', RemoveDR)
