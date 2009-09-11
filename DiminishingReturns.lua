@@ -54,9 +54,6 @@ local drEvents = {
 local function ParseCLEU(self, _, timestamp, event, ...)	
 	local guid, name, flags, spellId, spell = select(4, ...)
 	if bit.band(flags, COMBATLOG_OBJECT_CONTROL_MASK) ~= COMBATLOG_OBJECT_CONTROL_PLAYER then return end
-	--[[if event:match('^SPELL_AURA_') and watchedSpells[spell] then 
-		print(event, ...)
-	end]]
 	local increase = drEvents[event]
 	if increase and addon.WatchedSpells[spell] then 
 		local targetDR = runningDR[guid]
@@ -138,11 +135,14 @@ local function CheckActivation()
 	if instanceType == "raid" or instanceType == "party" then
 		addon:UnregisterEvent('COMBAT_LOG_EVENT_UNFILTERED', ParseCLEU)
 		addon:UnregisterEvent('PLAYER_LEAVING_WORLD', WipeAll)
-		--addon:TriggerMessage('DisableDR')
+		WipeAll()
+		addon.active = false
+		addon:TriggerMessage('DisableDR')
 	else
 		addon:RegisterEvent('COMBAT_LOG_EVENT_UNFILTERED', ParseCLEU)
 		addon:RegisterEvent('PLAYER_LEAVING_WORLD', WipeAll)
-		--addon:TriggerMessage('EnableDR')
+		addon.active = true
+		addon:TriggerMessage('EnableDR')
 	end
 end
 

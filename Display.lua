@@ -33,7 +33,7 @@ local function SpawnIcon(self)
 	cooldown.noCooldownCount = true
 	icon.cooldown = cooldown
 	
-	local text = icon:CreateFontString(nil, "ARTWORK")
+	local text = icon:CreateFontString(nil, "OVERLAY")
 	text:SetFont(FONT_NAME, FONT_SIZE, FONT_FLAGS)
 	text:SetTextColor(1, 1, 1, 1)	
 	text:SetAllPoints(icon)
@@ -126,12 +126,25 @@ local function UpdateGUID(self)
 	end
 end
 
-local function UpdateGUIDListening(self, event, pattern, oldUnit, newUnit)
-	if oldUnit and oldUnit:match(pattern) then
+local guidCheckEvents = {
+	PLAYER_TARGET_CHANGED = '^target$',
+	ARENA_OPPONENT_UPDATE = '^arena',
+	PARTY_MEMBERS_CHANGED = '^party',
+	RAID_ROSTER_UPDATE = '^raid',
+}
+
+local function UnregisterGUIDEvents(self)
+	for event in pairs(guidCheckEvents) do
 		self:UnregisterEvent(event, UpdateGUID)
 	end
-	if newUnit and newUnit:match(pattern) then
-		self:RegisterEvent(event, UpdateGUID)
+end
+
+local function RegisterGUIDEvents(self)
+	local unit = self.unit
+	for event, pattern in pairs(guidCheckEvents) do
+		if unit:match(pattern) then
+			self:RegisterEvent(event, UpdateGUID)
+		end
 	end
 end
 
@@ -139,12 +152,20 @@ local function UpdateUnit(self, unit)
 	unit = unit or self.secure:GetAttribute('unit')
 	local oldUnit = self.unit
 	if unit == oldUnit then return end
+	UnregisterGUIDEvents(self)
 	self.unit = unit
-	UpdateGUIDListening(self, 'PLAYER_TARGET_CHANGED', '^target$', oldUnit, unit)
-	UpdateGUIDListening(self, 'ARENA_OPPONENT_UPDATE', '^arena', oldUnit, unit)
-	UpdateGUIDListening(self, 'PARTY_MEMBERS_CHANGED', '^party', oldUnit, unit)
-	UpdateGUIDListening(self, 'RAID_ROSTER_UPDATE', '^raid', oldUnit, unit)
+	RegisterGUIDEvents(self)
 	UpdateGUID(self)
+end
+
+local function Enable(self)
+	UpdateUnit(self)
+end
+
+local function Disable(self)
+	self.unit = nil
+	UnregisterGUIDEvents(self)
+	self:Hide()
 end
 
 local lae = LibStub('LibAdiEvent-1.0')
@@ -172,18 +193,18 @@ function addon:SpawnFrame(anchor, secure, iconSize, direction, spacing, anchorPo
 	
 	frame:RegisterEvent('UpdateDR', UpdateDR)
 	frame:RegisterEvent('RemoveDR', RemoveDR)
-	
-	frame.SpawnIcon = SpawnIcon
-	frame.UpdateGUID = UpdateGUID
-	frame.UpdateUnit = UpdateUnit
-	
+	frame:RegisterEvent('EnableDR', Enable)
+	frame:RegisterEvent('DisableDR', Disable)
+
 	secure:HookScript('OnAttributeChanged', function(self, name, unit)
-		if name == "unit" then
+		if name == "unit" and addon.active then
 			UpdateUnit(frame, unit)
 		end
 	end)
 
-	frame:UpdateUnit()
+	if addon.active then
+		Enable(frame)
+	end
 
 	return frame
 end
