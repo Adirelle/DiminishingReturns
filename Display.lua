@@ -1,7 +1,7 @@
 local addon = DiminishingReturns
 if not addon then return end
 
-local FONT_NAME, FONT_SIZE, FONT_FLAGS = GameFontNormal:GetFont(), 24, "OUTLINE"
+local FONT_NAME, FONT_SIZE, FONT_FLAGS = GameFontNormal:GetFont(), 30, "OUTLINE"
 
 local ANCHORING = {
 	LEFT   = { "RIGHT",  "LEFT",   -1,  0 },
@@ -11,9 +11,9 @@ local ANCHORING = {
 }
 
 local TEXTS = {
-	{ "50%", 1.0, 1.0, 0.0 },
-	{ "25%", 1.0, 0.5, 0.0 },
-	{ "IMM", 1.0, 0.0, 0.0 }
+	{ "\194\189", 0.0, 1.0, 0.0 }, -- 1/2
+	{ "\194\188", 1.0, 1.0, 0.0 }, -- 1/4
+	{ "0", 1.0, 0.0, 0.0 }
 }
 
 local function SpawnIcon(self)
@@ -29,16 +29,20 @@ local function SpawnIcon(self)
 	
 	local cooldown = CreateFrame("Cooldown", nil, icon)
 	cooldown:SetAllPoints(icon)
-	cooldown:SetReverse(true)
+
 	cooldown.noCooldownCount = true
 	icon.cooldown = cooldown
 	
-	local text = icon:CreateFontString(nil, "OVERLAY")
+	local textFrame = CreateFrame("Frame", nil, icon)
+	textFrame:SetAllPoints(icon)
+	textFrame:SetFrameLevel(cooldown:GetFrameLevel()+1)
+	
+	local text = textFrame:CreateFontString(nil, "OVERLAY")
 	text:SetFont(FONT_NAME, FONT_SIZE, FONT_FLAGS)
 	text:SetTextColor(1, 1, 1, 1)	
 	text:SetAllPoints(icon)
 	text:SetJustifyH("CENTER")
-	text:SetJustifyV("CENTER")
+	text:SetJustifyV("MIDDLE")
 	icon.text = text
 	
 	return icon
@@ -98,7 +102,7 @@ function UpdateDR(self, event, guid, cat, texture, count, duration, expireTime)
 		end
 	end
 	local previous = #activeIcons
-	icon = tremove(self.iconHeap) or self:SpawnIcon()
+	icon = tremove(self.iconHeap) or SpawnIcon(self)
 	icon.category = cat
 	tinsert(activeIcons, icon)
 	SetAnchor(icon, activeIcons[previous], self.direction, self.spacing, self.anchorPoint, self)
@@ -106,24 +110,32 @@ function UpdateDR(self, event, guid, cat, texture, count, duration, expireTime)
 	UpdateIcon(icon, texture, count, duration, expireTime)
 end
 
-local function UpdateGUID(self)
-	local guid = self.unit and UnitGUID(self.unit)
-	if guid == self.guid then return end
-	self.guid = guid
+local function HideAllIcons(self)
 	local activeIcons = self.activeIcons
 	for i, icon in ipairs(activeIcons) do
 		icon:Hide()
 		self.iconHeap[icon] = true
 	end
 	wipe(activeIcons)
-	if guid then
-		for cat, texture, count, duration, expireTime in addon:IterateDR(guid) do
+end
+
+local function RefreshAllIcons(self)
+	HideAllIcons(self)
+	if self.guid then
+		for cat, texture, count, duration, expireTime in addon:IterateDR(self.guid) do
 			UpdateDR(self, "UpdateGUID", guid, cat, texture, count, duration, expireTime)
 		end
 		self:Show()
 	else
 		self:Hide()
 	end
+end
+
+local function UpdateGUID(self)
+	local guid = self.unit and UnitGUID(self.unit)
+	if guid == self.guid then return end
+	self.guid = guid
+	RefreshAllIcons(self)
 end
 
 local guidCheckEvents = {
@@ -168,6 +180,21 @@ local function Disable(self)
 	self:Hide()
 end
 
+local function ToggleTestMode(self)
+	self.testMode = not self.testMode
+	if self.testMode then
+		HideAllIcons(self)
+		local count = 1
+		for cat in pairs(addon.Categories) do
+			UpdateDR(self, "ToggleTestMode", self.guid, cat, addon.CatIcons[cat], count, 15, GetTime()+15)
+			count = (count % 3) + 1
+		end
+		self:Show()
+	else
+		RefreshAllIcons(self)
+	end
+end
+
 local lae = LibStub('LibAdiEvent-1.0')
 
 function addon:SpawnFrame(anchor, secure, iconSize, direction, spacing, anchorPoint, relPoint, x, y)
@@ -195,6 +222,7 @@ function addon:SpawnFrame(anchor, secure, iconSize, direction, spacing, anchorPo
 	frame:RegisterEvent('RemoveDR', RemoveDR)
 	frame:RegisterEvent('EnableDR', Enable)
 	frame:RegisterEvent('DisableDR', Disable)
+	frame:RegisterEvent('ToggleTestMode', ToggleTestMode)
 
 	secure:HookScript('OnAttributeChanged', function(self, name, unit)
 		if name == "unit" and addon.active then
@@ -207,4 +235,9 @@ function addon:SpawnFrame(anchor, secure, iconSize, direction, spacing, anchorPo
 	end
 
 	return frame
+end
+
+SLASH_DRTEST1 = "/drtest"
+SlashCmdList.DRTEST = function()
+	addon:TriggerMessage('ToggleTestMode')
 end

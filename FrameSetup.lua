@@ -48,7 +48,6 @@ end
 -- Shadowed Unit Frames
 RegisterAddonSetup('ShadowedUnitFrames', function()
 	local function SetupFrame(frame)
-		print('ShadowedUnitFrames frame:', frame:GetName())
 		return addon:SpawnFrame(frame, frame, 24, 'RIGHT', 2, 'TOPLEFT', 'BOTTOMLEFT', 0, -4)
 	end
 	--RegisterFrameSetup('SUFUnitplayer', SetupFrame)
@@ -68,7 +67,6 @@ end)]]
 -- Gladius
 RegisterAddonSetup('Gladius', function()
 	local function SetupFrame(frame)
-		print('Gladius frame:', frame:GetName())
 		return addon:SpawnFrame(frame:GetParent(), frame, 32, 'LEFT', 2, 'TOPRIGHT', 'TOPLEFT', -10, 0)
 	end
 	for i = 1,5 do
