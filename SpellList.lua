@@ -24,9 +24,10 @@ local data = {
 			100, -- Charge (Warrior)
 		20252, -- Intercept (Warrior)
 		12809, -- Concussion Blow (Warrior)
-		-- Hunter pets:
+		-- Pets:
 		53568, -- Sonic Blast (Bat)
 		53562, -- Ravage (Ravager)
+		47481, -- Gnaw (Ghoul)
 	},
 	fear_charm_blind = {
 		-- Charm
@@ -52,6 +53,7 @@ local data = {
 		-- Hunter pets:
 		53548, -- Pin (Crab)						
 		 4167, -- Web (Spider)
+		54706, -- Venom Web Spray (Silithid)		 
 	},
 	stun_proc = {
 		11103, -- Impact (Mage)
@@ -106,8 +108,6 @@ for i, id in pairs(single) do
 end
 
 function addon:LoadSpells()
-	print('Refreshing spells')
-
 	local categories = {}
 	local icons = {}
 	local watchedSpells = {}
