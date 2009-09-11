@@ -92,49 +92,55 @@ local data = {
 		-- Hunter pets:
 		53543, -- Snatch (Bird of Prey)		
 	},
+	-- Single DR
+	cyclone     = { 33786 }, -- Cyclone (Druid)
+	entrapment  = { 19184 }, -- Entrapment (Hunter)
+	frost_shock = {  8056 }, -- Frost Shock (Shaman)
+	earth_shock = {  8042 }, -- Earth Shock (Shaman)
+	hamstring   = {  1715 }, -- Hamstring (Warrior)
+	banish      = { 18647 }, -- Banish (Warlock)
 }
-
-local single =  {
-	33786, -- Cyclone (Druid)
-	19184, -- Entrapment (Hunter)
-	 8056, -- Frost Shock (Shaman)
-	 8042, -- Earth Shock (Shaman)
-	 1715, -- Hamstring (Warrior)
-	18647, -- Banish (Warlock)
-}
-
-for i, id in pairs(single) do
-	data[GetSpellInfo(id)] = { id }
-end
 
 function addon:LoadSpells()
 	local categories = {}
-	local icons = {}
 	local watchedSpells = {}
 	
 	for cat, catData in pairs(data) do
-		local spells, found, icon = {}
+		local spells, icon = {}
 		for i, id in ipairs(catData) do
 			local name = GetSpellInfo(id)
-			local known, _, texture = GetSpellInfo(name)
 			spells[name] = true
-			if known then
-				icon = icon or texture
-				found = true
-			end
+			watchedSpells[name] = true
 		end
-		if found then
-			categories[cat] = spells
-			icons[cat] = icon or (catData.icon and select(3, GetSpellInfo(catData.icon))) or nil
-			for name in pairs(spells) do
-				watchedSpells[name] = true
+		categories[cat] = spells
+	end
+
+	addon.Categories = categories
+	addon.WatchedSpells = watchedSpells	
+	
+	self:UpdateCategories()
+end
+
+addon.AutoCategories = {}
+addon.CatIcons = {}
+	
+function addon:UpdateCategories()
+	local icons = addon.CatIcons
+	local autoCategories = addon.AutoCategories
+	wipe(icons)
+	wipe(autoCategories)
+	
+	for cat, catData in pairs(data) do
+		icons[cat] = select(3, GetSpellInfo(catData[1]))
+		for i, id in ipairs(catData) do
+			local known, _, texture = GetSpellInfo(GetSpellInfo(id))
+			if known then
+				icons[cat] = texture
+				autoCategories[cat] = true
+				break
 			end
 		end
 	end
-
-	self.Categories = categories
-	self.CatIcons = icons
-	self.WatchedSpells = watchedSpells
 end
 
 if IsLoggedIn() then
@@ -142,7 +148,7 @@ if IsLoggedIn() then
 else
 	addon:RegisterEvent('PLAYER_LOGIN', 'LoadSpells')
 end
-addon:RegisterEvent('ACTIVE_TALENT_GROUP_CHANGED', 'LoadSpells')
+addon:RegisterEvent('ACTIVE_TALENT_GROUP_CHANGED', 'UpdateCategories')
 
 local petFamily = UnitCreatureFamily('pet')
 addon:RegisterEvent('UNIT_PET', function(self, event, unit)
@@ -150,7 +156,7 @@ addon:RegisterEvent('UNIT_PET', function(self, event, unit)
 		local newPetFamily = UnitCreatureFamily('pet')
 		if newPetFamily and newPetFamily ~= petFamily then
 			petFamily = newPetFamily
-			self:LoadSpells()
+			self:UpdateCategories()
 		end
 	end
 end)

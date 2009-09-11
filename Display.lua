@@ -95,6 +95,13 @@ end
 
 function UpdateDR(self, event, guid, cat, texture, count, duration, expireTime)
 	if guid ~= self.guid then return end
+	if addon.db.profile.autoCategories then
+		if not addon.AutoCategories[cat] then 
+			return 
+		end
+	elseif not addon.db.profile.categories[cat] then 
+		return
+	end
 	local activeIcons = self.activeIcons
 	for i, icon in ipairs(activeIcons) do
 		if icon.category == cat then
@@ -121,7 +128,14 @@ end
 
 local function RefreshAllIcons(self)
 	HideAllIcons(self)
-	if self.guid then
+	if self.testMode then
+		local count = 1
+		for cat in pairs(addon.Categories) do
+			UpdateDR(self, "ToggleTestMode", self.guid, cat, addon.CatIcons[cat], count, 15, GetTime()+15)
+			count = (count % 3) + 1
+		end
+		self:Show()	
+	elseif self.guid then
 		for cat, texture, count, duration, expireTime in addon:IterateDR(self.guid) do
 			UpdateDR(self, "UpdateGUID", guid, cat, texture, count, duration, expireTime)
 		end
@@ -180,17 +194,13 @@ local function Disable(self)
 	self:Hide()
 end
 
-local function ToggleTestMode(self)
-	self.testMode = not self.testMode
-	if self.testMode then
-		HideAllIcons(self)
-		local count = 1
-		for cat in pairs(addon.Categories) do
-			UpdateDR(self, "ToggleTestMode", self.guid, cat, addon.CatIcons[cat], count, 15, GetTime()+15)
-			count = (count % 3) + 1
-		end
-		self:Show()
-	else
+local function SetTestMode(self, event, value)
+	self.testMode = value
+	RefreshAllIcons(self)
+end
+
+local function OnConfigChanged(self, event, path)
+	if path == 'autoCategories' or path:match('^categories,') then
 		RefreshAllIcons(self)
 	end
 end
@@ -217,12 +227,13 @@ function addon:SpawnFrame(anchor, secure, iconSize, direction, spacing, anchorPo
 	frame:SetPoint(anchorPoint, anchor, relPoint, x, y)	
 	
 	lae.Embed(frame)
-	
+
 	frame:RegisterEvent('UpdateDR', UpdateDR)
 	frame:RegisterEvent('RemoveDR', RemoveDR)
 	frame:RegisterEvent('EnableDR', Enable)
 	frame:RegisterEvent('DisableDR', Disable)
-	frame:RegisterEvent('ToggleTestMode', ToggleTestMode)
+	frame:RegisterEvent('SetTestMode', SetTestMode)
+	frame:RegisterEvent('OnConfigChanged', OnConfigChanged)
 
 	secure:HookScript('OnAttributeChanged', function(self, name, unit)
 		if name == "unit" and addon.active then
@@ -235,9 +246,4 @@ function addon:SpawnFrame(anchor, secure, iconSize, direction, spacing, anchorPo
 	end
 
 	return frame
-end
-
-SLASH_DRTEST1 = "/drtest"
-SlashCmdList.DRTEST = function()
-	addon:TriggerMessage('ToggleTestMode')
 end

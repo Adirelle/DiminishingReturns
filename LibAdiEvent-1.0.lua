@@ -1,11 +1,12 @@
-local MAJOR, MINOR = 'LibAdiEvent-1.0', 1
+local MAJOR, MINOR = 'LibAdiEvent-1.0', 2
 local lib, oldMinor = LibStub:NewLibrary(MAJOR, MINOR)
 if not lib then return end
 
 lib.eventMeta = lib.eventMeta or {}
 lib.embeds = lib.embeds or {}
+lib.handlers = lib.handlers or {}
 
-local eventMeta, embeds = lib.eventMeta, lib.embeds
+local eventMeta, embeds, handlers = lib.eventMeta, lib.embeds, lib.handlers
 
 function eventMeta.__call(funcs, ...) 
 	for _, func in pairs(funcs) do 
@@ -14,7 +15,7 @@ function eventMeta.__call(funcs, ...)
 end
 
 local function OnEvent(self, event, ...)
-	local handler = self[event]
+	local handler = handlers[self][event]
 	if handler then
 		handler(self, event, ...)
 	end
@@ -26,13 +27,13 @@ local function RegisterEvent(self, event, handler)
 	if type(handler) == "string" then
 		handler = self[handler]
 	end
-	assert(type(handler) == "function", "RegisterEvent(event, handler): handler must resolve to a function or a method name")
-	local prevHandler = self[event]
-	self:__RegisterEvent(event)
+	assert(type(handler) == "function", "RegisterEvent(event, handler): handler must resolve to a function or a method name")	
+	local prevHandler = handlers[self][event]
 	if not prevHandler then
-		self[event] = handler
+		self:__RegisterEvent(event)	
+		handlers[self][event] = handler
 	elseif type(prevHandler) == "function" and handler ~= prevHandler then
-		self[event] = setmetatable({prevHandler, handler}, lib.eventMeta)
+		handlers[self][event] = setmetatable({prevHandler, handler}, lib.eventMeta)
 	elseif type(prevHandler) == "table" then
 		for i, func in pairs(prevHandler) do
 			if func == handler then return end
@@ -48,9 +49,10 @@ local function UnregisterEvent(self, event, handler)
 		handler = self[handler]
 	end	
 	assert(type(handler) == "function", "UnregisterEvent(event, handler): handler must resolve to a function or a method name")
-	local prevHandler = self[event]
+	local prevHandler = handlers[self][event]
 	if type(prevHandler) == "function" and handler == prevHandler then
 		self:__UnregisterEvent(event)
+		handlers[self][event] = nil
 	elseif type(prevHandler) == "table" then
 		for i, func in pairs(prevHandler) do
 			if func == handler then
@@ -59,7 +61,7 @@ local function UnregisterEvent(self, event, handler)
 			end
 		end
 		if #prevHandler == 0 then
-			self:__UnregisterEvent( event)
+			self:__UnregisterEvent(event)
 		end
 	end
 end
@@ -69,9 +71,10 @@ local function TriggerMessage(self, ...)
 		target:TriggerEvent(...)
 	end
 end
-	
+
 function lib.Embed(target)
 	embeds[target] = true
+	handlers[target] = {}
 	target.__RegisterEvent = target.__RegisterEvent or target.RegisterEvent
 	target.__UnregisterEvent = target.__UnregisterEvent or target.UnregisterEvent
 	target:SetScript('OnEvent', OnEvent)

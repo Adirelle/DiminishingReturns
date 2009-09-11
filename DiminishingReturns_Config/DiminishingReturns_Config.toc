@@ -1,0 +1,16 @@
+## Interface: 30200
+## Title: Diminishing Returns Configuration.
+## Notes: Diminishing Returns GUI
+## Author: Adirelle
+## Version: @project-version@
+## X-Date: @project-date-iso@
+
+## RequiredDeps: DiminishingReturns
+
+# Use awesome AddonLoader to make the configuration LoD
+## LoadManagers: AddonLoader
+## X-LoadOn-InterfaceOptions: Diminishing Returns
+## X-LoadOn-Slash: /dimret
+
+..\DiminishingReturns\Config.lua
+
