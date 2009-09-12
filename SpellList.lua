@@ -55,6 +55,7 @@ local data = {
 		 4167, -- Web (Spider)
 		54706, -- Venom Web Spray (Silithid)		 
 	},
+	--[[
 	stun_proc = {
 		11103, -- Impact (Mage)
 		 5730, -- Stoneclaw Totem (Shaman)
@@ -63,6 +64,7 @@ local data = {
 	root_proc = {
 		11071, -- Frostbite (Mage)
 	},
+	--]]
 	horror = {
 		6789,  -- Death Coil (Warlock)
 		64044, -- Psychic Horror (Priest)

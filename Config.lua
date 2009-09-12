@@ -12,13 +12,14 @@ if not addon then return end
 -- Option table
 -----------------------------------------------------------------------------
 
-local L = setmetatable({}, {__index = function(t,k) t[k] = tostring(k) return tostring(k) end})
+local L = addon.L
 
 local options
 
 local function GetOptions()
 	if options then return options end
 	
+	--[=[
 	local handler = {
 		GetDatabase = function() return addon.db.profile end,
 	
@@ -67,6 +68,7 @@ local function GetOptions()
 			addon:TriggerMessage('OnConfigChanged', path, value, ...)
 		end
 	}
+	--]=]
 	
 	local categoryGroup = {}
 	local tmp = {}
@@ -80,28 +82,33 @@ local function GetOptions()
 			name = L[key],
 			desc = table.concat(tmp, '\n'),
 			type = 'toggle',
-			arg = { 'categories', key },
-			get = function(info)
+			get = function()
 				if addon.db.profile.autoCategories then
 					return addon.AutoCategories[key]
 				else
 					return addon.db.profile.categories[key]
 				end
 			end,
+			set = function(_, value)
+				addon.db.profile.categories[key] = value
+				addon:TriggerMessage('OnConfigChanged', 'categories,'..key, value)
+			end
 		}
 	end
 
 	options = {
 		name = OPTION_CATEGORY,
 		type = 'group',
-		handler = handler,
-		get = "Get",
-		set = "Set",
 		args = {
 			autoCategories = {
 				name = L['Automatic category selection'],
 				type = 'toggle',
 				width = 'double',
+				get = function() return addon.db.profile.autoCategories end,
+				set = function(_, value) 
+					addon.db.profile.autoCategories = value 
+					addon:TriggerMessage('OnConfigChanged', 'autoCategories', value)
+				end,
 				order = 10,
 			},
 			categories = {
@@ -116,7 +123,7 @@ local function GetOptions()
 				name = L['Enable test mode'],
 				type = 'toggle',
 				get = function() return addon.testMode end,
-				set = function(info, value) addon:SetTestMode(value) end,
+				set = function(_, value) addon:SetTestMode(value) end,
 				order = 30,
 			}
 		}
