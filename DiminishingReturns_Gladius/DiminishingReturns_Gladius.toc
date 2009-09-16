@@ -1,0 +1,13 @@
+## Interface: 30200
+## Title: Diminishing Returns - Gladius support.
+## Notes: Add diminishing return icons to Gladius frames.
+## Author: Adirelle
+## Version: @project-version@
+## X-Date: @project-date-iso@
+
+# Let the client handles dependencies and loading for us
+## LoadOnDemand: 1
+## RequiredDeps: DiminishingReturns, Gladius
+## LoadWith: Gladius
+
+..\DiminishingReturns\support\Gladius.lua

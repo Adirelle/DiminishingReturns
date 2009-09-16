@@ -13,6 +13,7 @@
 LibAdiEvent-1.0.lua
 DiminishingReturns.lua
 Localization.lua
+Tracker.lua
 SpellList.lua
 Display.lua
 FrameSetup.lua
