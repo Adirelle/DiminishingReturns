@@ -30,19 +30,21 @@ local function OnLoad(self, event, name)
 	
 	-- Load supporting addon for already loaded, supported addons
 	local function LoadSupportAddons()
-		for index = 1, GetNumAddOns(i) do
+		for index = 1, GetNumAddOns() do
 			local support = GetAddOnMetadata(index, "X-DiminishingReturns-AddonSupport")
-			if support and IsAddOnLoaded(support) then
-				LoadAddOn(index)
+			if support then
+				if IsAddOnLoaded(support) then
+					LoadAddOn(index)
+				end
 			end
 		end
-		addon:UnregisterEvent('VARIABLES_LOADED', LoadSupportAddons)
+		addon:UnregisterEvent('PLAYER_LOGIN', LoadSupportAddons)
 	end
 
 	if IsLoggedIn() then
 		LoadSupportAddons()
 	else
-		addon:RegisterEvent('VARIABLES_LOADED', LoadSupportAddons)
+		addon:RegisterEvent('PLAYER_LOGIN', LoadSupportAddons)
 	end
 
 end

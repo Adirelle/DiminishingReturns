@@ -14,62 +14,10 @@ if not addon then return end
 
 local L = addon.L
 
-local options
+local options, frameOptions
 
-local function GetOptions()
-	if options then return options end
-	
-	--[=[
-	local handler = {
-		GetDatabase = function() return addon.db.profile end,
-	
-		ResolveDBPath = function(self, info)
-			local db = self:GetDatabase()
-			local path = info.arg or info[#info]
-			if type(path) == "table" then				
-				for i = 1, #path-1 do
-					db = db[path[i]]
-				end
-				return db, path[#path], table.concat(path, ',')
-			else
-				return db, tostring(path), tostring(path)
-			end
-		end,
+local function CreateOptions()
 
-		Get = function(self, info, arg)
-			local db, key = self:ResolveDBPath(info)
-			if info.type == 'color' then
-				return unpack(db[key])
-			elseif info.type == 'multiselect' then
-				return type(db[key]) == "table" and db[key][arg]
-			else
-				return db[key]
-			end
-		end,
-		
-		Set = function(self, info, value, ...)
-			local db, key, path = self:ResolveDBPath(info)
-			if info.type == 'color' then
-				local color = db[key]
-				if type(color) == "table" then
-					color[1], color[2], color[3], color[4] = ...
-				else
-					db[key] = { ... }
-				end
-			elseif info.type == 'multiselect' then
-				if type(db[key]) == "table" then
-					db[key][value] = ...
-				else
-					db[key] = { [value] = ... }
-				end
-			else
-				db[key] = value
-			end
-			addon:TriggerMessage('OnConfigChanged', path, value, ...)
-		end
-	}
-	--]=]
-	
 	local categoryGroup = {}
 	local tmp = {}
 	for cat, spells in pairs(addon.Categories) do
@@ -129,7 +77,125 @@ local function GetOptions()
 		}
 	}
 	
-	return options
+	local pointValues = {
+		TOPLEFT = L['Top left'],
+		TOP = L['Top'],
+		TOPRIGHT = L['Top right'],
+		LEFT = L['Left'],
+		CENTER = L['Center'],
+		RIGHT = L['Right'],
+		BOTTOMLEFT = L['Bottom left'],
+		BOTTOM = L['Bottom'],
+		BOTTOMRIGHT = L['Bottom right'],
+	}
+	
+	local frameOptionProto = {
+		type = 'group',
+		get = function(info)
+			local db, key = info.handler:GetDatabase(), info[#info]
+			return db[key]
+		end,
+		set = function(info, value)
+			local key = info[#info]
+			local db, dbObject = info.handler:GetDatabase()
+			db[key] = value
+			if dbObject then
+				dbObject.callbacks:Fire('OnConfigChanged', key, value)
+			end
+		end,
+		args = {
+			iconSize = {
+				name = L['Icon size'],
+				type = 'range',
+				min = 8,
+				max = 64,
+				step = 1,
+				order = 10,
+			},
+			direction = {
+				name = L['Direction'],
+				type = 'select',
+				values = {
+					LEFT = L['Left'],
+					RIGHT = L['Right'],
+					TOP = L['Top'],
+					BOTTOM = L['Bottom'],
+				},
+				order = 20,
+			},
+			spacing = {
+				name = L['Icon spacing'],
+				type = 'range',
+				min = 0,
+				max = 20,				
+				step = 1,
+				order = 30,
+			},
+			anchorPoint = {
+				name = L['Icon anchor'],
+				type = 'select',
+				values = pointValues,
+				order = 40,
+			},
+			relPoint = {
+				name = L['Frame side'],
+				type = 'select',
+				values = pointValues,
+				order = 50,
+			},
+			xOffset = {
+				name = L['X offset'],
+				type = 'range',
+				min = 0,
+				max = 500,
+				step = 1,
+				order = 60,
+			},
+			yOffset = {
+				name = L['Y offset'],
+				type = 'range',
+				min = 0,
+				max = 500,
+				step = 1,
+				order = 70,
+			},
+		},
+	}
+
+	frameOptions = {
+		name = L['Frame options'],
+		type = 'group',
+		childGroups = 'select',
+		args = {
+			empty = {
+				name = L['No supported addon has been loaded yet.'],
+				type = 'description',
+			},
+		}
+	}
+	
+	-- Replace registry function
+	function addon:RegisterFrameConfig(label, getDatabaseCallback)
+		local key = label:gsub('[^%w]', '_')
+		local opts = {
+			name = label,
+			handler = handler,
+			handler = { GetDatabase = getDatabaseCallback },
+		}
+		for k, v in pairs(frameOptionProto) do
+			opts[k] = v
+		end
+		frameOptions.args.empty = nil
+		frameOptions.args[key] = opts
+	end
+	
+	-- Register existing config
+	if addon.pendingFrameConfig then
+		for label, getDatabaseCallback in pairs(addon.pendingFrameConfig) do
+			addon:RegisterFrameConfig(label, getDatabaseCallback)
+		end
+		addon.pendingFrameConfig = nil
+	end
 end
 
 -----------------------------------------------------------------------------
@@ -140,8 +206,12 @@ local AceConfig = LibStub("AceConfig-3.0")
 local AceConfigDialog = LibStub("AceConfigDialog-3.0")
 
 -- Main options
-AceConfig:RegisterOptionsTable('DimRet-main', GetOptions)
+AceConfig:RegisterOptionsTable('DimRet-main', function() if not options then CreateOptions() end return options end)
 AceConfigDialog:AddToBlizOptions('DimRet-main', OPTION_CATEGORY)
+
+-- Frame options
+AceConfig:RegisterOptionsTable('DimRet-frames', function() if not frameOptions then CreateOptions() end return frameOptions end)
+AceConfigDialog:AddToBlizOptions('DimRet-frames', L['Frame options'], OPTION_CATEGORY)
 
 -- Profile options
 local dbOptions = LibStub('AceDBOptions-3.0'):GetOptionsTable(addon.db)

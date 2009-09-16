@@ -75,6 +75,15 @@ function RemoveDR(self, event, guid, cat)
 	SetAnchor(activeIcons[index], activeIcons[index-1], self.direction, self.spacing, self.anchorPoint, self)
 end
 
+function UpdateIconText(icon)
+	local text = icon.text
+	text:SetFont(FONT_NAME, FONT_SIZE, FONT_FLAGS)
+	local sizeRatio = text:GetStringWidth() / (icon:GetWidth()-4)
+	if sizeRatio > 1 then
+		text:SetFont(FONT_NAME, FONT_SIZE / sizeRatio, FONT_FLAGS)
+	end
+end
+
 function UpdateIcon(icon, texture, count, duration, expireTime)
 	local txt, r, g, b = tostring(count), 1, 1, 1
 	if TEXTS[count] then
@@ -84,13 +93,9 @@ function UpdateIcon(icon, texture, count, duration, expireTime)
 	icon.cooldown:SetCooldown(expireTime-duration, duration)
 
 	local text = icon.text
-	text:SetText(txt)
-	text:SetTextColor(r, g, b)
-	text:SetFont(FONT_NAME, FONT_SIZE, FONT_FLAGS)
-	local sizeRatio = text:GetStringWidth() / (icon:GetWidth()-4)
-	if sizeRatio > 1 then
-		text:SetFont(FONT_NAME, FONT_SIZE / sizeRatio, FONT_FLAGS)
-	end
+	icon.text:SetText(txt)
+	icon.text:SetTextColor(r, g, b)
+	UpdateIconText(icon)
 end
 
 function UpdateDR(self, event, guid, cat, texture, count, duration, expireTime)
@@ -207,25 +212,50 @@ end
 
 local lae = LibStub('LibAdiEvent-1.0')
 
-function addon:SpawnFrame(anchor, secure, iconSize, direction, spacing, anchorPoint, relPoint, x, y)
+local function OnLayoutConfigChanged(self)
+	local db = self:GetDatabase()
+	self:ClearAllPoints()
+	local anchorPoint, iconSize, direction, spacing = db.anchorPoint, db.iconSize, db.direction, db.spacing
+	self:SetPoint(anchorPoint, self.anchor, db.relPoint, db.xOffset, db.yOffset)		
+	if self.anchorPoint ~= anchorPoint or self.iconSize ~= iconSize or self.direction ~= direction or self.spacing ~= spacing then
+		self.anchorPoint = anchorPoint
+		self.iconSize = iconSize
+		self.direction = direction
+		self.spacing = spacing
+		local activeIcons = self.activeIcons
+		for i, icon in ipairs(activeIcons) do
+			icon:SetWidth(iconSize)
+			icon:SetHeight(iconSize)
+			UpdateIconText(icon)
+			SetAnchor(icon, activeIcons[i-1], direction, spacing, anchorPoint, self)		
+		end
+	end
+end
+
+function addon:SpawnFrame(anchor, secure, GetDatabase) -- iconSize, direction, spacing, anchorPoint, relPoint, x, y)
 	local frame = CreateFrame("Frame", nil, anchor)
 	frame:Hide()
-
+	
 	frame.secure = secure
 	frame.activeIcons = {}
 	frame.iconHeap = {}
-	frame.iconSize = iconSize or 16
-	frame.direction = direction or "LEFT"
-	frame.spacing = spacing or 2
 	
-	if not anchorPoint then
-		anchorPoint, relPoint, x, y = unpack(ANCHORING[direction])
+	frame.GetDatabase = GetDatabase
+	frame.OnLayoutConfigChanged = OnLayoutConfigChanged
+	
+	local _, dbObject = frame:GetDatabase()
+	if dbObject then
+		dbObject.RegisterCallback(frame, 'OnProfileChanged', 'OnLayoutConfigChanged')
+		dbObject.RegisterCallback(frame, 'OnProfileCopied', 'OnLayoutConfigChanged')
+		dbObject.RegisterCallback(frame, 'OnProfileReset', 'OnLayoutConfigChanged')
+		dbObject.RegisterCallback(frame, 'OnConfigChanged', 'OnLayoutConfigChanged')
 	end
-	frame.anchorPoint = anchorPoint
+	
+	frame.anchor = anchor
 	frame:SetWidth(1)
 	frame:SetHeight(1)
-	frame:SetPoint(anchorPoint, anchor, relPoint, x, y)	
-	
+	frame:OnLayoutConfigChanged()
+
 	lae.Embed(frame)
 
 	frame:RegisterEvent('UpdateDR', UpdateDR)
