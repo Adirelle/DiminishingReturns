@@ -9,5 +9,6 @@
 ## LoadOnDemand: 1
 ## RequiredDeps: DiminishingReturns, ShadowedUnitFrames
 ## LoadWith: ShadowedUnitFrames
+## X-DiminishingReturns-AddonSupport: ShadowedUnitFrames
 
 ..\DiminishingReturns\support\ShadowedUnitFrames.lua

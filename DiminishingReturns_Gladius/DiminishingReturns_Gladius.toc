@@ -9,5 +9,6 @@
 ## LoadOnDemand: 1
 ## RequiredDeps: DiminishingReturns, Gladius
 ## LoadWith: Gladius
+## X-DiminishingReturns-AddonSupport: Gladius
 
 ..\DiminishingReturns\support\Gladius.lua

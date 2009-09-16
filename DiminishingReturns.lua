@@ -27,6 +27,23 @@ local function OnLoad(self, event, name)
 		self.LibDualSpec = lds
 		lds:EnhanceDatabase(db, "Diminishing Returns")
 	end
+	
+	-- Load supporting addon for already loaded, supported addons
+	local function LoadSupportAddons()
+		for index = 1, GetNumAddOns(i) do
+			local support = GetAddOnMetadata(index, "X-DiminishingReturns-AddonSupport")
+			if support and IsAddOnLoaded(support) then
+				LoadAddOn(index)
+			end
+		end
+		addon:UnregisterEvent('VARIABLES_LOADED', LoadSupportAddons)
+	end
+
+	if IsLoggedIn() then
+		LoadSupportAddons()
+	else
+		addon:RegisterEvent('VARIABLES_LOADED', LoadSupportAddons)
+	end
 
 end
 addon:RegisterEvent('ADDON_LOADED', OnLoad)
