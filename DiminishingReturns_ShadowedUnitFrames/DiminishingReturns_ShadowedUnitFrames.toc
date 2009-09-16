@@ -8,6 +8,6 @@
 # Let the client handles dependencies and loading for us
 ## LoadOnDemand: 1
 ## RequiredDeps: DiminishingReturns, ShadowedUnitFrames
-## LoadWith: Gladius
+## LoadWith: ShadowedUnitFrames
 
 ..\DiminishingReturns\support\ShadowedUnitFrames.lua

@@ -1,3 +1,5 @@
+local addon = DiminishingReturns
+if not addon then return end
 
 local new, del
 do
