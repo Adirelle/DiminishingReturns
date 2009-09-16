@@ -1,7 +1,7 @@
 local addon = DiminishingReturns
 if not addon then return end
 
-local FONT_NAME, FONT_SIZE, FONT_FLAGS = GameFontNormal:GetFont(), 30, "OUTLINE"
+local FONT_NAME, FONT_SIZE, FONT_FLAGS = GameFontNormal:GetFont(), 16, "OUTLINE"
 
 local ANCHORING = {
 	LEFT   = { "RIGHT",  "LEFT",   -1,  0 },
@@ -13,7 +13,13 @@ local ANCHORING = {
 local TEXTS = {
 	{ "\194\189", 0.0, 1.0, 0.0 }, -- 1/2
 	{ "\194\188", 1.0, 1.0, 0.0 }, -- 1/4
-	{ "0", 1.0, 0.0, 0.0 }
+	{         "0", 1.0, 0.0, 0.0 }
+}
+
+local borderBackdrop = {
+	edgeFile = [[Interface\Addons\DiminishingReturns\white16x16]],
+	edgeSize = 1, 	
+	insets = {left = 1, right = 1, top = 1, bottom = 1},
 }
 
 local function SpawnIcon(self)
@@ -29,13 +35,22 @@ local function SpawnIcon(self)
 	
 	local cooldown = CreateFrame("Cooldown", nil, icon)
 	cooldown:SetAllPoints(icon)
-
+	cooldown:SetDrawEdge(true)
 	cooldown.noCooldownCount = true
 	icon.cooldown = cooldown
-	
+
+	local border = CreateFrame("Frame", nil, icon)
+	border:SetPoint("CENTER", icon)
+	border:SetWidth(self.iconSize + 2)
+	border:SetHeight(self.iconSize + 2)
+	border:SetBackdrop(borderBackdrop)
+	border:SetBackdropColor(0, 0, 0, 0)
+	border:SetBackdropBorderColor(1, 1, 1, 1)
+	icon.border = border
+
 	local textFrame = CreateFrame("Frame", nil, icon)
 	textFrame:SetAllPoints(icon)
-	textFrame:SetFrameLevel(cooldown:GetFrameLevel()+1)
+	textFrame:SetFrameLevel(cooldown:GetFrameLevel()+2)
 	
 	local text = textFrame:CreateFontString(nil, "OVERLAY")
 	text:SetFont(FONT_NAME, FONT_SIZE, FONT_FLAGS)
@@ -78,7 +93,7 @@ end
 function UpdateIconText(icon)
 	local text = icon.text
 	text:SetFont(FONT_NAME, FONT_SIZE, FONT_FLAGS)
-	local sizeRatio = text:GetStringWidth() / (icon:GetWidth()-4)
+	local sizeRatio = text:GetStringWidth() / icon:GetWidth()
 	if sizeRatio > 1 then
 		text:SetFont(FONT_NAME, FONT_SIZE / sizeRatio, FONT_FLAGS)
 	end
@@ -94,7 +109,8 @@ function UpdateIcon(icon, texture, count, duration, expireTime)
 
 	local text = icon.text
 	icon.text:SetText(txt)
-	icon.text:SetTextColor(r, g, b)
+	icon.text:SetTextColor(r, g, b, 0.75)
+	icon.border:SetBackdropBorderColor(r, g, b, 1)
 	UpdateIconText(icon)
 end
 
@@ -136,8 +152,8 @@ local function RefreshAllIcons(self)
 	if self.testMode then
 		local count = 1
 		for cat in pairs(addon.Categories) do
-			UpdateDR(self, "ToggleTestMode", self.guid, cat, addon.CatIcons[cat], count, 15, GetTime()+15)
-			count = (count % 3) + 1
+			UpdateDR(self, "ToggleTestMode", self.guid, cat, addon.CatIcons[cat], count, 15, GetTime()-2*count+15)
+			count = (count == 3) and 1 or (count+1)
 		end
 		self:Show()	
 	elseif self.guid then
