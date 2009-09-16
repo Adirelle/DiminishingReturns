@@ -210,8 +210,6 @@ local function OnConfigChanged(self, event, path)
 	end
 end
 
-local lae = LibStub('LibAdiEvent-1.0')
-
 local function OnLayoutConfigChanged(self)
 	local db = self:GetDatabase()
 	self:ClearAllPoints()
@@ -231,6 +229,8 @@ local function OnLayoutConfigChanged(self)
 		end
 	end
 end
+
+local lae = LibStub('LibAdiEvent-1.0')
 
 function addon:SpawnFrame(anchor, secure, GetDatabase) -- iconSize, direction, spacing, anchorPoint, relPoint, x, y)
 	local frame = CreateFrame("Frame", nil, anchor)

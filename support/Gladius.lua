@@ -2,6 +2,7 @@ local addon = DiminishingReturns
 if not addon then return end
 
 local db = addon.db:RegisterNamespace('Gladius', {profile={
+	enabled = true,
 	iconSize = 32,
 	direction = 'LEFT',
 	spacing = 2,
@@ -28,3 +29,4 @@ end
 hooksecurefunc(Gladius, 'UpdateAttribute', function(gladius, unit)
 	addon:CheckFrame(gladius.buttons[unit].secure)
 end)
+

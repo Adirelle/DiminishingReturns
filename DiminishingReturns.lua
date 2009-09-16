@@ -47,6 +47,7 @@ local function OnLoad(self, event, name)
 		addon:RegisterEvent('PLAYER_LOGIN', LoadSupportAddons)
 	end
 
+	addon:RegisterBlizzardFrames()
 end
 addon:RegisterEvent('ADDON_LOADED', OnLoad)
 
