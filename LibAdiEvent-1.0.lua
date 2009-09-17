@@ -1,87 +1,172 @@
-local MAJOR, MINOR = 'LibAdiEvent-1.0', 2
+local MAJOR, MINOR = 'LibAdiEvent-1.0', 1
 local lib, oldMinor = LibStub:NewLibrary(MAJOR, MINOR)
 if not lib then return end
+oldMinor = oldMinor or 0
 
-lib.eventMeta = lib.eventMeta or {}
-lib.embeds = lib.embeds or {}
-lib.handlers = lib.handlers or {}
+-- Safecall dispatcher (ripped from CBH)
 
-local eventMeta, embeds, handlers = lib.eventMeta, lib.embeds, lib.handlers
+local type = type
+local pcall = pcall
+local pairs = pairs
+local assert = assert
+local concat = table.concat
+local loadstring = loadstring
+local next = next
+local select = select
+local type = type
+local xpcall = xpcall
+local tinsert = tinsert
+local tremove = tremove
 
-function eventMeta.__call(funcs, ...) 
-	for _, func in pairs(funcs) do 
-		func(...) 
-	end 
+local function errorhandler(err)
+	return geterrorhandler()(err)
 end
 
-local function OnEvent(self, event, ...)
-	local handler = handlers[self][event]
-	if handler then
-		handler(self, event, ...)
+local function CreateDispatcher(argCount)
+	local code = [[
+	local next, xpcall, eh = ...
+
+	local method, ARGS
+	local function call() return method(ARGS) end
+
+	local function dispatch(handlers, ...)
+		local index
+		index, method = next(handlers)
+		if not method then return end
+		local OLD_ARGS = ARGS
+		ARGS = ...
+		repeat
+			xpcall(call, eh)
+			index, method = next(handlers, index)
+		until not method
+		ARGS = OLD_ARGS
+	end
+
+	return dispatch
+	]]
+
+	local ARGS, OLD_ARGS = {}, {}
+	for i = 1, argCount do ARGS[i], OLD_ARGS[i] = "arg"..i, "old_arg"..i end
+	code = code:gsub("OLD_ARGS", concat(OLD_ARGS, ", ")):gsub("ARGS", concat(ARGS, ", "))
+	return assert(loadstring(code, "safecall Dispatcher["..argCount.."]"))(next, xpcall, errorhandler)
+end
+
+local Dispatchers = setmetatable({}, {__index=function(self, argCount)
+	local dispatcher = CreateDispatcher(argCount)
+	rawset(self, argCount, dispatcher)
+	return dispatcher
+end})
+
+-- Event dispatching
+
+lib.handlers = lib.handlers or {}
+local handlers = lib.handlers
+
+function lib.TriggerEvent(self, event, ...)
+	local eventHandlers = handlers[self][event]
+	if eventHandlers then
+		Dispatchers[select('#', ...)+2](eventHandlers, self, event, ...)
 	end
 end
 
-local function RegisterEvent(self, event, handler)
+function lib.RegisterEvent(self, event, handler)
 	assert(type(event) == "string", "RegisterEvent(event, handler): event must be a string")
 	handler = handler or event
 	if type(handler) == "string" then
 		handler = self[handler]
 	end
 	assert(type(handler) == "function", "RegisterEvent(event, handler): handler must resolve to a function or a method name")	
-	local prevHandler = handlers[self][event]
-	if not prevHandler then
+	local eventHandlers = handlers[self][event]
+	if not eventHandlers then
 		self:__RegisterEvent(event)	
-		handlers[self][event] = handler
-	elseif type(prevHandler) == "function" and handler ~= prevHandler then
-		handlers[self][event] = setmetatable({prevHandler, handler}, lib.eventMeta)
-	elseif type(prevHandler) == "table" then
-		for i, func in pairs(prevHandler) do
+		handlers[self][event] = { handler }
+	else
+		for i, func in pairs(eventHandlers) do
 			if func == handler then return end
 		end
-		tinsert(prevHandler, handler)
+		tinsert(eventHandlers, handler)
 	end
 end
 
-local function UnregisterEvent(self, event, handler)
+function lib.UnregisterEvent(self, event, handler)
 	assert(type(event) == "string", "UnregisterEvent(event, handler): event must be a string")
 	handler = handler or event
 	if type(handler) == "string" then
 		handler = self[handler]
 	end	
 	assert(type(handler) == "function", "UnregisterEvent(event, handler): handler must resolve to a function or a method name")
-	local prevHandler = handlers[self][event]
-	if type(prevHandler) == "function" and handler == prevHandler then
-		self:__UnregisterEvent(event)
-		handlers[self][event] = nil
-	elseif type(prevHandler) == "table" then
-		for i, func in pairs(prevHandler) do
+	local eventHandlers = handlers[self][event]
+	if eventHandlers then
+		for i, func in pairs(eventHandlers) do
 			if func == handler then
-				tremove(prevHandler, i)
+				tremove(eventHandlers, i)
 				break
 			end
 		end
-		if #prevHandler == 0 then
+		if #eventHandlers == 0 then
 			self:__UnregisterEvent(event)
+			handlers[self][event] = nil			
 		end
 	end
 end
 
-local function TriggerMessage(self, ...)
-	for target in pairs(embeds) do
-		target:TriggerEvent(...)
+-- Message channels
+
+lib.channels = lib.channels or {}
+local channels = lib.channels
+
+function lib.TriggerMessage(self, ...)
+	if channels[self] then
+		for listener in pairs(channels[self]) do
+			listener:TriggerEvent(...)
+		end
 	end
 end
+
+function lib.ClearMessageChannel(self)
+	local oldChannel = channels[self]
+	if oldChannel then
+		oldChannel[self] = nil
+		channels[self] = nil
+	end
+end
+
+function lib.SetMessageChannel(self, channelId)
+	channelId = tostring(channelId)
+	local newChannel = channels[channelId]
+	if not newChannel then
+		newChannel = {}
+		channels[channelId] = newChannel
+	end
+	local oldChannel = channels[self]
+	if oldChannel ~= newChannel then
+		if oldChannel then
+			oldChannel[self] = nil
+		end
+		channels[self] = newChannel
+		newChannel[self] = true
+	end
+end
+
+-- Embedding and updating
+
+local exports = {
+	"TriggerEvent", "RegisterEvent", "UnregisterEvent",
+	"SetMessageChannel", "ClearMessageChannel", "TriggerMessage",
+}
+
+lib.embeds = lib.embeds or {}
+local embeds = lib.embeds
 
 function lib.Embed(target)
 	embeds[target] = true
 	handlers[target] = {}
 	target.__RegisterEvent = target.__RegisterEvent or target.RegisterEvent
 	target.__UnregisterEvent = target.__UnregisterEvent or target.UnregisterEvent
-	target:SetScript('OnEvent', OnEvent)
-	target.TriggerEvent = OnEvent
-	target.RegisterEvent = RegisterEvent
-	target.UnregisterEvent = UnregisterEvent
-	target.TriggerMessage = TriggerMessage
+	target:SetScript('OnEvent', lib.TriggerEvent)
+	for _,name in pairs(exports) do
+		target[name] = lib[name]
+	end
 end
 
 for target in pairs(embeds) do

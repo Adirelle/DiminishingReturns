@@ -130,20 +130,25 @@ function addon:LoadSpells()
 	local drdata = LibStub('DRData-1.0')
 	local categories = {}
 	local watchedSpells = {}
+	addon.Categories = categories
+	addon.WatchedSpells = watchedSpells	
 
 	for id, cat in pairs(drdata:GetSpells()) do
 		if not drdata:IsPVE(cat) then
 			local name = GetSpellInfo(id)
-			if not categories[cat] then
-				categories[cat] = { }
+			if name then
+				if not categories[cat] then
+					categories[cat] = { }
+				end
+				categories[cat][name] = id
+				watchedSpells[name] = cat
+			--@debug@
+			else
+				print('Unknown spell:', id)
+			--@end-debug@
 			end
-			categories[cat][name] = id
-			watchedSpells[name] = cat
 		end
 	end
-	
-	addon.Categories = categories
-	addon.WatchedSpells = watchedSpells	
 	
 	self:UpdateCategories()	
 end

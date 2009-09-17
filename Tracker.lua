@@ -50,6 +50,8 @@ local drEvents = {
 	SPELL_AURA_REMOVED = 1,
 }
 
+local RESET_DELAY = LibStub('DRData-1.0'):GetResetTime()
+
 local function ParseCLEU(self, _, timestamp, event, ...)	
 	local guid, name, flags, spellId, spell = select(4, ...)
 	if bit.band(flags, COMBATLOG_OBJECT_CONTROL_MASK) ~= COMBATLOG_OBJECT_CONTROL_PLAYER then return end
@@ -72,9 +74,9 @@ local function ParseCLEU(self, _, timestamp, event, ...)
 					targetDR[category] = dr
 				end
 				dr.count = dr.count + increase
-				dr.expireTime = now + 16
+				dr.expireTime = now + RESET_DELAY
 				if dr.count > 0 then
-					self:TriggerMessage('UpdateDR', guid, category, dr.texture, dr.count, 15, dr.expireTime)
+					self:TriggerMessage('UpdateDR', guid, category, dr.texture, dr.count, RESET_DELAY, dr.expireTime)
 				end
 				timerFrame:Show()
 			end
@@ -115,7 +117,7 @@ local function IterFunc(targetDR, cat)
 	local dr
 	cat, dr = next(targetDR, cat)
 	if cat then
-		return cat, dr.texture, dr.count, 15, dr.count, dr.expireTime
+		return cat, dr.texture, dr.count, RESET_DELAY, dr.count, dr.expireTime
 	end
 end
 

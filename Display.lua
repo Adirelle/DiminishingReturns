@@ -273,6 +273,7 @@ function addon:SpawnFrame(anchor, secure, GetDatabase) -- iconSize, direction, s
 	frame:OnLayoutConfigChanged()
 
 	lae.Embed(frame)
+	frame:SetMessageChannel(addon)
 
 	frame:RegisterEvent('UpdateDR', UpdateDR)
 	frame:RegisterEvent('RemoveDR', RemoveDR)

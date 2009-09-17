@@ -17,7 +17,7 @@ local L = addon.L
 local options, frameOptions
 
 local function CreateOptions()
-
+	local drdata = LibStub('DRData-1.0')
 	local categoryGroup = {}
 	local tmp = {}
 	for cat, spells in pairs(addon.Categories) do
@@ -27,7 +27,7 @@ local function CreateOptions()
 		end
 		local key = cat
 		categoryGroup[key] = {
-			name = L[key],
+			name = drdata:GetCategoryName(cat) or cat,
 			desc = table.concat(tmp, '\n'),
 			type = 'toggle',
 			get = function()

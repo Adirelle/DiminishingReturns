@@ -3,6 +3,7 @@
 DiminishingReturns = CreateFrame("Frame")
 local addon = DiminishingReturns
 LibStub('LibAdiEvent-1.0').Embed(addon)
+addon:SetMessageChannel(addon)
 
 local DEFAULT_CONFIG = {
 	autoCategories = true,
@@ -14,7 +15,7 @@ function addon:OnProfileChanged(self, ...)
 	addon:TriggerMessage('OnProfileChanged')
 end
 
-local function OnLoad(self, event, name)
+local function OnLoad(self, event, name, ...)
 	if name:lower() ~= "diminishingreturns" then return end
 	self:UnregisterEvent('ADDON_LOADED', OnLoad)
 	OnLoad = nil
