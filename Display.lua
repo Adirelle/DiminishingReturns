@@ -226,7 +226,7 @@ local function OnConfigChanged(self, event, path)
 	end
 end
 
-local function OnLayoutConfigChanged(self)
+local function OnLayoutConfigChanged(self, ...)
 	local db = self:GetDatabase()
 	self:ClearAllPoints()
 	local anchorPoint, iconSize, direction, spacing = db.anchorPoint, db.iconSize, db.direction, db.spacing
@@ -280,7 +280,8 @@ function addon:SpawnFrame(anchor, secure, GetDatabase) -- iconSize, direction, s
 	frame:RegisterEvent('DisableDR', Disable)
 	frame:RegisterEvent('SetTestMode', SetTestMode)
 	frame:RegisterEvent('OnConfigChanged', OnConfigChanged)
-
+	frame:RegisterEvent('OnProfileChanged', RefreshAllIcons)
+	
 	secure:HookScript('OnAttributeChanged', function(self, name, unit)
 		if name == "unit" and addon.active then
 			UpdateUnit(frame, unit)

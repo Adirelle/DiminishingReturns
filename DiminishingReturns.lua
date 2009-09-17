@@ -10,15 +10,19 @@ local DEFAULT_CONFIG = {
 }
 addon.DEFAULT_CONFIG = DEFAULT_CONFIG
 
+function addon:OnProfileChanged(self, ...)
+	addon:TriggerMessage('OnProfileChanged')
+end
+
 local function OnLoad(self, event, name)
 	if name:lower() ~= "diminishingreturns" then return end
 	self:UnregisterEvent('ADDON_LOADED', OnLoad)
 	OnLoad = nil
 	
 	local db = LibStub('AceDB-3.0'):New("DiminishingReturnsDB", {profile=DEFAULT_CONFIG})
-	--db.RegisterCallback(self, 'OnProfileChanged', 'RequireUpdate')
-	--db.RegisterCallback(self, 'OnProfileCopied', 'RequireUpdate')
-	--db.RegisterCallback(self, 'OnProfileReset', 'RequireUpdate')
+	db.RegisterCallback(self, 'OnProfileChanged')
+	db.RegisterCallback(self, 'OnProfileCopied', 'OnProfileChanged')
+	db.RegisterCallback(self, 'OnProfileReset', 'OnProfileChanged')
 	self.db = db
 	
 	-- Optional LibDualSpec-1.0 support
