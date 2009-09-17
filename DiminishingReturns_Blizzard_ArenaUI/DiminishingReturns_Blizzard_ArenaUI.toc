@@ -1,6 +1,6 @@
 ## Interface: 30200
-## Title: Diminishing Returns - Blizzard arena frames support.
-## Notes: Add diminishing return icons to Blizzard arena frames.
+## Title: Diminishing Returns - Blizzard arena frame support
+## Notes: Diminishing returns for Blizzard arena frames.
 ## Author: Adirelle
 ## Version: @project-version@
 ## X-Date: @project-date-iso@

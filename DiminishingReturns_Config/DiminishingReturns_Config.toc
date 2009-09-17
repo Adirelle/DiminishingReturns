@@ -1,6 +1,6 @@
 ## Interface: 30200
-## Title: Diminishing Returns Configuration.
-## Notes: Diminishing Returns GUI
+## Title: Diminishing Returns - configuration UI
+## Notes: Diminishing returns configuration interface.
 ## Author: Adirelle
 ## Version: @project-version@
 ## X-Date: @project-date-iso@
@@ -13,4 +13,3 @@
 ## X-LoadOn-Slash: /dimret
 
 ..\DiminishingReturns\Config.lua
-

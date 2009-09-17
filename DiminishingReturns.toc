@@ -1,13 +1,22 @@
 ## Interface: 30200
 
 ## Title: Diminishing Returns
-## Notes: Adds Diminishing Returns icons to existing unit frames.
+## Notes: Attach diminishing return icons to unit frames.
 ## Author: Adirelle
 ## Version: @project-version@
 ## X-Date: @project-date-iso@
 
 ## SavedVariables: DiminishingReturnsDB
-## OptionalDeps: Ace3
+## OptionalDeps: LibStub, CallbackHandler-1.0, Ace3, LibDualSpec-1.0
+
+## LoadManagers: AddonLoader
+## X-LoadOn-Always: delayed
+
+#@no-lib-strip@
+libs\LibStub\LibStub.lua
+libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
+libs\AceDB-3.0\AceDB-3.0.xml
+#@end-no-lib-strip@
 
 LibAdiEvent-1.0.lua
 DiminishingReturns.lua
@@ -19,4 +28,3 @@ FrameSetup.lua
 
 # Blizzard core frames are always loaded
 support\Blizzard.lua
-

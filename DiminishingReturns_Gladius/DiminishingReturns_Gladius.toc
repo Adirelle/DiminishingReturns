@@ -1,6 +1,6 @@
 ## Interface: 30200
-## Title: Diminishing Returns - Gladius support.
-## Notes: Add diminishing return icons to Gladius frames.
+## Title: Diminishing Returns - Gladius support
+## Notes: Diminishing returns for Gladius.
 ## Author: Adirelle
 ## Version: @project-version@
 ## X-Date: @project-date-iso@

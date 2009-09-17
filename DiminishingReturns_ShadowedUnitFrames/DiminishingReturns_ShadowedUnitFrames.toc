@@ -1,6 +1,6 @@
 ## Interface: 30200
-## Title: Diminishing Returns - Shadowed Unit Frames support.
-## Notes: Add diminishing return icons to Shadowed Unit Frames.
+## Title: Diminishing Returns - Shadowed Unit Frames support
+## Notes: Diminishing returns for Shadowed Unit Frames.
 ## Author: Adirelle
 ## Version: @project-version@
 ## X-Date: @project-date-iso@
