@@ -5,10 +5,8 @@
 ## Version: @project-version@
 ## X-Date: @project-date-iso@
 
-# Let the client handles dependencies and loading for us
 ## LoadOnDemand: 1
 ## RequiredDeps: DiminishingReturns, Gladius
-## LoadWith: Gladius
 ## X-DiminishingReturns-AddonSupport: Gladius
 
 ..\DiminishingReturns\support\Gladius.lua

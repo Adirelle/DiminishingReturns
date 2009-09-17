@@ -5,10 +5,8 @@
 ## Version: @project-version@
 ## X-Date: @project-date-iso@
 
-# Let the client handles dependencies and loading for us
 ## LoadOnDemand: 1
 ## RequiredDeps: DiminishingReturns, Blizzard_ArenaUI
-## LoadWith: Blizzard_ArenaUI
 ## X-DiminishingReturns-AddonSupport: Blizzard_ArenaUI
 
 ..\DiminishingReturns\support\Blizzard_ArenaUI.lua

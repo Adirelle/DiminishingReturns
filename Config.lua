@@ -77,6 +77,30 @@ local function CreateOptions()
 		}
 	}
 	
+	if AddonLoader and AddonLoaderSV and AddonLoaderSV.overrides then
+		local DEFAULT_VALUE = "DEFAULT"
+		local loadOnSlash = "X-LoadOn-Slash: /drtest\n"
+		local addonName = 'DiminishingReturns'
+		options.args.addonLoader = {
+			name = L['DiminishingReturns loading condition'],
+			desc = L['Thanks to AddonLoader, DiminishingReturns loading can be postponed until you really need it.'],
+			type = 'select',
+			get = function() 
+				return AddonLoaderSV.overrides[addonName] or DEFAULT_VALUE 
+			end,
+			set = function(_, value)
+				AddonLoaderSV.overrides[addonName] = (value ~= DEFAULT_VALUE) and value or nil
+			end,
+			values = {
+				[DEFAULT_VALUE] = L['Always'],
+				["X-LoadOn-PvPFlagged: yes\n"..loadOnSlash] = L['Being PvP flagged'],
+				["X-LoadOn-Arena: yes\nX-LoadOn-Battleground: yes\n"..loadOnSlash] = L['Entering battleground or arena'],
+				["X-LoadOn-Arena: yes\n"..loadOnSlash] = L['Entering arena only'],
+			},
+			order = 40,
+		}
+	end
+	
 	local pointValues = {
 		TOPLEFT = L['Top left'],
 		TOP = L['Top'],

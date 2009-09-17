@@ -31,10 +31,22 @@ local function OnLoad(self, event, name)
 	-- Load supporting addon for already loaded, supported addons
 	local function LoadSupportAddons()
 		for index = 1, GetNumAddOns() do
-			local support = GetAddOnMetadata(index, "X-DiminishingReturns-AddonSupport")
-			if support then
-				if IsAddOnLoaded(support) then
+			local name = GetAddOnMetadata(index, "X-DiminishingReturns-AddonSupport")
+			if name then
+				if IsAddOnLoaded(name) then
 					LoadAddOn(index)
+				else
+					local _, _, _, enabled, loadable = GetAddOnInfo(name)
+					if enabled and loadable then
+						local index, name = index, name:lower()
+						local loader = function(_, _, loaded)
+							if loaded and loaded:lower() == name then
+								LoadAddOn(index)
+								addon:UnregisterEvent('ADDON_LOADED', loader)
+							end
+						end
+						addon:RegisterEvent('ADDON_LOADED', loader)
+					end
 				end
 			end
 		end
