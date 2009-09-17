@@ -16,7 +16,7 @@
 libs\LibStub\LibStub.lua
 libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
 libs\AceDB-3.0\AceDB-3.0.xml
-libs\DRData-1.0\DRData-1.0.lua
+libs\DRData-1.0\DRData-1.0.xml
 #@end-no-lib-strip@
 
 LibAdiEvent-1.0.lua
