@@ -1,6 +1,7 @@
 local addon = DiminishingReturns
 if not addon then return end
 
+--[==[
 local data = {
 	gouge_polymorph_sap = {			
 		49203, -- Hungering Cold (DK)
@@ -122,6 +123,30 @@ function addon:LoadSpells()
 	
 	self:UpdateCategories()
 end
+]==]
+
+-- Pull categories and spells from DRData, this may require optimization later
+function addon:LoadSpells()
+	local drdata = LibStub('DRData-1.0')
+	local categories = {}
+	local watchedSpells = {}
+
+	for id, cat in pairs(drdata:GetSpells()) do
+		if not drdata:IsPVE(cat) then
+			local name = GetSpellInfo(id)
+			if not categories[cat] then
+				categories[cat] = { }
+			end
+			categories[cat][name] = id
+			watchedSpells[name] = cat
+		end
+	end
+	
+	addon.Categories = categories
+	addon.WatchedSpells = watchedSpells	
+	
+	self:UpdateCategories()	
+end
 
 addon.AutoCategories = {}
 addon.CatIcons = {}
@@ -132,13 +157,13 @@ function addon:UpdateCategories()
 	wipe(icons)
 	wipe(autoCategories)
 	
-	for cat, catData in pairs(data) do
-		icons[cat] = select(3, GetSpellInfo(catData[1]))
-		for i, id in ipairs(catData) do
-			local known, _, texture = GetSpellInfo(GetSpellInfo(id))
+	for cat, spells in pairs(addon.Categories) do
+		icons[cat] = select(3, GetSpellInfo(select(2, next(spells))))
+		for name, id in pairs(spells) do
+			local known, _, texture = GetSpellInfo(name)
 			if known then
-				icons[cat] = texture
 				autoCategories[cat] = true
+				icons[cat] = texture
 				break
 			end
 		end

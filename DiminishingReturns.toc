@@ -7,7 +7,7 @@
 ## X-Date: @project-date-iso@
 
 ## SavedVariables: DiminishingReturnsDB
-## OptionalDeps: LibStub, CallbackHandler-1.0, Ace3, LibDualSpec-1.0
+## OptionalDeps: LibStub, CallbackHandler-1.0, Ace3, LibDualSpec-1.0, DRData-1.0
 
 ## LoadManagers: AddonLoader
 ## X-LoadOn-Always: delayed
@@ -16,6 +16,7 @@
 libs\LibStub\LibStub.lua
 libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
 libs\AceDB-3.0\AceDB-3.0.xml
+libs\DRData-1.0\DRData-1.0.lua
 #@end-no-lib-strip@
 
 LibAdiEvent-1.0.lua
