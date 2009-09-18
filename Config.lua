@@ -20,22 +20,20 @@ local function CreateOptions()
 	local drdata = LibStub('DRData-1.0')
 	local categoryGroup = {}
 	local tmp = {}
-	for cat, spells in pairs(addon.Categories) do
+	for cat, name in pairs(addon.CATEGORIES) do
 		wipe(tmp)
-		for spellName in pairs(spells) do
-			tinsert(tmp, spellName)
+		for spellName, spellCat in pairs(addon.SPELLS) do
+			if spellCat == cat then
+				tinsert(tmp, spellName)
+			end
 		end
 		local key = cat
 		categoryGroup[key] = {
-			name = drdata:GetCategoryName(cat) or cat,
-			desc = table.concat(tmp, '\n'),
+			name = name,
+			desc = string.format(L['This catogery is triggered by the following effects:\n- %s'], table.concat(tmp, '\n- ')),
 			type = 'toggle',
 			get = function()
-				if addon.db.profile.autoCategories then
-					return addon.AutoCategories[key]
-				else
-					return addon.db.profile.categories[key]
-				end
+				return addon.db.profile.categories[key]
 			end,
 			set = function(_, value)
 				addon.db.profile.categories[key] = value
@@ -48,23 +46,24 @@ local function CreateOptions()
 		name = OPTION_CATEGORY,
 		type = 'group',
 		args = {
-			autoCategories = {
-				name = L['Automatic category selection'],
+			learnCategories = {
+				name = L['Learn categories to show'],
+				desc = L['When enabled, DiminishingReturns will discover the categories to display when you use spells that triggers them.'],
 				type = 'toggle',
 				width = 'double',
-				get = function() return addon.db.profile.autoCategories end,
+				get = function() return addon.db.profile.learnCategories end,
 				set = function(_, value) 
-					addon.db.profile.autoCategories = value 
-					addon:TriggerMessage('OnConfigChanged', 'autoCategories', value)
+					addon.db.profile.learnCategories = value 
+					addon:TriggerMessage('OnConfigChanged', 'learnCategories', value)
 				end,
 				order = 10,
 			},
 			categories = {
-				name = L['Manual category selection'],
+				name = L['Shown categories'],
+				desc = L['Select diminishing returns categories to display.'],
 				type = 'group',
 				inline = true,
 				args = categoryGroup,
-				disabled = function() return addon.db.profile.autoCategories end,
 				order = 20,
 			},
 			testMode = {

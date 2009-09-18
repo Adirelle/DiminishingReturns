@@ -6,8 +6,8 @@ LibStub('LibAdiEvent-1.0').Embed(addon)
 addon:SetMessageChannel(addon)
 
 local DEFAULT_CONFIG = {
-	autoCategories = true,
-	categories = { ['*'] = true },
+	learnCategories = true,
+	categories = { ['*'] = false },
 }
 addon.DEFAULT_CONFIG = DEFAULT_CONFIG
 

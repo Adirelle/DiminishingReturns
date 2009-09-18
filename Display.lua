@@ -115,12 +115,7 @@ function UpdateIcon(icon, texture, count, duration, expireTime)
 end
 
 function UpdateDR(self, event, guid, cat, texture, count, duration, expireTime)
-	if guid ~= self.guid then return end
-	if addon.db.profile.autoCategories then
-		if not addon.AutoCategories[cat] then 
-			return 
-		end
-	elseif not addon.db.profile.categories[cat] then 
+	if guid ~= self.guid or not addon.db.profile.categories[cat] then 
 		return
 	end
 	local activeIcons = self.activeIcons
@@ -151,13 +146,14 @@ local function RefreshAllIcons(self)
 	HideAllIcons(self)
 	if self.testMode then
 		local count = 1
-		for cat in pairs(addon.Categories) do
-			UpdateDR(self, "ToggleTestMode", self.guid, cat, addon.CatIcons[cat], count, 15, GetTime()-2*count+15)
+		for cat in pairs(addon.CATEGORIES) do
+			UpdateDR(self, "ToggleTestMode", self.guid, cat, addon.ICONS[cat], count, 15, GetTime()-2*count+15)
 			count = (count == 3) and 1 or (count+1)
 		end
 		self:Show()	
 	elseif self.guid then
-		for cat, texture, count, duration, expireTime in addon:IterateDR(self.guid) do
+		local guid = self.guid
+		for cat, texture, count, duration, expireTime in addon:IterateDR(guid) do
 			UpdateDR(self, "UpdateGUID", guid, cat, texture, count, duration, expireTime)
 		end
 		self:Show()
@@ -221,7 +217,7 @@ local function SetTestMode(self, event, value)
 end
 
 local function OnConfigChanged(self, event, path)
-	if path == 'autoCategories' or path:match('^categories,') then
+	if path:match('^categories,') then
 		RefreshAllIcons(self)
 	end
 end

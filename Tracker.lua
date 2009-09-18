@@ -1,6 +1,65 @@
 local addon = DiminishingReturns
 if not addon then return end
 
+local drdata = LibStub('DRData-1.0')
+local band = bit.band
+
+local CATEGORIES = drdata:GetCategories()
+addon.CATEGORIES = CATEGORIES
+
+local CL_EVENTS = {
+	SPELL_AURA_APPLIED = 0,
+	SPELL_AURA_REFRESH = 1,
+	SPELL_AURA_REMOVED = 1,
+}
+
+local SPELLS = {}
+for id, category in pairs(drdata:GetSpells()) do
+	if CATEGORIES[category] then
+		local name = GetSpellInfo(id)
+		if name then
+			SPELLS[name] = category
+		--@debug@
+		else
+			print('Unknown spell', id, 'for', category)
+		--@end-debug@
+		end
+	end
+end
+addon.SPELLS = SPELLS
+
+local RESET_DELAY = drdata:GetResetTime()
+
+local CLO_AFFILIATION_MINE = COMBATLOG_OBJECT_AFFILIATION_MINE
+local CLO_CONTROL_PLAYER = COMBATLOG_OBJECT_CONTROL_PLAYER
+local CLO_REACTION_FRIENDLY = COMBATLOG_OBJECT_REACTION_FRIENDLY
+local CLO_TYPE_PET_OR_PLAYER = bit.bor(COMBATLOG_OBJECT_TYPE_PET, COMBATLOG_OBJECT_TYPE_PLAYER)
+
+local ICONS
+do
+	local function GetSpellIcon(id) return select(3, GetSpellInfo(id)) end
+	ICONS = {
+		["banish"] = GetSpellIcon(18647), -- Banish
+		["charge"] = GetSpellIcon(100), -- Charge
+		["cheapshot"] = GetSpellIcon(1833), -- Cheap Shot
+		["ctrlstun"] = [[Interface\Icons\Spell_Frost_FrozenCore]],
+		["cyclone"] = GetSpellIcon(33786), -- Cyclone
+		["disarm"] = GetSpellIcon(676), -- Disarm
+		["disorient"] = GetSpellIcon(1776), -- Gouge
+		["entrapment"] = GetSpellIcon(19184), -- Entrapment
+		["fear"] = GetSpellIcon(5782), -- Fear
+		["horror"] = GetSpellIcon(6789), -- Death Coil
+		["mc"] = GetSpellIcon(605), -- Mind Control
+		["rndroot"] = [[Interface\Icons\Ability_ShockWave]],
+		["rndstun"] = [[Interface\Icons\INV_Mace_02]],
+		["ctrlroot"] = [[Interface\Icons\Spell_Frost_FrostNova]],
+		["scatters"] = GetSpellIcon(19503), -- Scatter Shot
+		["silence"] =  GetSpellIcon(2139), -- Counterspell
+		["sleep"] = GetSpellIcon(2637), -- Hibernate	
+	}
+end
+addon.ICONS = ICONS
+
 local new, del
 do
 	local heap = setmetatable({},{__mode='k'})
@@ -16,7 +75,6 @@ do
 end
 
 local runningDR = {}
-
 local timerFrame = CreateFrame("Frame")
 
 local function RemoveDR(guid, cat)
@@ -44,43 +102,35 @@ local function RemoveAllDR(guid)
 	end
 end
 
-local drEvents = {
-	SPELL_AURA_APPLIED = 0,
-	SPELL_AURA_REFRESH = 1,
-	SPELL_AURA_REMOVED = 1,
-}
-
-local RESET_DELAY = LibStub('DRData-1.0'):GetResetTime()
-
-local function ParseCLEU(self, _, timestamp, event, ...)	
-	local guid, name, flags, spellId, spell = select(4, ...)
-	if bit.band(flags, COMBATLOG_OBJECT_CONTROL_MASK) ~= COMBATLOG_OBJECT_CONTROL_PLAYER then return end
-	local increase = drEvents[event]
-	if increase and addon.WatchedSpells[spell] then 
+local function ParseCLEU(self, _, timestamp, event, _, srcName, srcFlags, guid, name, flags, spellId, spell)	
+	if band(flags, CLO_TYPE_PET_OR_PLAYER) == 0 or band(flags, CLO_CONTROL_PLAYER) == 0 or band(flags, CLO_REACTION_FRIENDLY) ~= 0 then
+		return
+	end
+	local increase = CL_EVENTS[event]
+	local category = SPELLS[spell]
+	if increase and category then
+		if addon.db.profile.learnCategories and band(srcFlags, CLO_AFFILIATION_MINE) ~= 0 and not addon.db.profile.categories[category] then
+			addon.db.profile.categories[category] = true
+		end
 		local targetDR = runningDR[guid]
 		if not targetDR then
 			targetDR = new()
 			runningDR[guid] = targetDR
 		end
-		for category, spells in pairs(self.Categories) do
-			if spells[spell] then
-				local dr = targetDR[category]
-				local now = GetTime()
-				if not dr then
-					dr = new()
-					dr.name = name
-					dr.texture = self.CatIcons[category] or select(3, GetSpellInfo(spellId))
-					dr.count = 0
-					targetDR[category] = dr
-				end
-				dr.count = dr.count + increase
-				dr.expireTime = now + RESET_DELAY
-				if dr.count > 0 then
-					self:TriggerMessage('UpdateDR', guid, category, dr.texture, dr.count, RESET_DELAY, dr.expireTime)
-				end
-				timerFrame:Show()
-			end
+		local dr = targetDR[category]
+		local now = GetTime()
+		if not dr then
+			dr = new()
+			dr.texture = ICONS[category]
+			dr.count = 0
+			targetDR[category] = dr
 		end
+		dr.count = dr.count + increase
+		dr.expireTime = now + RESET_DELAY
+		if dr.count > 0 then
+			self:TriggerMessage('UpdateDR', guid, category, dr.texture, dr.count, RESET_DELAY, dr.expireTime)
+		end
+		timerFrame:Show()
 	elseif event == 'UNIT_DIED' and runningDR[guid] then
 		RemoveAllDR(guid)
 	end	
@@ -117,7 +167,7 @@ local function IterFunc(targetDR, cat)
 	local dr
 	cat, dr = next(targetDR, cat)
 	if cat then
-		return cat, dr.texture, dr.count, RESET_DELAY, dr.count, dr.expireTime
+		return cat, dr.texture, dr.count, RESET_DELAY, dr.expireTime
 	end
 end
 
