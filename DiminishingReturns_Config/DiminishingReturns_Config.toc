@@ -12,4 +12,10 @@
 ## X-LoadOn-InterfaceOptions: Diminishing Returns
 ## X-LoadOn-Slash: /dimret
 
+#@no-lib-strip@
+..\DiminishingReturns\libs\AceDBOptions-3.0\AceDBOptions-3.0.xml
+..\DiminishingReturns\libs\AceGUI-3.0\AceGUI-3.0.xml
+..\DiminishingReturns\libs\AceConfig-3.0\AceConfig-3.0.xml
+#@end-no-lib-strip@
+
 ..\DiminishingReturns\Config.lua
