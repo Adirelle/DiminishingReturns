@@ -1,7 +1,7 @@
 local addon = DiminishingReturns
 if not addon then return end
 
-local db = addon.db:RegisterNamespace('Gladius', {profile={
+local db = Gladius.db:RegisterNamespace('DiminishingReturns', {profile={
 	enabled = true,
 	iconSize = 32,
 	direction = 'LEFT',
