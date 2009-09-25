@@ -1,0 +1,12 @@
+## Interface: 30200
+## Title: Diminishing Returns - PitBull4 support
+## Notes: Diminishing returns for PitBull4.
+## Author: Adirelle
+## Version: @project-version@
+## X-Date: @project-date-iso@
+
+## LoadOnDemand: 1
+## RequiredDeps: DiminishingReturns, PitBull4
+## X-DiminishingReturns-AddonSupport: PitBull4
+
+..\DiminishingReturns\support\PitBull4.lua
