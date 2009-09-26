@@ -22,15 +22,22 @@ local function CreateOptions()
 	local tmp = {}
 	for cat, name in pairs(addon.CATEGORIES) do
 		wipe(tmp)
-		for spellName, spellCat in pairs(addon.SPELLS) do
+		for spellId, spellCat in pairs(drdata:GetSpells()) do
 			if spellCat == cat then
-				tinsert(tmp, spellName)
+				local name, _, icon = GetSpellInfo(spellId)
+				if name and not tmp[name] then
+					tinsert(tmp, string.format('|T%s:0|t %s', icon, name))
+					tmp[name] = true
+				end
 			end
 		end
-		local key = cat
+		local key, label, icon = cat, name, addon.ICONS[cat]
+		if icon then
+			label = string.format("|T%s:24|t %s", icon, name)
+		end
 		categoryGroup[key] = {
-			name = name,
-			desc = string.format(L['This catogery is triggered by the following effects:\n- %s'], table.concat(tmp, '\n- ')),
+			name = label,
+			desc = string.format(L['This category is triggered by the following effects:\n%s'], table.concat(tmp, '\n')),
 			type = 'toggle',
 			get = function()
 				return addon.db.profile.categories[key]
