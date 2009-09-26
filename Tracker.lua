@@ -37,26 +37,66 @@ local CLO_TYPE_PET_OR_PLAYER = bit.bor(COMBATLOG_OBJECT_TYPE_PET, COMBATLOG_OBJE
 
 local ICONS
 do
-	local function GetSpellIcon(id) return select(3, GetSpellInfo(id)) end
+	-- Basic icons
 	ICONS = {
-		["banish"] = GetSpellIcon(18647), -- Banish
-		["charge"] = GetSpellIcon(100), -- Charge
-		["cheapshot"] = GetSpellIcon(1833), -- Cheap Shot
-		["ctrlstun"] = [[Interface\Icons\Spell_Frost_FrozenCore]],
-		["cyclone"] = GetSpellIcon(33786), -- Cyclone
-		["disarm"] = GetSpellIcon(676), -- Disarm
-		["disorient"] = GetSpellIcon(1776), -- Gouge
-		["entrapment"] = GetSpellIcon(19184), -- Entrapment
-		["fear"] = GetSpellIcon(5782), -- Fear
-		["horror"] = GetSpellIcon(6789), -- Death Coil
-		["mc"] = GetSpellIcon(605), -- Mind Control
-		["rndroot"] = [[Interface\Icons\Ability_ShockWave]],
-		["rndstun"] = [[Interface\Icons\INV_Mace_02]],
-		["ctrlroot"] = [[Interface\Icons\Spell_Frost_FrostNova]],
-		["scatters"] = GetSpellIcon(19503), -- Scatter Shot
-		["silence"] =  GetSpellIcon(2139), -- Counterspell
-		["sleep"] = GetSpellIcon(2637), -- Hibernate	
+		taunt = 355, -- Taunt (Warrior)
+		banish = 18647, -- Banish
+		charge = 100, -- Charge
+		cheapshot = 1833, -- Cheap Shot
+		ctrlstun = [[Interface\Icons\Spell_Frost_FrozenCore]],
+		cyclone = 33786, -- Cyclone
+		disarm = 676, -- Disarm
+		disorient = 1776, -- Gouge
+		entrapment = 19184, -- Entrapment
+		fear = 5782, -- Fear
+		horror = 6789, -- Death Coil
+		mc = 605, -- Mind Control
+		rndroot = [[Interface\Icons\Ability_ShockWave]],
+		rndstun = [[Interface\Icons\INV_Mace_02]],
+		ctrlroot = [[Interface\Icons\Spell_Frost_FrostNova]],
+		scatters = 19503, -- Scatter Shot
+		silence =  2139, -- Counterspell
+		sleep = 2637, -- Hibernate	
 	}
+	-- Update with class specific icons
+	local _, pClass = UnitClass('player')
+	if pClass == "DRUID" then
+		ICONS.taunt = 6795 -- Growl (Druid)
+		ICONS.cheapshot = 9005 -- Pounce
+		ICONS.ctrlroot = 339 -- Entangling Roots
+		ICONS.ctrlstun = 5211 -- Bash
+	elseif pClass == "HUNTER" then
+		ICONS.taunt = 20736 -- Distracting Shot
+		ICONS.disorient = 3355 -- Freezing Trap
+		ICONS.silence = 34490 -- Silencing Shot
+		ICONS.disarm = 53359 -- Chimera Shot - Scorpid
+		ICONS.ctrlstun = 19577 -- Intimidation
+		ICONS.ctrlroot = 4167 -- Web (Spider)
+		ICONS.fear = 1513 -- Scare Beast
+	elseif pClass == "MAGE" then
+		ICONS.disorient = 118 -- Polymorph
+		ICONS.ctrlstun = 44572 -- Deep Freeze
+		ICONS.rndstun = 12355 -- Impact
+		ICONS.ctrlroot = 122 -- Frost Nova
+		ICONS.rndroot = 12494 -- Frostbite
+	elseif pClass == "ROGUE" then
+		ICONS.silence = 1330 -- Garrote	
+		ICONS.disarm = 51722 -- Dismantle
+		ICONS.fear = 2094 -- Blind
+		ICONS.ctrlstun = 408 -- Kidney Shot
+	elseif pClass == "WARRIOR" then
+		ICONS.silence = 18498 -- Gag Order (Warrior talent)	
+		ICONS.fear = 5246 -- Intimidating Shout
+		ICONS.ctrlstun = 12809 -- Concussion Blow
+		ICONS.rndstun = 12798 -- Revenge Stun
+		ICONS.rndroot = 23694 -- Improved Hamstring
+	end
+	-- Replace spell ids with their texture
+	for cat, icon in pairs(ICONS) do
+		if type(icon) == "number" then
+			ICONS[cat] = select(3, GetSpellInfo(icon))
+		end
+	end
 end
 addon.ICONS = ICONS
 
