@@ -12,7 +12,7 @@ local defaults = {
 	yOffset = -4,
 }
 
-local db = ShadowUF.db:RegisterNamespace('DiminishingReturns', {profile={
+local	db = addon.db:RegisterNamespace('ShadowedUnitFrames', {profile={
 	target = defaults,
 	focus = defaults,
 	arena = defaults, -- should find better one

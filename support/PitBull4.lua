@@ -12,7 +12,7 @@ local defaults = {
 	yOffset = -4,
 }
 
-local db = PitBull4.db:RegisterNamespace('DiminishingReturns', {profile={
+local db = addon.db:RegisterNamespace('PitBull4', {profile={
 	target = defaults,
 	focus = defaults,
 }})
