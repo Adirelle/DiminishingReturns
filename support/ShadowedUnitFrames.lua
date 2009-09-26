@@ -15,6 +15,7 @@ local defaults = {
 local db = ShadowUF.db:RegisterNamespace('DiminishingReturns', {profile={
 	target = defaults,
 	focus = defaults,
+	arena = defaults, -- should find better one
 }})
 
 local function RegisterFrame(unit)
@@ -27,4 +28,16 @@ end
 
 RegisterFrame('target')
 RegisterFrame('focus')
+
+-- ShadowedUF_Arena support
+if IsAddonLoaded('ShadowedUF_Arena') then
+	local function GetDatabase() return db.profile.arena, db end
+	local function SpawnFrame(frame)
+		return addon:SpawnFrame(frame, frame, GetDatabase)
+	end
+	addon:RegisterFrameConfig('SUF: '..L["Arena"], GetDatabase)
+	for index = 1, 5 do
+		addon:RegisterFrame('SUFHeaderarenaUnitButton'..index, SpawnFrame)
+	end
+end
 

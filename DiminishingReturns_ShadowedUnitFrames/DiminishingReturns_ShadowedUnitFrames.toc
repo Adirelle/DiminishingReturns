@@ -7,6 +7,8 @@
 
 ## LoadOnDemand: 1
 ## RequiredDeps: DiminishingReturns, ShadowedUnitFrames
+## OptionalDeps: ShadowedUF_Arena
 ## X-DiminishingReturns-AddonSupport: ShadowedUnitFrames
 
 ..\DiminishingReturns\support\ShadowedUnitFrames.lua
+
