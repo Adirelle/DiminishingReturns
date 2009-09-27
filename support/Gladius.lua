@@ -24,13 +24,18 @@ addon:RegisterAddonSupport('Gladius', function()
 		return addon:SpawnFrame(frame:GetParent(), frame, GetDatabase)
 	end
 
+	local needHook = false
 	for i = 1,5 do
-		addon:RegisterFrame('GladiusButton'..i, SetupFrame)
+		if not addon:RegisterFrame('GladiusButton'..i, SetupFrame) then
+			needHook = true
+		end
 	end
 
-	hooksecurefunc(Gladius, 'UpdateAttribute', function(gladius, unit)
-		addon:CheckFrame(gladius.buttons[unit].secure)
-	end)
-
+	if needHook then
+		hooksecurefunc(Gladius, 'UpdateAttribute', function(gladius, unit)
+			addon.CheckFrame(gladius.buttons[unit].secure)
+		end)
+	end
+	
 end)
 

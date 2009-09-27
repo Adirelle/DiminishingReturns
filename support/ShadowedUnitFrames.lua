@@ -35,14 +35,15 @@ addon:RegisterAddonSupport('ShadowedUnitFrames', function()
 	
 end)
 
+-- ShadowedUF_Arena depends on SUF so it is loaded after and db would be initialized at that time
 addon:RegisterAddonSupport('ShadowedUF_Arena', function()
 	local function GetDatabase() return db.profile.arena, db end
-	local function SpawnFrame(frame)
+	local function SetupFrame(frame)
 		return addon:SpawnFrame(frame, frame, GetDatabase)
 	end
 	addon:RegisterFrameConfig('SUF: '..L["Arena"], GetDatabase)
 	for index = 1, 5 do
-		addon:RegisterFrame('SUFHeaderarenaUnitButton'..index, SpawnFrame)
+		addon:RegisterFrame('SUFHeaderarenaUnitButton'..index, SetupFrame)
 	end
 end)
 	
