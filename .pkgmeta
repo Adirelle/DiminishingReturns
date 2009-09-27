@@ -29,3 +29,6 @@ move-folders:
 optional-dependencies:
   - libdualspec-1-0
 
+ignore:
+  - UpdateLocalization.lua
+
