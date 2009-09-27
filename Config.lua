@@ -176,7 +176,7 @@ local function CreateOptions()
 			xOffset = {
 				name = L['X offset'],
 				type = 'range',
-				min = -500,
+				min = 0,
 				max = 500,
 				step = 1,
 				order = 60,
@@ -184,7 +184,7 @@ local function CreateOptions()
 			yOffset = {
 				name = L['Y offset'],
 				type = 'range',
-				min = -500,
+				min = 0,
 				max = 500,
 				step = 1,
 				order = 70,
