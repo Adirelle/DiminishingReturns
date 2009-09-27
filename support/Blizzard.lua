@@ -1,8 +1,8 @@
 local addon = DiminishingReturns
 if not addon then return end
 
-function addon:RegisterBlizzardFrames()
-	addon.RegisterBlizzardFrames = nil
+-- FrameXML is a internal fake to have this working like other support
+addon:RegisterAddonSupport('FrameXML', function()
 	
 	local db = addon.db:RegisterNamespace('Blizzard', {profile={
 		target = {
@@ -37,5 +37,5 @@ function addon:RegisterBlizzardFrames()
 
 	RegisterFrame('TargetFrame', 'target')
 	RegisterFrame('FocusFrame', 'focus')
-end
+end)
 

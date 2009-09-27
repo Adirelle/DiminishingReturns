@@ -26,5 +26,9 @@ Tracker.lua
 Display.lua
 FrameSetup.lua
 
-# Blizzard core frames are always loaded
 support\Blizzard.lua
+support\Blizzard_ArenaUI.lua
+support\Gladius.lua
+support\PitBull4.lua
+support\ShadowedUnitFrames.lua
+

@@ -25,9 +25,6 @@ externals:
 
 move-folders:
   DiminishingReturns/DiminishingReturns_Config: DiminishingReturns_Config
-  DiminishingReturns/DiminishingReturns_Gladius: DiminishingReturns_Gladius
-  DiminishingReturns/DiminishingReturns_Blizzard_ArenaUI: DiminishingReturns_Blizzard_ArenaUI
-  DiminishingReturns/DiminishingReturns_ShadowedUnitFrames: DiminishingReturns_ShadowedUnitFrames
 
 optional-dependencies:
   - libdualspec-1-0

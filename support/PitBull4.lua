@@ -1,30 +1,34 @@
 local addon = DiminishingReturns
 if not addon then return end
 
-local defaults = {
-	enabled = true,
-	iconSize = 24,
-	direction = 'RIGHT',
-	spacing = 2,
-	anchorPoint = 'TOPLEFT',
-	relPoint = 'BOTTOMLEFT',
-	xOffset = 0,
-	yOffset = -4,
-}
+addon:RegisterAddonSupport('PitBull4', function()
 
-local db = addon.db:RegisterNamespace('PitBull4', {profile={
-	target = defaults,
-	focus = defaults,
-}})
+	local defaults = {
+		enabled = true,
+		iconSize = 24,
+		direction = 'RIGHT',
+		spacing = 2,
+		anchorPoint = 'TOPLEFT',
+		relPoint = 'BOTTOMLEFT',
+		xOffset = 0,
+		yOffset = -4,
+	}
 
-local function RegisterSingletonFrame(unit)
-	local function GetDatabase() return db.profile[unit], db end
-	addon:RegisterFrameConfig('PitBull4: '..addon.L[unit], GetDatabase)
-	addon:RegisterFrame('PitBull4_Frames_'..unit, function(frame)
-		return addon:SpawnFrame(frame, frame, GetDatabase)
-	end)
-end
+	local db = addon.db:RegisterNamespace('PitBull4', {profile={
+		target = defaults,
+		focus = defaults,
+	}})
 
-RegisterSingletonFrame('target')
-RegisterSingletonFrame('focus')
+	local function RegisterSingletonFrame(unit)
+		local function GetDatabase() return db.profile[unit], db end
+		addon:RegisterFrameConfig('PitBull4: '..addon.L[unit], GetDatabase)
+		addon:RegisterFrame('PitBull4_Frames_'..unit, function(frame)
+			return addon:SpawnFrame(frame, frame, GetDatabase)
+		end)
+	end
+
+	RegisterSingletonFrame('target')
+	RegisterSingletonFrame('focus')
+
+end)
 

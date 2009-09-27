@@ -1,32 +1,36 @@
 local addon = DiminishingReturns
 if not addon then return end
 
-local db = addon.db:RegisterNamespace('Gladius', {profile={
-	enabled = true,
-	iconSize = 32,
-	direction = 'LEFT',
-	spacing = 2,
-	anchorPoint = 'TOPRIGHT',
-	relPoint = 'TOPLEFT',
-	xOffset = -10,
-	yOffset = 0,
-}})
+addon:RegisterAddonSupport('Gladius', function()
 
-local function GetDatabase() 
-	return db.profile, db
-end
+	local db = addon.db:RegisterNamespace('Gladius', {profile={
+		enabled = true,
+		iconSize = 32,
+		direction = 'LEFT',
+		spacing = 2,
+		anchorPoint = 'TOPRIGHT',
+		relPoint = 'TOPLEFT',
+		xOffset = -10,
+		yOffset = 0,
+	}})
 
-addon:RegisterFrameConfig('Gladius', GetDatabase)
+	local function GetDatabase() 
+		return db.profile, db
+	end
 
-local function SetupFrame(frame)
-	return addon:SpawnFrame(frame:GetParent(), frame, GetDatabase)
-end
+	addon:RegisterFrameConfig('Gladius', GetDatabase)
 
-for i = 1,5 do
-	addon:RegisterFrame('GladiusButton'..i, SetupFrame)
-end
+	local function SetupFrame(frame)
+		return addon:SpawnFrame(frame:GetParent(), frame, GetDatabase)
+	end
 
-hooksecurefunc(Gladius, 'UpdateAttribute', function(gladius, unit)
-	addon:CheckFrame(gladius.buttons[unit].secure)
+	for i = 1,5 do
+		addon:RegisterFrame('GladiusButton'..i, SetupFrame)
+	end
+
+	hooksecurefunc(Gladius, 'UpdateAttribute', function(gladius, unit)
+		addon:CheckFrame(gladius.buttons[unit].secure)
+	end)
+
 end)
 

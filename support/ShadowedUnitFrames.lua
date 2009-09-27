@@ -1,36 +1,41 @@
 local addon = DiminishingReturns
 if not addon then return end
 
-local defaults = {
-	enabled = true,
-	iconSize = 24,
-	direction = 'RIGHT',
-	spacing = 2,
-	anchorPoint = 'TOPLEFT',
-	relPoint = 'BOTTOMLEFT',
-	xOffset = 0,
-	yOffset = -4,
-}
+local	db
+	
+addon:RegisterAddonSupport('ShadowedUnitFrames', function()
 
-local	db = addon.db:RegisterNamespace('ShadowedUnitFrames', {profile={
-	target = defaults,
-	focus = defaults,
-	arena = defaults, -- should find better one
-}})
+	local defaults = {
+		enabled = true,
+		iconSize = 24,
+		direction = 'RIGHT',
+		spacing = 2,
+		anchorPoint = 'TOPLEFT',
+		relPoint = 'BOTTOMLEFT',
+		xOffset = 0,
+		yOffset = -4,
+	}
 
-local function RegisterFrame(unit)
-	local function GetDatabase() return db.profile[unit], db end
-	addon:RegisterFrameConfig('SUF: '..addon.L[unit], GetDatabase)
-	addon:RegisterFrame('SUFUnit'..unit, function(frame)
-		return addon:SpawnFrame(frame, frame, GetDatabase)
-	end)
-end
+	db = addon.db:RegisterNamespace('ShadowedUnitFrames', {profile={
+		target = defaults,
+		focus = defaults,
+		arena = defaults, -- should find better one
+	}})
 
-RegisterFrame('target')
-RegisterFrame('focus')
+	local function RegisterFrame(unit)
+		local function GetDatabase() return db.profile[unit], db end
+		addon:RegisterFrameConfig('SUF: '..addon.L[unit], GetDatabase)
+		addon:RegisterFrame('SUFUnit'..unit, function(frame)
+			return addon:SpawnFrame(frame, frame, GetDatabase)
+		end)
+	end
 
--- ShadowedUF_Arena support
-if IsAddonLoaded('ShadowedUF_Arena') then
+	RegisterFrame('target')
+	RegisterFrame('focus')
+	
+end)
+
+addon:RegisterAddonSupport('ShadowedUF_Arena', function()
 	local function GetDatabase() return db.profile.arena, db end
 	local function SpawnFrame(frame)
 		return addon:SpawnFrame(frame, frame, GetDatabase)
@@ -39,5 +44,5 @@ if IsAddonLoaded('ShadowedUF_Arena') then
 	for index = 1, 5 do
 		addon:RegisterFrame('SUFHeaderarenaUnitButton'..index, SpawnFrame)
 	end
-end
-
+end)
+	
