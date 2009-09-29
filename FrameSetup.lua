@@ -45,7 +45,7 @@ local function CheckAddonSupport(_, _, loaded)
 	if callback then
 		addonSupportCallbacks[name] = nil
 		if not next(addonSupportCallbacks) then
-		 	addon:UnregisterEvent('ADDON_LOADED', CheckAddonLoaded)
+		 	addon:UnregisterEvent('ADDON_LOADED', CheckAddonSupport)
 		 	CheckAddonSupport = nil
 		 	addonSupportCallbacks = nil
 		end
