@@ -22,6 +22,36 @@ local borderBackdrop = {
 	insets = {left = 1, right = 1, top = 1, bottom = 1},
 }
 
+local function FitTextSize(text, baseSize, width, height)
+	local name, _, flags = text:GetFont()
+	text:SetFont(name, baseSize, flags)
+	local ratio = text:GetStringWidth() / width
+	if height then
+		ratio = math.max(ratio, text:GetStringHeight() / height)
+	end
+	if ratio > 1 then
+		text:SetFont(name, baseSize / ratio, flags)
+	end
+end
+
+local ceil, GetTime, strformat = math.ceil, GetTime, string.format
+
+local function UpdateTimer(self)
+	local timer = self.timer
+	if not timer.expireTime then return end	
+	local timeLeft = timer.expireTime - GetTime()
+	if timeLeft <= 0 then
+		return timer:Hide()
+	end
+	timeLeft = ceil(timeLeft)
+	if not timer.timeLeft or timeLeft ~= timer.timeLeft then
+		timer:SetText(tostring(timeLeft))
+		FitTextSize(timer, 10, self:GetWidth())
+		timer.timeLeft = timeLeft
+		timer:Show()
+	end 
+end
+
 local function SpawnIcon(self)
 	local icon = CreateFrame("Frame", nil, self)
 	icon:SetWidth(self.iconSize)
@@ -38,7 +68,7 @@ local function SpawnIcon(self)
 	cooldown:SetDrawEdge(true)
 	cooldown.noCooldownCount = true
 	icon.cooldown = cooldown
-
+	
 	local border = CreateFrame("Frame", nil, icon)
 	border:SetPoint("CENTER", icon)
 	border:SetWidth(self.iconSize + 2)
@@ -59,6 +89,16 @@ local function SpawnIcon(self)
 	text:SetJustifyH("CENTER")
 	text:SetJustifyV("MIDDLE")
 	icon.text = text
+	
+	local timer = textFrame:CreateFontString(nil, "OVERLAY")
+	timer:SetFont(FONT_NAME, 10, FONT_FLAGS)
+	timer:SetTextColor(1, 1, 1, 1)	
+	timer:SetAllPoints(icon)
+	timer:SetJustifyH("CENTER")
+	timer:SetJustifyV("BOTTOM")
+	icon.timer = timer
+	
+	icon:SetScript('OnUpdate', UpdateTimer)
 	
 	return icon
 end
@@ -90,15 +130,6 @@ function RemoveDR(self, event, guid, cat)
 	SetAnchor(activeIcons[index], activeIcons[index-1], self.direction, self.spacing, self.anchorPoint, self)
 end
 
-function UpdateIconText(icon)
-	local text = icon.text
-	text:SetFont(FONT_NAME, FONT_SIZE, FONT_FLAGS)
-	local sizeRatio = text:GetStringWidth() / icon:GetWidth()
-	if sizeRatio > 1 then
-		text:SetFont(FONT_NAME, FONT_SIZE / sizeRatio, FONT_FLAGS)
-	end
-end
-
 function UpdateIcon(icon, texture, count, duration, expireTime)
 	local txt, r, g, b = tostring(count), 1, 1, 1
 	if TEXTS[count] then
@@ -106,12 +137,16 @@ function UpdateIcon(icon, texture, count, duration, expireTime)
 	end
 	icon.texture:SetTexture(texture)
 	icon.cooldown:SetCooldown(expireTime-duration, duration)
+	icon.border:SetBackdropBorderColor(r, g, b, 1)
 
 	local text = icon.text
 	icon.text:SetText(txt)
-	icon.text:SetTextColor(r, g, b, 0.75)
-	icon.border:SetBackdropBorderColor(r, g, b, 1)
-	UpdateIconText(icon)
+	icon.text:SetTextColor(r, g, b)
+	FitTextSize(icon.text, FONT_SIZE, icon:GetWidth())
+	
+	local timer = icon.timer
+	timer.expireTime, timer.timeLeft = expireTime
+	UpdateTimer(icon)
 end
 
 function UpdateDR(self, event, guid, cat, texture, count, duration, expireTime)
