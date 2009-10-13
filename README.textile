@@ -1,4 +1,4 @@
-Diminishing Returns (DR) helps tracking your teammate and own diminishing returns on hostile //players// by attaching icons to unit frames.
+Diminishing Returns (DR) helps tracking your teammate and own diminishing returns on hostile _players_ by attaching icons to unit frames.
 
 h2. Features
 
