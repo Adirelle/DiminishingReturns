@@ -31,4 +31,5 @@ optional-dependencies:
 
 ignore:
   - UpdateLocalization.lua
+  - README.textile
 

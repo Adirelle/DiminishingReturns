@@ -1,0 +1,25 @@
+Diminishing Returns (DR) helps tracking your teammate and own diminishing returns on hostile //players// by attaching icons to unit frames.
+
+h2. Features
+
+* uses DR category database from "DRData-1.0":http://wow.curse.com/downloads/wow-addons/details/drdata-1-0.aspx,
+* select which categories to show,
+* learning option: automatically enables categories that you trigger with your spells,
+* some layout options, available in interface options or @/dimret@.
+* test mode available using @/drtest@.
+* "LibDualSpec-1.0":http://wow.curse.com/downloads/wow-addons/details/libdualspec-1-0.aspx support for per-spec profiles,
+* "AddonLoader":http://wow.curse.com/downloads/wow-addons/details/addon-loader.aspx support to reduce logon time.
+
+h2. Supported unit frames
+
+* Blizzard target, focus and arena enemy frames,
+* "Shadowed Unit Frames":http://wow.curse.com/downloads/wow-addons/details/shadowed-unit-frames.aspx: target, focus and arena frames (ShadowedUF_Arenas),
+* "Gladius":http://www.wowinterface.com/downloads/info11447-Gladius.html (arena unit frames),
+* (alpha) "PitBull Unit Frames 4.0":http://wow.curse.com/downloads/wow-addons/details/pitbull4.aspx: target and focus.
+* (alpha) "X-Perl UnitFrames":http://wow.curse.com/downloads/wow-addons/details/xperl.aspx: target and focus.
+* (alpha) "ag UnitFrames":http://wow.curse.com/downloads/wow-addons/details/ag_unitframes.aspx: target and focus.
+
+h2. User feedback
+
+* General discussion: "WoWAce forum thread":http://forums.wowace.com/showthread.php?t=17166
+* Bug reports: "WoWAce ticket system":http://www.wowace.com/addons/diminishingreturns/tickets.
