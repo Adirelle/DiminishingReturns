@@ -8,10 +8,10 @@ addon:RegisterAddonSupport('XPerl', function()
 		iconSize = 24,
 		direction = 'RIGHT',
 		spacing = 2,
-		anchorPoint = 'TOPLEFT',
-		relPoint = 'BOTTOMLEFT',
-		xOffset = 0,
-		yOffset = -4,
+		anchorPoint = 'BOTTOMLEFT',
+		relPoint = 'TOPLEFT',
+		xOffset = 4,
+		yOffset = 4,
 	}
 
 	local db = addon.db:RegisterNamespace('XPerl', {profile={
@@ -19,10 +19,14 @@ addon:RegisterAddonSupport('XPerl', function()
 		focus = defaults,
 	}})
 	
+	local function ucfirst(s)
+		return s:sub(1,1):upper()..s:sub(2)
+	end
+	
 	local function RegisterFrame(unit)
 		local function GetDatabase() return db.profile[unit], db end
 		addon:RegisterFrameConfig('XPerl: '..addon.L[unit], GetDatabase)
-		return addon:RegisterFrame('XPerl'..unit, function(frame)
+		return addon:RegisterFrame('XPerl_'..ucfirst(unit), function(frame)
 			return addon:SpawnFrame(frame, frame, GetDatabase)
 		end)
 	end
