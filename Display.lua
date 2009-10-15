@@ -271,9 +271,8 @@ local function OnLayoutConfigChanged(self, ...)
 		for i, icon in ipairs(activeIcons) do
 			icon:SetWidth(iconSize)
 			icon:SetHeight(iconSize)
-			UpdateIconText(icon)
-			SetAnchor(icon, activeIcons[i-1], direction, spacing, anchorPoint, self)		
 		end
+		RefreshAllIcons(self)
 	end
 end
 
