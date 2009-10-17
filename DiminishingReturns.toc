@@ -30,6 +30,7 @@ support\Blizzard.lua
 support\ag_UnitFrames.lua
 support\Blizzard_ArenaUI.lua
 support\Gladius.lua
+support\oUF.lua
 support\PitBull4.lua
 support\ShadowedUnitFrames.lua
 support\XPerl.lua
