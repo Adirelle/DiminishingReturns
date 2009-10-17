@@ -206,6 +206,7 @@ end
 
 local guidCheckEvents = {
 	PLAYER_TARGET_CHANGED = '^target$',
+	PLAYER_FOCUS_CHANGED = '^focus$',
 	ARENA_OPPONENT_UPDATE = '^arena',
 	PARTY_MEMBERS_CHANGED = '^party',
 	RAID_ROSTER_UPDATE = '^raid',
