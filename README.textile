@@ -15,9 +15,10 @@ h2. Supported unit frames
 * Blizzard target, focus and arena enemy frames,
 * "Shadowed Unit Frames":http://wow.curse.com/downloads/wow-addons/details/shadowed-unit-frames.aspx: target, focus and arena frames (ShadowedUF_Arenas),
 * "Gladius":http://www.wowinterface.com/downloads/info11447-Gladius.html (arena unit frames),
-* (alpha) "PitBull Unit Frames 4.0":http://wow.curse.com/downloads/wow-addons/details/pitbull4.aspx: target and focus.
-* (alpha) "X-Perl UnitFrames":http://wow.curse.com/downloads/wow-addons/details/xperl.aspx: target and focus.
-* (alpha) "ag UnitFrames":http://wow.curse.com/downloads/wow-addons/details/ag_unitframes.aspx: target and focus.
+* "X-Perl UnitFrames":http://wow.curse.com/downloads/wow-addons/details/xperl.aspx: target and focus.
+* "oUF":http://www.wowinterface.com/downloads/info9994-oUF.html: target and focus.
+* (untested) "PitBull Unit Frames 4.0":http://wow.curse.com/downloads/wow-addons/details/pitbull4.aspx: target and focus.
+* (untested) "ag UnitFrames":http://wow.curse.com/downloads/wow-addons/details/ag_unitframes.aspx: target and focus.
 
 h2. User feedback
 
