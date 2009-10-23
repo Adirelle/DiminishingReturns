@@ -1,8 +1,7 @@
 local addon = DiminishingReturns
 if not addon then return end
 
--- oUF can be embedded like a library but the addon supporting it
--- shoud
+-- oUF can be embedded like a library so look for it
 local parent, global
 for index = 1, GetNumAddOns() do 
 	global = GetAddOnMetadata(index, 'X-oUF')

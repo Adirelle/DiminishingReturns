@@ -2,10 +2,10 @@ Diminishing Returns (DR) helps tracking your teammate and own diminishing return
 
 h2. Features
 
+* display running diminishing returns as icons, showing the diminishing status and remaining time,
 * uses DR category database from "DRData-1.0":http://wow.curse.com/downloads/wow-addons/details/drdata-1-0.aspx,
-* select which categories to show,
-* learning option: automatically enables categories that you trigger with your spells,
-* some layout options, available in interface options or @/dimret@.
+* select which categories to show or enable the learning option so they are detected automatically,
+* main options and icon layout options are available using @/dimret@ and in the addon tab of interface options,
 * test mode available using @/drtest@.
 * "LibDualSpec-1.0":http://wow.curse.com/downloads/wow-addons/details/libdualspec-1-0.aspx support for per-spec profiles,
 * "AddonLoader":http://wow.curse.com/downloads/wow-addons/details/addon-loader.aspx support to reduce logon time.
@@ -19,6 +19,8 @@ h2. Supported unit frames
 * "oUF":http://www.wowinterface.com/downloads/info9994-oUF.html: target and focus.
 * (untested) "PitBull Unit Frames 4.0":http://wow.curse.com/downloads/wow-addons/details/pitbull4.aspx: target and focus.
 * (untested) "ag UnitFrames":http://wow.curse.com/downloads/wow-addons/details/ag_unitframes.aspx: target and focus.
+
+The icon layout for each frame is configurable using the "frame layout" entry in interface options.
 
 h2. User feedback
 
