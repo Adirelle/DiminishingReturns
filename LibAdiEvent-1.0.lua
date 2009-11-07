@@ -4,7 +4,7 @@ LibAdiEvent-1.0 - Event handling library
 All rights reserved.
 --]]
 
-local MAJOR, MINOR = 'LibAdiEvent-1.0', 2
+local MAJOR, MINOR = 'LibAdiEvent-1.0', 3
 local lib, oldMinor = LibStub:NewLibrary(MAJOR, MINOR)
 if not lib then return end
 oldMinor = oldMinor or 0
@@ -57,11 +57,22 @@ local function CreateDispatcher(argCount)
 	return assert(loadstring(code, "safecall Dispatcher["..argCount.."]"))(next, xpcall, errorhandler)
 end
 
-local Dispatchers = setmetatable({}, {__index=function(self, argCount)
+lib.__dispatchers = setmetatable(lib.__dispatchers or {}, {__index=function(self, argCount)
 	local dispatcher = CreateDispatcher(argCount)
 	rawset(self, argCount, dispatcher)
 	return dispatcher
 end})
+
+-- Internal frame
+
+local function GetInternalFrame(noSpawn)
+	if not lib.frame then
+		if noSpawn then return end
+		lib.frame = CreateFrame("Frame", "LibAdiEvent10Frame")
+		lib.Embed(lib.frame)		
+	end
+	return lib.frame
+end
 
 -- Event dispatching
 
@@ -71,17 +82,13 @@ local handlers = lib.handlers
 function lib.TriggerEvent(self, event, ...)
 	local eventHandlers = handlers[self][event]
 	if eventHandlers then
-		Dispatchers[select('#', ...)+2](eventHandlers, self, event, ...)
+		lib.__dispatchers[select('#', ...)+2](eventHandlers, self, event, ...)
 	end
 end
 
 function lib.RegisterEvent(self, event, handler)
 	if self == lib then
-		if not lib.frame then
-			lib.frame = CreateFrame("Frame", "LibAdiEvent10Frame")
-			lib.Embed(lib.frame)
-		end
-		self = lib.frame
+		self = GetInternalFrame()
 	end
 	assert(type(event) == "string", "RegisterEvent(event, handler): event must be a string")
 	handler = handler or event
@@ -103,7 +110,7 @@ end
 
 function lib.UnregisterEvent(self, event, handler)
 	if self == lib then
-		self = lib.frame
+		self = GetInternalFrame(true)
 		if not self then return end
 	end
 	assert(type(event) == "string", "UnregisterEvent(event, handler): event must be a string")
@@ -133,6 +140,10 @@ lib.channels = lib.channels or {}
 local channels = lib.channels
 
 function lib.TriggerMessage(self, ...)
+	if self == lib then
+		self = GetInternalFrame(true)
+		if not self then return end
+	end
 	if channels[self] then
 		for listener in pairs(channels[self]) do
 			listener:TriggerEvent(...)
@@ -141,6 +152,10 @@ function lib.TriggerMessage(self, ...)
 end
 
 function lib.ClearMessageChannel(self)
+	if self == lib then
+		self = GetInternalFrame(true)
+		if not self then return end
+	end
 	local oldChannel = channels[self]
 	if oldChannel then
 		oldChannel[self] = nil
@@ -149,6 +164,9 @@ function lib.ClearMessageChannel(self)
 end
 
 function lib.SetMessageChannel(self, channelId)
+	if self == lib then
+		self = GetInternalFrame()
+	end
 	channelId = tostring(channelId)
 	local newChannel = channels[channelId]
 	if not newChannel then
