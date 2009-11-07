@@ -8,6 +8,7 @@ addon:SetMessageChannel(addon)
 local DEFAULT_CONFIG = {
 	learnCategories = true,
 	categories = { ['*'] = false },
+	resetDelay = LibStub('DRData-1.0'):GetResetTime(),
 }
 addon.DEFAULT_CONFIG = DEFAULT_CONFIG
 

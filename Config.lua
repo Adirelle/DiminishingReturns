@@ -73,12 +73,24 @@ local function CreateOptions()
 				args = categoryGroup,
 				order = 20,
 			},
+			resetDelay = {
+				name = L['Reset duration'],
+				desc=  L['This is the delay between the end of an effect and the time it can be applied at full length again. This delay is officialy 15 seconds but higher values have been recorded. You can do some tests and adjust this value accordingly. This will not affect running diminishing returns.'],
+				type = 'range',
+				min = 15,
+				max = 20,
+				step = 0.1,
+				bigStep = 1,
+				get = function() return addon.db.profile.resetDelay end,
+				set = function(_, value) addon.db.profile.resetDelay = value end,
+				order = 30,
+			},
 			testMode = {
 				name = L['Enable test mode'],
 				type = 'toggle',
 				get = function() return addon.testMode end,
 				set = function(_, value) addon:SetTestMode(value) end,
-				order = 30,
+				order = 40,
 			}
 		}
 	}

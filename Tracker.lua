@@ -28,8 +28,6 @@ for id, category in pairs(drdata:GetSpells()) do
 end
 addon.SPELLS = SPELLS
 
-local RESET_DELAY = drdata:GetResetTime()
-
 local CLO_AFFILIATION_MINE = COMBATLOG_OBJECT_AFFILIATION_MINE
 local CLO_CONTROL_PLAYER = COMBATLOG_OBJECT_CONTROL_PLAYER
 local CLO_REACTION_FRIENDLY = COMBATLOG_OBJECT_REACTION_FRIENDLY
@@ -166,9 +164,11 @@ local function ParseCLEU(self, _, timestamp, event, _, srcName, srcFlags, guid, 
 			targetDR[category] = dr
 		end
 		dr.count = dr.count + increase
-		dr.expireTime = now + RESET_DELAY
+		local duration = addon.db.profile.resetDelay
+		dr.expireTime = now + duration
 		if dr.count > 0 then
-			self:TriggerMessage('UpdateDR', guid, category, dr.texture, dr.count, RESET_DELAY, dr.expireTime)
+			assert(type(duration) == "number")
+			self:TriggerMessage('UpdateDR', guid, category, dr.texture, dr.count, duration, dr.expireTime)
 		end
 		timerFrame:Show()
 	elseif event == 'UNIT_DIED' and runningDR[guid] then
@@ -207,7 +207,7 @@ local function IterFunc(targetDR, cat)
 	local dr
 	cat, dr = next(targetDR, cat)
 	if cat then
-		return cat, dr.texture, dr.count, RESET_DELAY, dr.expireTime
+		return cat, dr.texture, dr.count, addon.db.profile.resetDelay, dr.expireTime
 	end
 end
 
