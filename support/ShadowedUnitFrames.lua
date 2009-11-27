@@ -41,7 +41,7 @@ addon:RegisterAddonSupport('ShadowedUF_Arena', function()
 	local function SetupFrame(frame)
 		return addon:SpawnFrame(frame, frame, GetDatabase)
 	end
-	addon:RegisterFrameConfig('SUF: '..L["Arena"], GetDatabase)
+	addon:RegisterFrameConfig('SUF: '..addon.L["Arena"], GetDatabase)
 	for index = 1, 5 do
 		addon:RegisterFrame('SUFHeaderarenaUnitButton'..index, SetupFrame)
 	end
