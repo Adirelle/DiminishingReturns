@@ -139,13 +139,16 @@ local function CreateOptions()
 		end,
 		set = function(info, value)
 			local key = info[#info]
-			local db, dbObject = info.handler:GetDatabase()
+			local db = info.handler:GetDatabase()
 			db[key] = value
-			if dbObject then
-				dbObject.callbacks:Fire('OnConfigChanged', key, value)
-			end
+			addon:TriggerMessage("OnFrameConfigChanged", key, value)
 		end,
 		args = {
+			enabled = {
+				name = L['Enabled '],
+				type = 'toggle',
+				order = 5,
+			},
 			iconSize = {
 				name = L['Icon size'],
 				type = 'range',

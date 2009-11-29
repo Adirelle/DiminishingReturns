@@ -237,31 +237,31 @@ local function UpdateUnit(self, unit)
 	UpdateGUID(self)
 end
 
-local function Enable(self)
-	UpdateUnit(self)
-end
-
-local function Disable(self)
-	self.unit = nil
-	UnregisterGUIDEvents(self)
-	self:Hide()
+local function UpdateStatus(self)
+	local enabled = (addon.active or self.testMode) and self:GetDatabase().enabled
+	if enabled then
+		if self.enabled then
+			RefreshAllIcons(self)
+		else
+			self.enabled = true
+			UpdateUnit(self)
+		end
+	elseif self.enabled then
+		self.unit, self.guid, self.enabled = nil, nil, false
+		UnregisterGUIDEvents(self)
+		self:Hide()
+	end
 end
 
 local function SetTestMode(self, event, value)
 	self.testMode = value
-	RefreshAllIcons(self)
+	UpdateStatus(self)
 end
 
-local function OnConfigChanged(self, event, path)
-	if path:match('^categories,') then
-		RefreshAllIcons(self)
-	end
-end
-
-local function OnLayoutConfigChanged(self, ...)
+local function OnFrameConfigChanged(self)
 	local db = self:GetDatabase()
-	self:ClearAllPoints()
 	local anchorPoint, iconSize, direction, spacing = db.anchorPoint, db.iconSize, db.direction, db.spacing
+	self:ClearAllPoints()
 	self:SetPoint(anchorPoint, self.anchor, db.relPoint, db.xOffset, db.yOffset)		
 	if self.anchorPoint ~= anchorPoint or self.iconSize ~= iconSize or self.direction ~= direction or self.spacing ~= spacing then
 		self.anchorPoint = anchorPoint
@@ -273,8 +273,8 @@ local function OnLayoutConfigChanged(self, ...)
 			icon:SetWidth(iconSize)
 			icon:SetHeight(iconSize)
 		end
-		RefreshAllIcons(self)
 	end
+	UpdateStatus(self)
 end
 
 local lae = LibStub('LibAdiEvent-1.0')
@@ -288,41 +288,30 @@ function addon:SpawnFrame(anchor, secure, GetDatabase) -- iconSize, direction, s
 	frame.iconHeap = {}
 	
 	frame.GetDatabase = GetDatabase
-	frame.OnLayoutConfigChanged = OnLayoutConfigChanged
-	
-	local _, dbObject = frame:GetDatabase()
-	if dbObject then
-		dbObject.RegisterCallback(frame, 'OnProfileChanged', 'OnLayoutConfigChanged')
-		dbObject.RegisterCallback(frame, 'OnProfileCopied', 'OnLayoutConfigChanged')
-		dbObject.RegisterCallback(frame, 'OnProfileReset', 'OnLayoutConfigChanged')
-		dbObject.RegisterCallback(frame, 'OnConfigChanged', 'OnLayoutConfigChanged')
-	end
 	
 	frame.anchor = anchor
 	frame:SetWidth(1)
 	frame:SetHeight(1)
-	frame:OnLayoutConfigChanged()
 
 	lae.Embed(frame)
 	frame:SetMessageChannel(addon)
 
 	frame:RegisterEvent('UpdateDR', UpdateDR)
 	frame:RegisterEvent('RemoveDR', RemoveDR)
-	frame:RegisterEvent('EnableDR', Enable)
-	frame:RegisterEvent('DisableDR', Disable)
+	frame:RegisterEvent('EnableDR', UpdateStatus)
+	frame:RegisterEvent('DisableDR', UpdateStatus)
 	frame:RegisterEvent('SetTestMode', SetTestMode)
-	frame:RegisterEvent('OnConfigChanged', OnConfigChanged)
-	frame:RegisterEvent('OnProfileChanged', RefreshAllIcons)
+	frame:RegisterEvent('OnConfigChanged', UpdateStatus)
+	frame:RegisterEvent('OnFrameConfigChanged', OnFrameConfigChanged)
+	frame:RegisterEvent('OnProfileChanged', OnFrameConfigChanged)
 	
 	secure:HookScript('OnAttributeChanged', function(self, name, unit)
-		if name == "unit" and addon.active then
+		if name == "unit" and addon.active and frame.enabled then
 			UpdateUnit(frame, unit)
 		end
 	end)
 
-	if addon.active then
-		Enable(frame)
-	end
+	OnFrameConfigChanged(frame)
 
 	return frame
 end
