@@ -95,29 +95,36 @@ local function CreateOptions()
 		}
 	}
 	
+	local alOption = {
+			name = L['Postponed loading'],
+			desc = L["Use this option to postpone loading. Once loaded, DiminishingReturns is always active outside of PvE instances.\nThis option requires AddonLoader."],
+			type = 'select',
+			order = 40,
+	}
+	
 	if AddonLoader and AddonLoaderSV and AddonLoaderSV.overrides then
 		local DEFAULT_VALUE = "DEFAULT"
 		local loadOnSlash = "X-LoadOn-Slash: /drtest\n"
 		local addonName = 'DiminishingReturns'
-		options.args.addonLoader = {
-			name = L['DiminishingReturns loading condition'],
-			desc = L['Thanks to AddonLoader, DiminishingReturns loading can be postponed until you really need it.'],
-			type = 'select',
-			get = function() 
-				return AddonLoaderSV.overrides[addonName] or DEFAULT_VALUE 
-			end,
-			set = function(_, value)
-				AddonLoaderSV.overrides[addonName] = (value ~= DEFAULT_VALUE) and value or nil
-			end,
-			values = {
-				[DEFAULT_VALUE] = L['Always'],
-				["X-LoadOn-PvPFlagged: yes\n"..loadOnSlash] = L['Being PvP flagged'],
-				["X-LoadOn-Arena: yes\nX-LoadOn-Battleground: yes\n"..loadOnSlash] = L['Entering battleground or arena'],
-				["X-LoadOn-Arena: yes\n"..loadOnSlash] = L['Entering arena only'],
-			},
-			order = 40,
+		alOption.get = function() 
+			return AddonLoaderSV.overrides[addonName] or DEFAULT_VALUE 
+		end
+		alOption.set = function(_, value)
+			AddonLoaderSV.overrides[addonName] = (value ~= DEFAULT_VALUE) and value or nil
+		end
+		alOption.values = {
+			[DEFAULT_VALUE] = L['Always'],
+			["X-LoadOn-PvPFlagged: yes\n"..loadOnSlash] = L['Being PvP flagged'],
+			["X-LoadOn-Arena: yes\nX-LoadOn-Battleground: yes\n"..loadOnSlash] = L['Entering battleground or arena'],
+			["X-LoadOn-Arena: yes\n"..loadOnSlash] = L['Entering arena only'],
 		}
+	else
+		alOption.disabled = true
+		alOption.get = function() return "always" end
+		alOption.values = { always = L['Always'] }
 	end
+	
+	options.args.addonLoader = alOption
 	
 	local pointValues = {
 		TOPLEFT = L['Top left'],
