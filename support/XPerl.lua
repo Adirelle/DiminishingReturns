@@ -31,7 +31,10 @@ addon:RegisterAddonSupport('XPerl', function()
 		end)
 	end
 
-	if not RegisterFrame('target') or not RegisterFrame('focus') then
+	local gotTarget = RegisterFrame('target') 
+	local gotFocus = RegisterFrame('focus')
+
+	if not gotTarget or not gotFocus then
 		hooksecurefunc('XPerl_SecureUnitButton_OnLoad', addon.CheckFrame)
 	end
 	
