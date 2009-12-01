@@ -19,6 +19,7 @@ h2. Supported unit frames
 * "oUF":http://www.wowinterface.com/downloads/info9994-oUF.html: target and focus.
 * (untested) "PitBull Unit Frames 4.0":http://wow.curse.com/downloads/wow-addons/details/pitbull4.aspx: target and focus.
 * (untested) "ag UnitFrames":http://wow.curse.com/downloads/wow-addons/details/ag_unitframes.aspx: target and focus.
+* (untested) "Stellar UF":http://www.wowinterface.com/downloads/fileinfo.php?id=11182: target and focus.
 
 The icon layout for each frame is configurable using the "frame layout" entry in interface options.
 
