@@ -75,7 +75,7 @@ local function CreateOptions()
 			},
 			resetDelay = {
 				name = L['Reset duration'],
-				desc=  L['This is the delay between the end of an effect and the time it can be applied at full length again. This delay is officialy 15 seconds but higher values have been recorded. You can do some tests and adjust this value accordingly. This will not affect running diminishing returns.'],
+				desc = L['This is the delay between the end of an effect and the time it can be applied at full length again. This delay is officialy 15 seconds but higher values have been recorded. You can do some tests and adjust this value accordingly. This will not affect running diminishing returns.'],
 				type = 'range',
 				min = 15,
 				max = 20,
@@ -85,12 +85,23 @@ local function CreateOptions()
 				set = function(_, value) addon.db.profile.resetDelay = value end,
 				order = 30,
 			},
+			bigTimer = {
+				name = L['Big timer'],
+				desc = L['Check this box to swap diminishing and timer texts.'],
+				type = 'toggle',
+				get = function() return addon.db.profile.bigTimer end,
+				set = function(_, value) 
+					addon.db.profile.bigTimer = value 
+					addon:TriggerMessage('OnConfigChanged', 'bigTimer', value)
+				end,
+				order = 40,
+			},
 			testMode = {
 				name = L['Enable test mode'],
 				type = 'toggle',
 				get = function() return addon.testMode end,
 				set = function(_, value) addon:SetTestMode(value) end,
-				order = 40,
+				order = 50,
 			}
 		}
 	}
@@ -99,7 +110,7 @@ local function CreateOptions()
 			name = L['Postponed loading'],
 			desc = L["Use this option to postpone loading. Once loaded, DiminishingReturns is always active outside of PvE instances.\nThis option requires AddonLoader."],
 			type = 'select',
-			order = 40,
+			order = 60,
 	}
 	
 	if AddonLoader and AddonLoaderSV and AddonLoaderSV.overrides then

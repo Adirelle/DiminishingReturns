@@ -22,15 +22,15 @@ local borderBackdrop = {
 	insets = {left = 1, right = 1, top = 1, bottom = 1},
 }
 
-local function FitTextSize(text, baseSize, width, height)
+local function FitTextSize(text, width, height)
 	local name, _, flags = text:GetFont()
-	text:SetFont(name, baseSize, flags)
-	local ratio = text:GetStringWidth() / width
+	text:SetFont(name, text.fontSize, flags)
+	local ratio = text:GetStringWidth() / (width-2)
 	if height then
-		ratio = math.max(ratio, text:GetStringHeight() / height)
+		ratio = math.max(ratio, text:GetStringHeight() / (height-2))
 	end
 	if ratio > 1 then
-		text:SetFont(name, baseSize / ratio, flags)
+		text:SetFont(name, text.fontSize / ratio, flags)
 	end
 end
 
@@ -41,15 +41,18 @@ local function UpdateTimer(self)
 	if not timer.expireTime then return end	
 	local timeLeft = timer.expireTime - GetTime()
 	if timeLeft <= 0 then
+		timer.expireTimer, timer.timeLeft = nil, nil
 		return timer:Hide()
+	elseif timeLeft < 3 and addon.db.profile.bigTimer then
+		timeLeft = strformat("%.1f", ceil(timeLeft * 10) / 10)
+	else
+		timeLeft = tostring(ceil(timeLeft))
 	end
-	timeLeft = ceil(timeLeft)
-	if not timer.timeLeft or timeLeft ~= timer.timeLeft then
-		timer:SetText(tostring(timeLeft))
-		FitTextSize(timer, 10, self:GetWidth())
+	if timeLeft ~= timer.timeLeft then
 		timer.timeLeft = timeLeft
-		timer:Show()
-	end 
+		timer:SetText(tostring(timeLeft))
+		FitTextSize(timer, self:GetWidth())
+	end
 end
 
 local function SpawnIcon(self)
@@ -82,21 +85,23 @@ local function SpawnIcon(self)
 	textFrame:SetAllPoints(icon)
 	textFrame:SetFrameLevel(cooldown:GetFrameLevel()+2)
 	
-	local text = textFrame:CreateFontString(nil, "OVERLAY")
-	text:SetFont(FONT_NAME, FONT_SIZE, FONT_FLAGS)
-	text:SetTextColor(1, 1, 1, 1)	
-	text:SetAllPoints(icon)
-	text:SetJustifyH("CENTER")
-	text:SetJustifyV("MIDDLE")
-	icon.text = text
+	local bigText = textFrame:CreateFontString(nil, "OVERLAY")
+	bigText.fontSize = FONT_SIZE
+	bigText:SetFont(FONT_NAME, bigText.fontSize, FONT_FLAGS)
+	bigText:SetTextColor(1, 1, 1, 1)	
+	bigText:SetAllPoints(icon)
+	bigText:SetJustifyH("CENTER")
+	bigText:SetJustifyV("MIDDLE")
+	icon.bigText = bigText
 	
-	local timer = textFrame:CreateFontString(nil, "OVERLAY")
-	timer:SetFont(FONT_NAME, 10, FONT_FLAGS)
-	timer:SetTextColor(1, 1, 1, 1)	
-	timer:SetAllPoints(icon)
-	timer:SetJustifyH("CENTER")
-	timer:SetJustifyV("BOTTOM")
-	icon.timer = timer
+	local smallText = textFrame:CreateFontString(nil, "OVERLAY")
+	smallText.fontSize = 10
+	smallText:SetFont(FONT_NAME, smallText.fontSize, FONT_FLAGS)
+	smallText:SetTextColor(1, 1, 1, 1)	
+	smallText:SetAllPoints(icon)
+	smallText:SetJustifyH("CENTER")
+	smallText:SetJustifyV("BOTTOM")
+	icon.smallText = smallText
 	
 	icon:SetScript('OnUpdate', UpdateTimer)
 	
@@ -137,15 +142,23 @@ function UpdateIcon(icon, texture, count, duration, expireTime)
 	end
 	icon.texture:SetTexture(texture)
 	icon.cooldown:SetCooldown(expireTime-duration, duration)
+	icon.bigText:SetTextColor(r, g, b)
 	icon.border:SetBackdropBorderColor(r, g, b, 1)
-
-	local text = icon.text
-	icon.text:SetText(txt)
-	icon.text:SetTextColor(r, g, b)
-	FitTextSize(icon.text, FONT_SIZE, icon:GetWidth())
 	
-	local timer = icon.timer
-	timer.expireTime, timer.timeLeft = expireTime
+	local timer
+	if addon.db.profile.bigTimer then
+		timer = icon.bigText
+		icon.smallText:Hide()
+	else
+		timer = icon.smallText		
+		local text = icon.bigText
+		text:SetText(txt)
+		FitTextSize(text, icon:GetWidth())
+		text:Show()	
+	end	
+	
+	icon.timer, timer.expireTime, timer.timeLeft = timer, expireTime
+	timer:Show()
 	UpdateTimer(icon)
 end
 
