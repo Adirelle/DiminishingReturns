@@ -271,11 +271,11 @@ local function SetTestMode(self, event, value)
 	UpdateStatus(self)
 end
 
-local function OnFrameConfigChanged(self)
+local function OnFrameConfigChanged(self, event, key)
 	local db = self:GetDatabase()
 	local anchorPoint, iconSize, direction, spacing = db.anchorPoint, db.iconSize, db.direction, db.spacing
 	self:ClearAllPoints()
-	self:SetPoint(anchorPoint, self.anchor, db.relPoint, db.xOffset, db.yOffset)		
+	self:SetPoint(anchorPoint, db.screenAnchor and _G.UIParent or self.anchor, db.relPoint, db.xOffset, db.yOffset)		
 	if self.anchorPoint ~= anchorPoint or self.iconSize ~= iconSize or self.direction ~= direction or self.spacing ~= spacing then
 		self.anchorPoint = anchorPoint
 		self.iconSize = iconSize

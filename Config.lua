@@ -163,12 +163,14 @@ local function CreateOptions()
 		end,
 		args = {
 			enabled = {
-				name = L['Enabled '],
+				name = L['Enabled'],
+				desc = L['Check this box to attach diminishing return icons to this/these frame/s.'],
 				type = 'toggle',
 				order = 5,
 			},
 			iconSize = {
 				name = L['Icon size'],
+				desc = L['Use this to set the icon size, in pixels.'],
 				type = 'range',
 				min = 8,
 				max = 64,
@@ -177,6 +179,7 @@ local function CreateOptions()
 			},
 			direction = {
 				name = L['Direction'],
+				desc = L['Select in which direction the icons are layed out.'],
 				type = 'select',
 				values = {
 					LEFT = L['Left'],
@@ -188,26 +191,36 @@ local function CreateOptions()
 			},
 			spacing = {
 				name = L['Icon spacing'],
+				desc = L['Use this to set the size of the gap between icons, in pixels.'],
 				type = 'range',
 				min = 0,
 				max = 20,				
 				step = 1,
 				order = 30,
 			},
+			screenAnchor = {
+				name = L['Anchor to screen'],
+				desc = L['Check this to anchor the icon bar to the screen instead of the unit frame. This allows you to place it whereever you want.'],
+				type = 'toggle',				
+				order = 35,
+			},
 			anchorPoint = {
 				name = L['Icon anchor'],
+				desc = L['Select which side of the icon bar is attached to the unit frame.'],
 				type = 'select',
 				values = pointValues,
 				order = 40,
 			},
 			relPoint = {
 				name = L['Frame side'],
+				desc = L['Select to which side of the unit frame the icon bar is attached.'],
 				type = 'select',
 				values = pointValues,
 				order = 50,
 			},
 			xOffset = {
 				name = L['X offset'],
+				desc = L['Use this to set a vertical offset between the icon anchor and the unit frame attach point, in pixels.'],
 				type = 'range',
 				min = -500,
 				max = 500,
@@ -217,6 +230,7 @@ local function CreateOptions()
 			},
 			yOffset = {
 				name = L['Y offset'],
+				desc = L['Use this to set an horizontal offset between the icon anchor and the unit frame attach point, in pixels.'],
 				type = 'range',
 				min = -500,
 				max = 500,
