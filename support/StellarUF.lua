@@ -3,7 +3,7 @@ if not addon then return end
 
 local	db
 	
-addon:RegisterAddonSupport('StellarUF', function()
+addon:RegisterAddonSupport('Stuf', function()
 
 	local defaults = {
 		enabled = true,
