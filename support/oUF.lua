@@ -1,22 +1,8 @@
 local addon = DiminishingReturns
 if not addon then return end
 
--- oUF can be embedded like a library so look for it
-local parent, global
-for index = 1, GetNumAddOns() do 
-	global = GetAddOnMetadata(index, 'X-oUF')
-	if global then
-		parent = GetAddOnInfo(index)
-		break
-	end
-end
-
--- No addon embeds oUF
-if not global then return end
-
-addon:RegisterAddonSupport(parent, function()
-	local oUF = _G[global]
-
+-- This allow oUF addons to add support themselves
+function addon:DeclareOUF(parent, oUF)
 	local defaults = {
 		enabled = true,
 		iconSize = 24,
@@ -28,7 +14,7 @@ addon:RegisterAddonSupport(parent, function()
 		yOffset = -4,
 	}
 
-	db = addon.db:RegisterNamespace('oUF', {profile={
+	db = addon.db:RegisterNamespace(parent, {profile={
 		target = defaults,
 		focus = defaults,
 	}})
@@ -43,7 +29,7 @@ addon:RegisterAddonSupport(parent, function()
 		if not GetDatabase then
 			-- Avoid creating several time the same config
 			GetDatabase = function() return db.profile[unit], db end
-			addon:RegisterFrameConfig('oUF: '..addon.L[unit], GetDatabase)
+			addon:RegisterFrameConfig(parent..': '..addon.L[unit], GetDatabase)
 			getDatabaseFuncs[unit] = GetDatabase
 		end
 		return addon:SpawnFrame(frame, frame, GetDatabase)
@@ -56,6 +42,19 @@ addon:RegisterAddonSupport(parent, function()
 	
 	-- Register check for future frames
 	oUF:RegisterInitCallback(CheckFrame)
+end
 
-end)
+-- Scan for declared oUF
+for index = 1, GetNumAddOns() do 
+	local global = GetAddOnMetadata(index, 'X-oUF')
+	if global then
+		local parent = GetAddOnInfo(index)
+		addon:RegisterAddonSupport(parent, function()
+			local oUF = _G[global]
+			if oUF then
+				addon:DeclareOUF(parent, oUF)
+			end
+		end)
+	end
+end
 
