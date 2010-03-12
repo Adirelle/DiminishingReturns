@@ -222,8 +222,14 @@ function addon:IterateDR(guid)
 end
 
 function addon:CheckActivation()
-	local instanceType = not addon.db.profile.pveMode and select(2, IsInInstance())
-	if instanceType == "raid" or instanceType == "party" then
+	local activate
+	if addon.db.profile.pveMode then
+		activate = not IsResting()
+	else
+		local _, instanceType = IsInInstance()
+		activate = (instanceType ~= "raid" and instanceType ~= "party") and UnitIsPVP('player')
+	end
+	if activate then
 		addon:UnregisterEvent('COMBAT_LOG_EVENT_UNFILTERED', ParseCLEU)
 		addon:UnregisterEvent('PLAYER_LEAVING_WORLD', WipeAll)
 		WipeAll()
@@ -238,9 +244,11 @@ function addon:CheckActivation()
 end
 
 addon:RegisterEvent('PLAYER_ENTERING_WORLD', 'CheckActivation')
+addon:RegisterEvent('PLAYER_UPDATE_RESTING', 'CheckActivation')
+addon:RegisterEvent('UNIT_FACTION', function(self, event, unit)
+	if unit == "player" then return addon:CheckActivation() end
+end)
 addon:RegisterEvent('OnConfigChanged', function(self, event, name)
-	if name == "pveMode" then
-		return addon:CheckActivation()
-	end
+	if name == "pveMode" then return addon:CheckActivation() end
 end)
 
