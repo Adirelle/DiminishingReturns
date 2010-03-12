@@ -141,7 +141,7 @@ local function RemoveAllDR(guid)
 end
 
 local function ParseCLEU(self, _, timestamp, event, _, srcName, srcFlags, guid, name, flags, spellId, spell)	
-	if band(flags, CLO_TYPE_PET_OR_PLAYER) == 0 or band(flags, CLO_CONTROL_PLAYER) == 0 or band(flags, CLO_REACTION_FRIENDLY) ~= 0 then
+	if (not addon.db.profile.pveMode and (band(flags, CLO_TYPE_PET_OR_PLAYER) == 0 or band(flags, CLO_CONTROL_PLAYER) == 0)) or band(flags, CLO_REACTION_FRIENDLY) ~= 0 then
 		return
 	end
 	local increase = CL_EVENTS[event]
@@ -222,7 +222,7 @@ function addon:IterateDR(guid)
 end
 
 local function CheckActivation()	
-	local _, instanceType = IsInInstance()
+	local instanceType = not addon.db.profile.pveMode and select(2, IsInInstance())
 	if instanceType == "raid" or instanceType == "party" then
 		addon:UnregisterEvent('COMBAT_LOG_EVENT_UNFILTERED', ParseCLEU)
 		addon:UnregisterEvent('PLAYER_LEAVING_WORLD', WipeAll)
@@ -238,6 +238,8 @@ local function CheckActivation()
 end
 
 addon:RegisterEvent('PLAYER_ENTERING_WORLD', CheckActivation)
+addon:RegisterEvent('OnConfigChanged', function(self, event, name) if name == "pveMode" then return CheckActivation() end end)
+
 if IsLoggedIn() then
 	CheckActivation()
 end

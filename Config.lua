@@ -96,6 +96,17 @@ local function CreateOptions()
 				end,
 				order = 40,
 			},
+			pveMode = {
+				name = L['PvE mode'],
+				desc = L['Check this box to display diminishing returns of mobs. Please remember that dimishing returns usually do not apply to mobs.'],
+				type = 'toggle',
+				get = function() return addon.db.profile.pveMode end,
+				set = function(_, value) 
+					addon.db.profile.pveMode = value 
+					addon:TriggerMessage('OnConfigChanged', 'pveMode', value)				
+				end,
+				order = 45,
+			},
 			testMode = {
 				name = L['Enable test mode'],
 				type = 'toggle',
