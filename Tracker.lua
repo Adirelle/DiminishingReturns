@@ -1,10 +1,11 @@
 local addon = DiminishingReturns
 if not addon then return end
 
-local drdata = LibStub('DRData-1.0')
+local DRData = LibStub('DRData-1.0')
+local SharedMedia = LibStub('LibSharedMedia-3.0')
 local band = bit.band
 
-local CATEGORIES = drdata:GetCategories()
+local CATEGORIES = DRData:GetCategories()
 addon.CATEGORIES = CATEGORIES
 
 local CL_EVENTS = {
@@ -14,14 +15,14 @@ local CL_EVENTS = {
 }
 
 local SPELLS = {}
-for id, category in pairs(drdata:GetSpells()) do
+for id, category in pairs(DRData:GetSpells()) do
 	if CATEGORIES[category] then
 		local name = GetSpellInfo(id)
 		if name then
 			SPELLS[name] = category
 		--@debug@
 		else
-			print('Unknown spell', id, 'for', category)
+			addon:Debug('Unknown spell', id, 'for', category)
 		--@end-debug@
 		end
 	end
@@ -193,13 +194,24 @@ timerFrame:SetScript('OnUpdate', function(self, elapsed)
 		return
 	end
 	local now = GetTime()
+	local watched = addon.db.profile.categories
+	local hasReset = false
 	timer = 0.1
 	for guid, drs in pairs(runningDR) do
 		for cat, dr in pairs(drs) do
 			if now >= dr.expireTime then
+				if dr.count > 0 and watched[cat] then
+					hasReset = true
+				end
 				RemoveDR(guid, cat)
 			end
 		end
+	end
+	if hasReset and addon.db.profile.soundAtReset then
+		local key = addon.db.profile.resetSound
+		local media = SharedMedia:Fetch('sound', media)
+		addon:Debug('PlaySound', key, media)
+		PlaySound(media)
 	end
 end)
 
@@ -221,7 +233,7 @@ function addon:IterateDR(guid)
 	end
 end
 
-function addon:CheckActivation()
+function addon:CheckActivation(event)
 	local activate
 	if addon.db.profile.pveMode then
 		activate = not IsResting()
@@ -230,25 +242,25 @@ function addon:CheckActivation()
 		activate = (instanceType ~= "raid" and instanceType ~= "party") and UnitIsPVP('player')
 	end
 	if activate then
+		addon:RegisterEvent('COMBAT_LOG_EVENT_UNFILTERED', ParseCLEU)
+		addon:RegisterEvent('PLAYER_LEAVING_WORLD', WipeAll)
+		addon.active = true
+		addon:TriggerMessage('EnableDR')
+	else
 		addon:UnregisterEvent('COMBAT_LOG_EVENT_UNFILTERED', ParseCLEU)
 		addon:UnregisterEvent('PLAYER_LEAVING_WORLD', WipeAll)
 		WipeAll()
 		addon.active = false
 		addon:TriggerMessage('DisableDR')
-	else
-		addon:RegisterEvent('COMBAT_LOG_EVENT_UNFILTERED', ParseCLEU)
-		addon:RegisterEvent('PLAYER_LEAVING_WORLD', WipeAll)
-		addon.active = true
-		addon:TriggerMessage('EnableDR')
 	end
 end
 
 addon:RegisterEvent('PLAYER_ENTERING_WORLD', 'CheckActivation')
 addon:RegisterEvent('PLAYER_UPDATE_RESTING', 'CheckActivation')
 addon:RegisterEvent('UNIT_FACTION', function(self, event, unit)
-	if unit == "player" then return addon:CheckActivation() end
+	if unit == "player" then return addon:CheckActivation(event, unit) end
 end)
 addon:RegisterEvent('OnConfigChanged', function(self, event, name)
-	if name == "pveMode" then return addon:CheckActivation() end
+	if name == "pveMode" then return addon:CheckActivation(event, name) end
 end)
 

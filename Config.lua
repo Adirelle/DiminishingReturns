@@ -13,6 +13,7 @@ if not addon then return end
 -----------------------------------------------------------------------------
 
 local L = addon.L
+local SharedMedia = LibStub('LibSharedMedia-3.0')
 
 local options, frameOptions
 
@@ -59,8 +60,8 @@ local function CreateOptions()
 				type = 'toggle',
 				width = 'double',
 				get = function() return addon.db.profile.learnCategories end,
-				set = function(_, value) 
-					addon.db.profile.learnCategories = value 
+				set = function(_, value)
+					addon.db.profile.learnCategories = value
 					addon:TriggerMessage('OnConfigChanged', 'learnCategories', value)
 				end,
 				order = 10,
@@ -90,30 +91,56 @@ local function CreateOptions()
 				desc = L['Check this box to swap diminishing and timer texts.'],
 				type = 'toggle',
 				get = function() return addon.db.profile.bigTimer end,
-				set = function(_, value) 
-					addon.db.profile.bigTimer = value 
+				set = function(_, value)
+					addon.db.profile.bigTimer = value
 					addon:TriggerMessage('OnConfigChanged', 'bigTimer', value)
 				end,
 				order = 40,
 			},
 			pveMode = {
 				name = L['PvE mode'],
-				desc = L['Check this box to display diminishing returns of mobs. Please remember that dimishing returns usually do not apply to mobs.'],
+				desc = L['Check this box to display diminishing returns on mobs. Please remember that diminishing returns usually do not apply to mobs.'],
 				type = 'toggle',
 				get = function() return addon.db.profile.pveMode end,
-				set = function(_, value) 
-					addon.db.profile.pveMode = value 
+				set = function(_, value)
+					addon.db.profile.pveMode = value
 					addon:TriggerMessage('OnConfigChanged', 'pveMode', value)				
 				end,
-				order = 45,
+				order = 15,
 			},
 			testMode = {
 				name = L['Enable test mode'],
+				desc = L['Check this to display bogus icons on every supported frames.'],
 				type = 'toggle',
 				get = function() return addon.testMode end,
 				set = function(_, value) addon:SetTestMode(value) end,
-				order = 50,
-			}
+				order = 17,
+			},
+			soundAtReset = {
+				name = L['Play sound at reset'],
+				desc = L['Check this to play a sound when the diminishing return of a watched category is reset on any target.'],
+				type = 'toggle',
+				get = function() return addon.db.profile.soundAtReset end,
+				set = function(_, value)
+					addon.db.profile.soundAtReset = value
+					addon:TriggerMessage('OnConfigChanged', 'soundAtReset', value)				
+				end,
+				order = 60,
+			},
+			resetSound = {
+				name = L['"Reset" sound'],
+				desc = L['Select the sound to play at reset. See SharedMedia documentation to know how to add new sounds.'],
+				type = 'select',
+				dialogControl = 'LSM30_Sound',
+				values = SharedMedia:HashTable('sound'),
+				get = function() return addon.db.profile.resetSound end,
+				set = function(_, value)
+					addon.db.profile.resetSound = value
+					addon:TriggerMessage('OnConfigChanged', 'resetSound', value)				
+				end,
+				disabled = function() return not addon.db.profile.soundAtReset end,
+				order = 65,
+			},
 		}
 	}
 	
@@ -128,8 +155,8 @@ local function CreateOptions()
 		local DEFAULT_VALUE = "DEFAULT"
 		local loadOnSlash = "X-LoadOn-Slash: /drtest\n"
 		local addonName = 'DiminishingReturns'
-		alOption.get = function() 
-			return AddonLoaderSV.overrides[addonName] or DEFAULT_VALUE 
+		alOption.get = function()
+			return AddonLoaderSV.overrides[addonName] or DEFAULT_VALUE
 		end
 		alOption.set = function(_, value)
 			AddonLoaderSV.overrides[addonName] = (value ~= DEFAULT_VALUE) and value or nil

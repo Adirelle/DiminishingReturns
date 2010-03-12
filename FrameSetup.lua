@@ -49,7 +49,11 @@ local function CheckAddonSupport(_, _, loaded)
 		 	CheckAddonSupport = nil
 		 	addonSupportCallbacks = nil
 		end
-		callback()
+		addon:Debug('Loading', name, 'support')
+		local success, msg = pcall(callback)
+		if not success then
+			geterrorhandler()(msg)
+		end
 	end
 end
 
@@ -65,7 +69,11 @@ function addon:LoadAddonSupport()
 	for name, callback in pairs(addonSupportCallbacks) do
 		if IsAddOnLoaded(name) or name == "framexml" then
 			addonSupportCallbacks[name] = nil
-			callback()
+			addon:Debug('Loading', name, 'support')
+			local success, msg = pcall(callback)
+			if not success then
+				geterrorhandler()(msg)
+			end
 		end
 	end
 	if next(addonSupportCallbacks) then
