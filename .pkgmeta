@@ -22,6 +22,7 @@ externals:
   libs/DRData-1.0:
     url: git://git.wowace.com/wow/drdata-1-0/mainline.git
     tag: latest
+  libs/LibAdiEvent-1.0: git://github.com/Adirelle/LibAdiEvent-1.0.git
 
 move-folders:
   DiminishingReturns/DiminishingReturns_Config: DiminishingReturns_Config

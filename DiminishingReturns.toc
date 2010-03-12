@@ -19,7 +19,9 @@ libs\AceDB-3.0\AceDB-3.0.xml
 libs\DRData-1.0\DRData-1.0.lua
 #@end-no-lib-strip@
 
-LibAdiEvent-1.0.lua
+# Not installable by the CC
+libs\LibAdiEvent-1.0\LibAdiEvent-1.0.lua
+
 DiminishingReturns.lua
 Localization.lua
 Tracker.lua
