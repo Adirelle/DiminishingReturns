@@ -10,6 +10,7 @@ local DEFAULT_CONFIG = {
 	categories = { ['*'] = false },
 	resetDelay = LibStub('DRData-1.0'):GetResetTime(),
 	bigTimer = false,
+	pveMode = false,
 }
 addon.DEFAULT_CONFIG = DEFAULT_CONFIG
 
@@ -36,6 +37,10 @@ local function OnLoad(self, event, name, ...)
 	end
 
 	addon:LoadAddonSupport()
+
+	if IsLoggedIn() then
+		self:CheckActivation()
+	end
 end
 addon:RegisterEvent('ADDON_LOADED', OnLoad)
 
