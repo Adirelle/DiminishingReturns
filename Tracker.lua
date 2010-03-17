@@ -142,39 +142,43 @@ local function RemoveAllDR(guid)
 end
 
 local function ParseCLEU(self, _, timestamp, event, _, srcName, srcFlags, guid, name, flags, spellId, spell)	
-	if (not addon.db.profile.pveMode and (band(flags, CLO_TYPE_PET_OR_PLAYER) == 0 or band(flags, CLO_CONTROL_PLAYER) == 0)) or band(flags, CLO_REACTION_FRIENDLY) ~= 0 then
-		return
+	-- Always process UNIT_DIED if we have information about the unit
+	if event == 'UNIT_DIED' and runningDR[guid] then return RemoveAllDR(guid) end
+	-- Ignore targetted friends
+	if band(flags, CLO_REACTION_FRIENDLY) ~= 0 then return end
+	-- Ignore any spell or event we are not interested with
+	local increase, category = CL_EVENTS[event], SPELLS[spell]
+	if not increase or not category then return end
+	-- Ignore mobs for non-PvE categories
+	local isPlayer = band(flags, CLO_TYPE_PET_OR_PLAYER) ~= 0 or band(flags, CLO_CONTROL_PLAYER) ~= 0
+	local prefs = addon.db.profile
+	if not isPlayer and (not addon.db.profile.pveMode or not DRData:IsPVE(category)) then return end
+	-- Category auto-learning
+	if prefs.learnCategories and band(srcFlags, CLO_AFFILIATION_MINE) ~= 0 and not prefs.categories[category] then
+		prefs.categories[category] = true
 	end
-	local increase = CL_EVENTS[event]
-	local category = SPELLS[spell]
-	if increase and category then
-		if addon.db.profile.learnCategories and band(srcFlags, CLO_AFFILIATION_MINE) ~= 0 and not addon.db.profile.categories[category] then
-			addon.db.profile.categories[category] = true
-		end
-		local targetDR = runningDR[guid]
-		if not targetDR then
-			targetDR = new()
-			runningDR[guid] = targetDR
-		end
-		local dr = targetDR[category]
-		local now = GetTime()
-		if not dr then
-			dr = new()
-			dr.texture = ICONS[category]
-			dr.count = 0
-			targetDR[category] = dr
-		end
-		dr.count = dr.count + increase
-		local duration = addon.db.profile.resetDelay
-		dr.expireTime = now + duration
-		if dr.count > 0 then
-			assert(type(duration) == "number")
-			self:TriggerMessage('UpdateDR', guid, category, dr.texture, dr.count, duration, dr.expireTime)
-		end
-		timerFrame:Show()
-	elseif event == 'UNIT_DIED' and runningDR[guid] then
-		RemoveAllDR(guid)
-	end	
+	-- Now do the job
+	local targetDR = runningDR[guid]
+	if not targetDR then
+		targetDR = new()
+		runningDR[guid] = targetDR
+	end
+	local dr = targetDR[category]
+	local now = GetTime()
+	if not dr then
+		dr = new()
+		dr.texture = ICONS[category]
+		dr.count = 0
+		targetDR[category] = dr
+	end
+	dr.count = dr.count + increase
+	local duration = prefs.resetDelay
+	dr.expireTime = now + duration
+	if dr.count > 0 then
+		assert(type(duration) == "number")
+		self:TriggerMessage('UpdateDR', guid, category, dr.texture, dr.count, duration, dr.expireTime)
+	end
+	timerFrame:Show()
 end
 
 local function WipeAll(self)
