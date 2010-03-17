@@ -211,43 +211,10 @@ local function RefreshAllIcons(self)
 end
 
 local function UpdateGUID(self)
-	local guid = self.unit and UnitGUID(self.unit)
+	local guid = self:GetGUID()
 	if guid == self.guid then return end
 	self.guid = guid
 	RefreshAllIcons(self)
-end
-
-local guidCheckEvents = {
-	PLAYER_TARGET_CHANGED = '^target$',
-	PLAYER_FOCUS_CHANGED = '^focus$',
-	ARENA_OPPONENT_UPDATE = '^arena',
-	PARTY_MEMBERS_CHANGED = '^party',
-	RAID_ROSTER_UPDATE = '^raid',
-}
-
-local function UnregisterGUIDEvents(self)
-	for event in pairs(guidCheckEvents) do
-		self:UnregisterEvent(event, UpdateGUID)
-	end
-end
-
-local function RegisterGUIDEvents(self)
-	local unit = self.unit
-	for event, pattern in pairs(guidCheckEvents) do
-		if unit:match(pattern) then
-			self:RegisterEvent(event, UpdateGUID)
-		end
-	end
-end
-
-local function UpdateUnit(self, unit)
-	unit = unit or self.secure:GetAttribute('unit')
-	local oldUnit = self.unit
-	if unit == oldUnit then return end
-	UnregisterGUIDEvents(self)
-	self.unit = unit
-	RegisterGUIDEvents(self)
-	UpdateGUID(self)
 end
 
 local function UpdateStatus(self)
@@ -257,11 +224,11 @@ local function UpdateStatus(self)
 			RefreshAllIcons(self)
 		else
 			self.enabled = true
-			UpdateUnit(self)
+			self:OnEnable()
 		end
 	elseif self.enabled then
-		self.unit, self.guid, self.enabled = nil, nil, false
-		UnregisterGUIDEvents(self)
+		self.guid, self.enabled = nil, nil, false
+		self:OnDisable()
 		self:Hide()
 	end
 end
@@ -290,23 +257,26 @@ local function OnFrameConfigChanged(self, event, key)
 	UpdateStatus(self)
 end
 
-local lae = LibStub('LibAdiEvent-1.0')
+local AdiEvent = LibStub('LibAdiEvent-1.0')
 
-function addon:SpawnFrame(anchor, secure, GetDatabase) -- iconSize, direction, spacing, anchorPoint, relPoint, x, y)
+function addon:SpawnGenericFrame(anchor, GetDatabase, GetGUID, OnEnable, OnDisable, ...)
 	local frame = CreateFrame("Frame", nil, anchor)
 	frame:Hide()
 	
-	frame.secure = secure
 	frame.activeIcons = {}
 	frame.iconHeap = {}
 	
 	frame.GetDatabase = GetDatabase
+	frame.GetGUID = GetGUID
+	frame.UpdateGUID = UpdateGUID
+	frame.OnEnable = OnEnable
+	frame.OnDisable = OnDisable
 	
 	frame.anchor = anchor
 	frame:SetWidth(1)
 	frame:SetHeight(1)
 
-	lae.Embed(frame)
+	AdiEvent.Embed(frame)
 	frame:SetMessageChannel(addon)
 
 	frame:RegisterEvent('UpdateDR', UpdateDR)
@@ -318,13 +288,56 @@ function addon:SpawnFrame(anchor, secure, GetDatabase) -- iconSize, direction, s
 	frame:RegisterEvent('OnFrameConfigChanged', OnFrameConfigChanged)
 	frame:RegisterEvent('OnProfileChanged', OnFrameConfigChanged)
 	
-	secure:HookScript('OnAttributeChanged', function(self, name, unit)
-		if name == "unit" and addon.active and frame.enabled then
-			UpdateUnit(frame, unit)
-		end
-	end)
-
+	-- Allow to setup arbitrary values
+	for i = 1, select('#', ...), 2 do
+		local k, v = select(i, ...)
+		frame[k] = v
+	end
+	
 	OnFrameConfigChanged(frame)
 
+	return frame
+end
+
+-- SecureUnitButtonTemplate specific handling
+
+local guidCheckEvents = {
+	PLAYER_TARGET_CHANGED = '^target$',
+	PLAYER_FOCUS_CHANGED = '^focus$',
+	ARENA_OPPONENT_UPDATE = '^arena',
+	PARTY_MEMBERS_CHANGED = '^party',
+	RAID_ROSTER_UPDATE = '^raid',
+}
+
+local function OnSecureEnable(self)
+	local unit = self:GetUnit()
+	for event, pattern in pairs(guidCheckEvents) do
+		if unit:match(pattern) then
+			self:RegisterEvent(event, 'UpdateGUID')
+		end
+	end
+	self:UpdateGUID()
+end
+
+local function OnSecureDisable(self)
+	for event in pairs(guidCheckEvents) do
+		self:UnregisterEvent(event, 'UpdateGUID')
+	end
+end
+
+local function GetSecureGUID(self)
+	return UnitGUID(self:GetUnit())
+end
+
+function addon:SpawnFrame(anchor, secure, GetDatabase)
+	local frame = addon:SpawnGenericFrame(anchor, GetDatabase, GetSecureGUID, OnSecureEnable, OnSecureDisable,
+		'GetUnit', function() return SecureButton_GetModifiedUnit(secure) or "" end
+	)
+	secure:HookScript('OnAttributeChanged', function(_, name)
+		if name == "unit" and addon.active and frame.enabled then
+			frame:OnDisable()
+			frame:OnEnable()
+		end
+	end)
 	return frame
 end
