@@ -108,7 +108,7 @@ local function SpawnIcon(self)
 	return icon
 end
 
-function SetAnchor(self, to, direction, spacing, defaultAnchor, defaultTo)
+local function SetAnchor(self, to, direction, spacing, defaultAnchor, defaultTo)
 	self:ClearAllPoints()
 	if to then
 		local anchor, relPoint, xOffset, yOffset = unpack(ANCHORING[direction])
@@ -118,7 +118,7 @@ function SetAnchor(self, to, direction, spacing, defaultAnchor, defaultTo)
 	end
 end
 
-function RemoveDR(self, event, guid, cat)
+local function RemoveDR(self, event, guid, cat)
 	if guid ~= self.guid then return end
 	local activeIcons = self.activeIcons
 	local index
@@ -135,7 +135,7 @@ function RemoveDR(self, event, guid, cat)
 	SetAnchor(activeIcons[index], activeIcons[index-1], self.direction, self.spacing, self.anchorPoint, self)
 end
 
-function UpdateIcon(icon, texture, count, duration, expireTime)
+local function UpdateIcon(icon, texture, count, duration, expireTime)
 	local txt, r, g, b = tostring(count), 1, 1, 1
 	if TEXTS[count] then
 		txt, r, g, b = unpack(TEXTS[count])
@@ -162,7 +162,7 @@ function UpdateIcon(icon, texture, count, duration, expireTime)
 	UpdateTimer(icon)
 end
 
-function UpdateDR(self, event, guid, cat, texture, count, duration, expireTime)
+local function UpdateDR(self, event, guid, cat, texture, count, duration, expireTime)
 	if guid ~= self.guid or not addon.db.profile.categories[cat] then 
 		return
 	end
