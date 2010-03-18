@@ -18,7 +18,7 @@ local TEXTS = {
 
 local borderBackdrop = {
 	edgeFile = [[Interface\Addons\DiminishingReturns\white16x16]],
-	edgeSize = 1, 	
+	edgeSize = 1,
 	insets = {left = 1, right = 1, top = 1, bottom = 1},
 }
 
@@ -38,7 +38,7 @@ local ceil, GetTime, strformat = math.ceil, GetTime, string.format
 
 local function UpdateTimer(self)
 	local timer = self.timer
-	if not timer.expireTime then return end	
+	if not timer.expireTime then return end
 	local timeLeft = timer.expireTime - GetTime()
 	if timeLeft <= 0 then
 		timer.expireTimer, timer.timeLeft = nil, nil
@@ -59,19 +59,19 @@ local function SpawnIcon(self)
 	local icon = CreateFrame("Frame", nil, self)
 	icon:SetWidth(self.iconSize)
 	icon:SetHeight(self.iconSize)
-	
+
 	local texture = icon:CreateTexture(nil, "ARTWORK")
 	texture:SetAllPoints(icon)
 	texture:SetTexCoord(0.05, 0.95, 0.05, 0.95)
 	texture:SetTexture(1,1,1,1)
 	icon.texture = texture
-	
+
 	local cooldown = CreateFrame("Cooldown", nil, icon)
 	cooldown:SetAllPoints(icon)
 	cooldown:SetDrawEdge(true)
 	cooldown.noCooldownCount = true
 	icon.cooldown = cooldown
-	
+
 	local border = CreateFrame("Frame", nil, icon)
 	border:SetPoint("CENTER", icon)
 	border:SetWidth(self.iconSize + 2)
@@ -84,27 +84,27 @@ local function SpawnIcon(self)
 	local textFrame = CreateFrame("Frame", nil, icon)
 	textFrame:SetAllPoints(icon)
 	textFrame:SetFrameLevel(cooldown:GetFrameLevel()+2)
-	
+
 	local bigText = textFrame:CreateFontString(nil, "OVERLAY")
 	bigText.fontSize = FONT_SIZE
 	bigText:SetFont(FONT_NAME, bigText.fontSize, FONT_FLAGS)
-	bigText:SetTextColor(1, 1, 1, 1)	
+	bigText:SetTextColor(1, 1, 1, 1)
 	bigText:SetAllPoints(icon)
 	bigText:SetJustifyH("CENTER")
 	bigText:SetJustifyV("MIDDLE")
 	icon.bigText = bigText
-	
+
 	local smallText = textFrame:CreateFontString(nil, "OVERLAY")
 	smallText.fontSize = 10
 	smallText:SetFont(FONT_NAME, smallText.fontSize, FONT_FLAGS)
-	smallText:SetTextColor(1, 1, 1, 1)	
+	smallText:SetTextColor(1, 1, 1, 1)
 	smallText:SetAllPoints(icon)
 	smallText:SetJustifyH("CENTER")
 	smallText:SetJustifyV("BOTTOM")
 	icon.smallText = smallText
-	
+
 	icon:SetScript('OnUpdate', UpdateTimer)
-	
+
 	return icon
 end
 
@@ -115,6 +115,23 @@ local function SetAnchor(self, to, direction, spacing, defaultAnchor, defaultTo)
 		self:SetPoint(anchor, to, relPoint, spacing * xOffset, spacing * yOffset)
 	else
 		self:SetPoint(defaultAnchor, defaultTo)
+	end
+end
+
+local function UpdateFrameSize(self)
+	local num = #(self.activeIcons)
+	if num > 0 then
+		local iconSize, xOffset = self.iconSize, ANCHORING[self.direction][3]
+		if xOffset == 0 then
+			self:SetWidth(iconSize)
+			self:SetHeight(num * iconSize)
+		else
+			self:SetWidth(num * iconSize)
+			self:SetHeight(iconSize)
+		end
+	else
+		self:SetWidth(0.1)
+		self:SetHeight(0.1)
 	end
 end
 
@@ -133,6 +150,7 @@ local function RemoveDR(self, event, guid, cat)
 	end
 	if not index or not activeIcons[index] then return end
 	SetAnchor(activeIcons[index], activeIcons[index-1], self.direction, self.spacing, self.anchorPoint, self)
+	UpdateFrameSize(self)
 end
 
 local function UpdateIcon(icon, texture, count, duration, expireTime)
@@ -144,26 +162,26 @@ local function UpdateIcon(icon, texture, count, duration, expireTime)
 	icon.cooldown:SetCooldown(expireTime-duration, duration)
 	icon.bigText:SetTextColor(r, g, b)
 	icon.border:SetBackdropBorderColor(r, g, b, 1)
-	
+
 	local timer
 	if addon.db.profile.bigTimer then
 		timer = icon.bigText
 		icon.smallText:Hide()
 	else
-		timer = icon.smallText		
+		timer = icon.smallText
 		local text = icon.bigText
 		text:SetText(txt)
 		FitTextSize(text, icon:GetWidth())
-		text:Show()	
-	end	
-	
+		text:Show()
+	end
+
 	icon.timer, timer.expireTime, timer.timeLeft = timer, expireTime
 	timer:Show()
 	UpdateTimer(icon)
 end
 
 local function UpdateDR(self, event, guid, cat, texture, count, duration, expireTime)
-	if guid ~= self.guid or not addon.db.profile.categories[cat] then 
+	if guid ~= self.guid or not addon.db.profile.categories[cat] then
 		return
 	end
 	local activeIcons = self.activeIcons
@@ -179,6 +197,7 @@ local function UpdateDR(self, event, guid, cat, texture, count, duration, expire
 	SetAnchor(icon, activeIcons[previous], self.direction, self.spacing, self.anchorPoint, self)
 	icon:Show()
 	UpdateIcon(icon, texture, count, duration, expireTime)
+	UpdateFrameSize(self)
 end
 
 local function HideAllIcons(self)
@@ -188,6 +207,7 @@ local function HideAllIcons(self)
 		self.iconHeap[icon] = true
 	end
 	wipe(activeIcons)
+	UpdateFrameSize(self)
 end
 
 local function RefreshAllIcons(self)
@@ -198,7 +218,7 @@ local function RefreshAllIcons(self)
 			UpdateDR(self, "ToggleTestMode", self.guid, cat, addon.ICONS[cat], count, 15, GetTime()-2*count+15)
 			count = (count == 3) and 1 or (count+1)
 		end
-		self:Show()	
+		self:Show()
 	elseif self.guid then
 		local guid = self.guid
 		for cat, texture, count, duration, expireTime in addon:IterateDR(guid) do
@@ -242,7 +262,7 @@ local function OnFrameConfigChanged(self, event, key)
 	local db = self:GetDatabase()
 	local anchorPoint, iconSize, direction, spacing = db.anchorPoint, db.iconSize, db.direction, db.spacing
 	self:ClearAllPoints()
-	self:SetPoint(anchorPoint, db.screenAnchor and _G.UIParent or self.anchor, db.relPoint, db.xOffset, db.yOffset)		
+	self:SetPoint(anchorPoint, db.screenAnchor and _G.UIParent or self.anchor, db.relPoint, db.xOffset, db.yOffset)
 	if self.anchorPoint ~= anchorPoint or self.iconSize ~= iconSize or self.direction ~= direction or self.spacing ~= spacing then
 		self.anchorPoint = anchorPoint
 		self.iconSize = iconSize
@@ -262,16 +282,16 @@ local AdiEvent = LibStub('LibAdiEvent-1.0')
 function addon:SpawnGenericFrame(anchor, GetDatabase, GetGUID, OnEnable, OnDisable, ...)
 	local frame = CreateFrame("Frame", nil, anchor)
 	frame:Hide()
-	
+
 	frame.activeIcons = {}
 	frame.iconHeap = {}
-	
+
 	frame.GetDatabase = GetDatabase
 	frame.GetGUID = GetGUID
 	frame.UpdateGUID = UpdateGUID
 	frame.OnEnable = OnEnable
 	frame.OnDisable = OnDisable
-	
+
 	frame.anchor = anchor
 	frame:SetWidth(1)
 	frame:SetHeight(1)
@@ -287,13 +307,13 @@ function addon:SpawnGenericFrame(anchor, GetDatabase, GetGUID, OnEnable, OnDisab
 	frame:RegisterEvent('OnConfigChanged', UpdateStatus)
 	frame:RegisterEvent('OnFrameConfigChanged', OnFrameConfigChanged)
 	frame:RegisterEvent('OnProfileChanged', OnFrameConfigChanged)
-	
+
 	-- Allow to setup arbitrary values
 	for i = 1, select('#', ...), 2 do
 		local k, v = select(i, ...)
 		frame[k] = v
 	end
-	
+
 	OnFrameConfigChanged(frame)
 
 	return frame
