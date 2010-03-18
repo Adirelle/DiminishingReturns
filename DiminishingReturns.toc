@@ -2,6 +2,8 @@
 
 ## Title: Diminishing Returns
 ## Notes: Attach diminishing return icons to unit frames.
+## Notes-zhCN: 在单位框体附着递减规则图标。
+## Notes-zhTW: 在單位框體附著遞減規則圖示。
 ## Author: Adirelle
 ## Version: @project-version@
 ## X-Date: @project-date-iso@
