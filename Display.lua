@@ -278,10 +278,6 @@ function addon:SpawnGenericFrame(anchor, GetDatabase, GetGUID, OnEnable, OnDisab
 	local frame = CreateFrame("Frame", nil, anchor)
 	frame:Hide()
 	
-	frame:SetBackdrop(borderBackdrop)
-	frame:SetBackdropColor(0, 0, 0, 0)
-	frame:SetBackdropBorderColor(1, 1, 1, 1)
-	
 	frame.activeIcons = {}
 	frame.iconHeap = {}
 
