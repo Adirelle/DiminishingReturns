@@ -66,12 +66,6 @@ local function SpawnIcon(self)
 	texture:SetTexture(1,1,1,1)
 	icon.texture = texture
 
-	local cooldown = CreateFrame("Cooldown", nil, icon)
-	cooldown:SetAllPoints(icon)
-	cooldown:SetDrawEdge(true)
-	cooldown.noCooldownCount = true
-	icon.cooldown = cooldown
-
 	local border = CreateFrame("Frame", nil, icon)
 	border:SetPoint("CENTER", icon)
 	border:SetWidth(self.iconSize + 2)
@@ -83,8 +77,17 @@ local function SpawnIcon(self)
 
 	local textFrame = CreateFrame("Frame", nil, icon)
 	textFrame:SetAllPoints(icon)
-	textFrame:SetFrameLevel(cooldown:GetFrameLevel()+2)
 
+	if not self.noCooldown then
+		local cooldown = CreateFrame("Cooldown", nil, icon)
+		cooldown:SetAllPoints(icon)
+		cooldown:SetDrawEdge(true)
+		cooldown.noCooldownCount = true
+		icon.cooldown = cooldown
+		
+		textFrame:SetFrameLevel(cooldown:GetFrameLevel()+2)
+	end
+	
 	local bigText = textFrame:CreateFontString(nil, "OVERLAY")
 	bigText.fontSize = FONT_SIZE
 	bigText:SetFont(FONT_NAME, bigText.fontSize, FONT_FLAGS)
@@ -108,30 +111,25 @@ local function SpawnIcon(self)
 	return icon
 end
 
-local function SetAnchor(self, to, direction, spacing, defaultAnchor, defaultTo)
-	self:ClearAllPoints()
+local function SetAnchor(icon, to, direction, spacing)
+	icon:ClearAllPoints()
+	local anchor, relPoint, xOffset, yOffset = unpack(ANCHORING[direction])
 	if to then
-		local anchor, relPoint, xOffset, yOffset = unpack(ANCHORING[direction])
-		self:SetPoint(anchor, to, relPoint, spacing * xOffset, spacing * yOffset)
+		icon:SetPoint(anchor, to, relPoint, spacing * xOffset, spacing * yOffset)
 	else
-		self:SetPoint(defaultAnchor, defaultTo)
+		icon:SetPoint(anchor)
 	end
 end
 
 local function UpdateFrameSize(self)
-	local num = #(self.activeIcons)
-	if num > 0 then
-		local iconSize, xOffset = self.iconSize, ANCHORING[self.direction][3]
-		if xOffset == 0 then
-			self:SetWidth(iconSize)
-			self:SetHeight(num * iconSize)
-		else
-			self:SetWidth(num * iconSize)
-			self:SetHeight(iconSize)
-		end
+	local iconSize, spacing = self.iconSize, self.spacing
+	local barSize = iconSize + math.max((iconSize + spacing) * (#(self.activeIcons) - 1), 0)
+	if ANCHORING[self.direction][3] ~= 0 then
+		self:SetWidth(barSize)
+		self:SetHeight(iconSize)
 	else
-		self:SetWidth(0.1)
-		self:SetHeight(0.1)
+		self:SetWidth(iconSize)
+		self:SetHeight(barSize)
 	end
 end
 
@@ -144,13 +142,13 @@ local function RemoveDR(self, event, guid, cat)
 			tremove(activeIcons, i)
 			self.iconHeap[icon] = true
 			icon:Hide()
+			UpdateFrameSize(self)
 			index = i
 			break
 		end
 	end
 	if not index or not activeIcons[index] then return end
-	SetAnchor(activeIcons[index], activeIcons[index-1], self.direction, self.spacing, self.anchorPoint, self)
-	UpdateFrameSize(self)
+	SetAnchor(activeIcons[index], activeIcons[index-1], self.direction, self.spacing)
 end
 
 local function UpdateIcon(icon, texture, count, duration, expireTime)
@@ -159,7 +157,9 @@ local function UpdateIcon(icon, texture, count, duration, expireTime)
 		txt, r, g, b = unpack(TEXTS[count])
 	end
 	icon.texture:SetTexture(texture)
-	icon.cooldown:SetCooldown(expireTime-duration, duration)
+	if icon.cooldown then
+		icon.cooldown:SetCooldown(expireTime-duration, duration)
+	end
 	icon.bigText:SetTextColor(r, g, b)
 	icon.border:SetBackdropBorderColor(r, g, b, 1)
 
@@ -194,40 +194,34 @@ local function UpdateDR(self, event, guid, cat, texture, count, duration, expire
 	icon = tremove(self.iconHeap) or SpawnIcon(self)
 	icon.category = cat
 	tinsert(activeIcons, icon)
-	SetAnchor(icon, activeIcons[previous], self.direction, self.spacing, self.anchorPoint, self)
+	SetAnchor(icon, activeIcons[previous], self.direction, self.spacing)
 	icon:Show()
 	UpdateIcon(icon, texture, count, duration, expireTime)
 	UpdateFrameSize(self)
 end
 
-local function HideAllIcons(self)
+local function RefreshAllIcons(self)
 	local activeIcons = self.activeIcons
 	for i, icon in ipairs(activeIcons) do
 		icon:Hide()
 		self.iconHeap[icon] = true
 	end
 	wipe(activeIcons)
-	UpdateFrameSize(self)
-end
-
-local function RefreshAllIcons(self)
-	HideAllIcons(self)
 	if self.testMode then
 		local count = 1
 		for cat in pairs(addon.CATEGORIES) do
 			UpdateDR(self, "ToggleTestMode", self.guid, cat, addon.ICONS[cat], count, 15, GetTime()-2*count+15)
 			count = (count == 3) and 1 or (count+1)
 		end
-		self:Show()
 	elseif self.guid then
 		local guid = self.guid
 		for cat, texture, count, duration, expireTime in addon:IterateDR(guid) do
 			UpdateDR(self, "UpdateGUID", guid, cat, texture, count, duration, expireTime)
 		end
-		self:Show()
 	else
-		self:Hide()
+		return self:Hide()
 	end
+	return self:Show()
 end
 
 local function UpdateGUID(self)
@@ -273,6 +267,7 @@ local function OnFrameConfigChanged(self, event, key)
 			icon:SetWidth(iconSize)
 			icon:SetHeight(iconSize)
 		end
+		RefreshAllIcons(self)
 	end
 	UpdateStatus(self)
 end
@@ -282,7 +277,11 @@ local AdiEvent = LibStub('LibAdiEvent-1.0')
 function addon:SpawnGenericFrame(anchor, GetDatabase, GetGUID, OnEnable, OnDisable, ...)
 	local frame = CreateFrame("Frame", nil, anchor)
 	frame:Hide()
-
+	
+	frame:SetBackdrop(borderBackdrop)
+	frame:SetBackdropColor(0, 0, 0, 0)
+	frame:SetBackdropBorderColor(1, 1, 1, 1)
+	
 	frame.activeIcons = {}
 	frame.iconHeap = {}
 

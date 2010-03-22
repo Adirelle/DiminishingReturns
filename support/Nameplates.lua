@@ -22,20 +22,19 @@ local function SetupNameplates(LibNameplate)
 	end
 	
 	local function OnNameplateEnable(self)
-		addon:Debug('Enabling nameplate frame')
 		LibNameplate.RegisterCallback(self, "LibNameplate_FoundGUID", "UpdateGUID")
 		LibNameplate.RegisterCallback(self, "LibNameplate_RecycleNameplate", "UpdateGUID")
 	end
 
 	local function OnNameplateDisable(self)
-		addon:Debug('Disabling nameplate frame')
 		LibNameplate.UnregisterAllCallbacks(self)
 	end
 
 	addon:RegisterFrameConfig('Nameplates', GetDatabase)
 
 	LibNameplate.RegisterCallback(addon, 'LibNameplate_NewNameplate', function(_ , nameplate)
-		return addon:SpawnGenericFrame(nameplate, GetDatabase, GetNameplateGUID, OnNameplateEnable, OnNameplateDisable)
+		addon:Debug("Creating DR frame for new nameplate")
+		return addon:SpawnGenericFrame(nameplate, GetDatabase, GetNameplateGUID, OnNameplateEnable, OnNameplateDisable, 'noCooldown', true)
 	end)
 end
 
