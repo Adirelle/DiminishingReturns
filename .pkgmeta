@@ -35,6 +35,8 @@ move-folders:
 
 optional-dependencies:
   - libdualspec-1-0
+  - libnameplate-1-0
+  - addon-loader
 
 ignore:
   - UpdateLocalization.lua
