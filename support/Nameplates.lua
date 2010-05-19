@@ -32,7 +32,10 @@ local function SetupNameplates(LibNameplate)
 
 	addon:RegisterFrameConfig('Nameplates', GetDatabase)
 
+	local seen = {}
 	LibNameplate.RegisterCallback(addon, 'LibNameplate_NewNameplate', function(_ , nameplate)
+		if seen[nameplate] then return end
+		seen[nameplate] = true
 		addon:Debug("Creating DR frame for new nameplate")
 		return addon:SpawnGenericFrame(nameplate, GetDatabase, GetNameplateGUID, OnNameplateEnable, OnNameplateDisable, 'noCooldown', true)
 	end)
