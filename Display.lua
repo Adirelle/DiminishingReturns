@@ -275,6 +275,7 @@ end
 local AdiEvent = LibStub('LibAdiEvent-1.0')
 
 function addon:SpawnGenericFrame(anchor, GetDatabase, GetGUID, OnEnable, OnDisable, ...)
+	addon:Debug('Attaching to frame', anchor:GetName())
 	local frame = CreateFrame("Frame", nil, anchor)
 	frame:Hide()
 	
