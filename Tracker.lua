@@ -143,7 +143,12 @@ end
 
 local function ParseCLEU(self, _, timestamp, event, _, srcName, srcFlags, guid, name, flags, spellId, spell)	
 	-- Always process UNIT_DIED if we have information about the unit
-	if event == 'UNIT_DIED' and runningDR[guid] then return RemoveAllDR(guid) end
+	if event == 'UNIT_DIED' then
+		if runningDR[guid] then
+			RemoveAllDR(guid)
+		end
+		return
+	end
 	-- Ignore targetted friends
 	if band(flags, CLO_REACTION_FRIENDLY) ~= 0 then return end
 	-- Ignore any spell or event we are not interested with
@@ -246,11 +251,15 @@ function addon:CheckActivation(event)
 		activate = (instanceType ~= "raid" and instanceType ~= "party") and UnitIsPVP('player')
 	end
 	if activate then
-		addon:RegisterEvent('COMBAT_LOG_EVENT_UNFILTERED', ParseCLEU)
-		addon:RegisterEvent('PLAYER_LEAVING_WORLD', WipeAll)
-		addon.active = true
-		addon:TriggerMessage('EnableDR')
-	else
+		if not addon.active then
+			addon:Debug('CheckActivation, pveMode=', addon.db.profile.pveMode, ', activating')
+			addon:RegisterEvent('COMBAT_LOG_EVENT_UNFILTERED', ParseCLEU)
+			addon:RegisterEvent('PLAYER_LEAVING_WORLD', WipeAll)
+			addon.active = true
+			addon:TriggerMessage('EnableDR')
+		end
+	elseif addon.active then
+		addon:Debug('CheckActivation, pveMode=', addon.db.profile.pveMode, ', disactivating')
 		addon:UnregisterEvent('COMBAT_LOG_EVENT_UNFILTERED', ParseCLEU)
 		addon:UnregisterEvent('PLAYER_LEAVING_WORLD', WipeAll)
 		WipeAll()
@@ -262,9 +271,8 @@ end
 addon:RegisterEvent('PLAYER_ENTERING_WORLD', 'CheckActivation')
 addon:RegisterEvent('PLAYER_UPDATE_RESTING', 'CheckActivation')
 addon:RegisterEvent('UNIT_FACTION', function(self, event, unit)
-	if unit == "player" then return addon:CheckActivation(event, unit) end
+	if unit == "player" then return addon:CheckActivation(event) end
 end)
 addon:RegisterEvent('OnConfigChanged', function(self, event, name)
-	if name == "pveMode" then return addon:CheckActivation(event, name) end
+	if name == "pveMode" then return addon:CheckActivation(event) end
 end)
-
