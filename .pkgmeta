@@ -39,6 +39,5 @@ optional-dependencies:
   - addon-loader
 
 ignore:
-  - UpdateLocalization.lua
   - README.textile
 

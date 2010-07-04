@@ -14,21 +14,6 @@ local CL_EVENTS = {
 	SPELL_AURA_REMOVED = 1,
 }
 
-local SPELLS = {}
-for id, category in pairs(DRData:GetSpells()) do
-	if CATEGORIES[category] then
-		local name = GetSpellInfo(id)
-		if name then
-			SPELLS[name] = category
-		--@debug@
-		else
-			addon:Debug('Unknown spell', id, 'for', category)
-		--@end-debug@
-		end
-	end
-end
-addon.SPELLS = SPELLS
-
 local CLO_AFFILIATION_MINE = COMBATLOG_OBJECT_AFFILIATION_MINE
 local CLO_CONTROL_PLAYER = COMBATLOG_OBJECT_CONTROL_PLAYER
 local CLO_REACTION_FRIENDLY = COMBATLOG_OBJECT_REACTION_FRIENDLY
@@ -90,14 +75,45 @@ do
 		ICONS.rndstun = 12798 -- Revenge Stun
 		ICONS.rndroot = 23694 -- Improved Hamstring
 	end
-	-- Replace spell ids with their texture
-	for cat, icon in pairs(ICONS) do
-		if type(icon) == "number" then
-			ICONS[cat] = select(3, GetSpellInfo(icon))
-		end
-	end
 end
 addon.ICONS = ICONS
+
+local SPELLS = {}
+for id, category in pairs(DRData:GetSpells()) do
+	if CATEGORIES[category] then
+		SPELLS[id] = category
+	end
+end
+addon.SPELLS = SPELLS
+
+local spellsResolved = false
+do
+	local function ResolveSpells()
+		addon:UnregisterEvent('PLAYER_LOGIN', ResolveSpells)
+		ResolveSpells = nil
+		for id, category in pairs(SPELLS) do
+			local name = GetSpellInfo(id)
+			if name then
+				SPELLS[name] = category
+			--@debug@
+			else
+				addon:Debug('Unknown spell', id, 'for', category)
+			--@end-debug@
+			end
+		end
+		for cat, icon in pairs(ICONS) do
+			if type(icon) == "number" then
+				ICONS[cat] = select(3, GetSpellInfo(icon))
+			end
+		end
+		spellsResolved = true
+	end
+	if not IsLoggedIn() then
+		addon:RegisterEvent('PLAYER_LOGIN', ResolveSpells)
+	else
+		ResolveSpells()
+	end
+end
 
 local new, del
 do
@@ -152,7 +168,7 @@ local function ParseCLEU(self, _, timestamp, event, _, srcName, srcFlags, guid, 
 	-- Ignore targetted friends
 	if band(flags, CLO_REACTION_FRIENDLY) ~= 0 then return end
 	-- Ignore any spell or event we are not interested with
-	local increase, category = CL_EVENTS[event], SPELLS[spell]
+	local increase, category = CL_EVENTS[event], SPELLS[spellId] or SPELLS[spell]
 	if not increase or not category then return end
 	-- Ignore mobs for non-PvE categories
 	local isPlayer = band(flags, CLO_TYPE_PET_OR_PLAYER) ~= 0 or band(flags, CLO_CONTROL_PLAYER) ~= 0
@@ -243,12 +259,14 @@ function addon:IterateDR(guid)
 end
 
 function addon:CheckActivation(event)
-	local activate
-	if addon.db.profile.pveMode then
-		activate = not IsResting()
-	else
-		local _, instanceType = IsInInstance()
-		activate = (instanceType ~= "raid" and instanceType ~= "party") and UnitIsPVP('player')
+	local activate = false
+	if spellsResolved then
+		if addon.db.profile.pveMode then
+			activate = not IsResting()
+		else
+			local _, instanceType = IsInInstance()
+			activate = (instanceType ~= "raid" and instanceType ~= "party") and UnitIsPVP('player')
+		end
 	end
 	if activate then
 		if not addon.active then
