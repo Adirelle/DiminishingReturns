@@ -1,34 +1,45 @@
 local addon = DiminishingReturns
 if not addon then return end
 
-local framesToWatch
+local frames = {}
+local frameCallbacks = {}
+local addonCallbacks = {}
+
+local safecall
+do
+	local function pcall_result(success, ...)
+		if success then
+			return ...
+		else
+			addon:Debug('Callback error:', ...)
+			geterrorhandler()(...)
+		end
+	end
+
+	function safecall(func, ...)
+		return pcall_result(pcall(func, ...))
+	end
+end
 
 function addon.CheckFrame(frame)
-	if not framesToWatch then return end
 	local name = frame and frame:GetName()
-	local setup = name and framesToWatch[name]
-	if setup then
-		framesToWatch[name] = nil
-		if not next(framesToWatch) then
-			framesToWatch = nil
-		end
-		return setup(frame)
+	local callback = name and frameCallbacks[name]
+	if callback then
+		addon:Debug('Calling callback for frame', name)
+		frameCallbacks[name] = nil
+		safecall(callback, frame)
+		return true
 	end
 end
 
-function addon:RegisterFrame(frameName, setupFunc)
-	local frame = _G[frameName]
-	if frame then
-		setupFunc(frame)
-		return true
-	else
-		if not framesToWatch then
-			framesToWatch = {}
-			hooksecurefunc('RegisterUnitWatch', addon.CheckFrame)
-		end
-		framesToWatch[frameName] = setupFunc
+function addon:RegisterFrame(name, callback)
+	frameCallbacks[name] = callback
+	if not addon.CheckFrame(_G[name]) then
+		addon:Debug('Registered callback for frame', name)
 	end
 end
+
+hooksecurefunc('RegisterUnitWatch', addon.CheckFrame)
 
 function addon:RegisterFrameConfig(label, getDatabaseCallback)
 	if not addon.pendingFrameConfig then
@@ -37,50 +48,45 @@ function addon:RegisterFrameConfig(label, getDatabaseCallback)
 	addon.pendingFrameConfig[label] = getDatabaseCallback
 end
 
-local addonSupportCallbacks = {}
+local addonSupportInitialized
 
-local function CheckAddonSupport(_, _, loaded)
-	local name = tostring(loaded):lower()
-	local callback = addonSupportCallbacks[name]
-	if callback then
-		addonSupportCallbacks[name] = nil
-		if not next(addonSupportCallbacks) then
-		 	addon:UnregisterEvent('ADDON_LOADED', CheckAddonSupport)
-		 	CheckAddonSupport = nil
-		 	addonSupportCallbacks = nil
-		end
-		addon:Debug('Loading', name, 'support')
-		local success, msg = pcall(callback)
-		if not success then
-			geterrorhandler()(msg)
+local function CheckAddonSupport()
+	if not addonSupportInitialized then return end
+	if addonCallbacks.framexml and IsLoggedIn() then
+		addon:Debug('Calling addon support for FrameXML')
+		safecall(addonCallbacks.framexml)
+		addonCallbacks.framexml = nil
+	end
+	for name, callback in pairs(addonCallbacks) do
+		if IsAddOnLoaded(name) then
+			addon:Debug('Calling addon support for', name)
+			safecall(callback)
+			addonCallbacks[name] = nil
 		end
 	end
 end
 
 function addon:RegisterAddonSupport(name, callback)
-	local enabled, loadable = select(4, GetAddOnInfo(name))
-	if name == "FrameXML" or (enabled and (loadable or IsAddOnLoaded(name))) then
-		addonSupportCallbacks[tostring(name):lower()] = callback
-		return true
+	name = tostring(name):lower()
+	if name ~= "framexml" and not IsAddOnLoaded(name) then
+		local loadable, reason = select(5, GetAddOnInfo(name))
+		if not loadable then
+			self:Debug('Not registering addon support for', name, ':', _G["ADDON_"..reason], '[', reason, ']')
+			return
+		end
+	end
+	addonCallbacks[name] = callback
+	CheckAddonSupport()
+	if addonCallbacks[name] then
+		self:Debug('Registered addon support for', name)
 	end
 end
 
 function addon:LoadAddonSupport()
-	for name, callback in pairs(addonSupportCallbacks) do
-		if IsAddOnLoaded(name) or name == "framexml" then
-			addonSupportCallbacks[name] = nil
-			addon:Debug('Loading', name, 'support')
-			local success, msg = pcall(callback)
-			if not success then
-				geterrorhandler()(msg)
-			end
-		end
+	addonSupportInitialized = true
+	CheckAddonSupport()
+	if addonCallbacks.framexml then
+		addon:RegisterEvent('PLAYER_LOGIN', CheckAddonSupport)
 	end
-	if next(addonSupportCallbacks) then
-		addon:RegisterEvent('ADDON_LOADED', CheckAddonSupport)
-	else
-		CheckAddonSupport = nil
-		addonSupportCallbacks = nil
-	end
+	addon:RegisterEvent('ADDON_LOADED', CheckAddonSupport)
 end
-
