@@ -21,6 +21,7 @@ local DEFAULT_CONFIG = {
 	soundAtReset = false,
 	resetSound = LibStub('LibSharedMedia-3.0'):GetDefault('sound'),
 	bigTimer = false,
+	immunityOnly = false,
 	pveMode = false,
 }
 addon.DEFAULT_CONFIG = DEFAULT_CONFIG

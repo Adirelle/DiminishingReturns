@@ -90,10 +90,13 @@ local function CreateOptions()
 				name = L['Big timer'],
 				desc = L['Check this box to swap diminishing and timer texts.'],
 				type = 'toggle',
-				get = function() return addon.db.profile.bigTimer end,
+				get = function() return addon.db.profile.bigTimer or addon.db.profile.immunityOnly end,
 				set = function(_, value)
 					addon.db.profile.bigTimer = value
 					addon:TriggerMessage('OnConfigChanged', 'bigTimer', value)
+				end,
+				disabled = function()
+					return addon.db.profile.immunityOnly
 				end,
 				order = 40,
 			},
@@ -141,6 +144,17 @@ local function CreateOptions()
 				disabled = function() return not addon.db.profile.soundAtReset end,
 				order = 65,
 			},
+			immunityOnly = {
+				name = L["Show only immunities"],
+				desc = L["Check this to display an icon only when the unit is immune to the spells of a category."],
+				type = 'toggle',
+				get = function() return addon.db.profile.immunityOnly end,
+				set = function(_, value)
+					addon.db.profile.immunityOnly = value
+					addon:TriggerMessage('OnConfigChanged', 'immunityOnly', value)
+				end,
+				order = 50,
+			}
 		}
 	}
 	

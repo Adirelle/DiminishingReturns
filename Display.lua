@@ -164,7 +164,7 @@ local function UpdateIcon(icon, texture, count, duration, expireTime)
 	icon.border:SetBackdropBorderColor(r, g, b, 1)
 
 	local timer
-	if addon.db.profile.bigTimer then
+	if addon.db.profile.bigTimer or addon.db.profile.immunityOnly then
 		timer = icon.bigText
 		icon.smallText:Hide()
 	else
@@ -184,11 +184,17 @@ local function UpdateDR(self, event, guid, cat, texture, count, duration, expire
 	if guid ~= self.guid or not addon.db.profile.categories[cat] then
 		return
 	end
+	if count < 3 and addon.db.profile.immunityOnly then
+		return RemoveDR(self, event, guid, cat)
+	end
 	local activeIcons = self.activeIcons
 	for i, icon in ipairs(activeIcons) do
 		if icon.category == cat then
 			return UpdateIcon(icon, texture, count, duration, expireTime)
 		end
+	end
+	if count < 3 and addon.db.profile.immunityOnly then
+		return
 	end
 	local previous = #activeIcons
 	icon = tremove(self.iconHeap) or SpawnIcon(self)
