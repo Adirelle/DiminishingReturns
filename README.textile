@@ -25,6 +25,15 @@ h2. Supported unit frames
 
 The icon layout for each frame is configurable using the "frame layout" entry in interface options.
 
+To help understanding what is happening, you can use the /drsupport chat command, it will list all supported addon and their current state. DiminishingReturns relies on Blizzard API so if an addon is listed as "not installed", this is because WoW itself has not found it.
+
+Possible states:
+* active: the addon has been loaded and DiminishingReturns support is fully active.
+* error: the addon has been loaded but an error occured in DiminishingReturns support code. Please report it.
+* to be loaded: the addon is installed but not loaded yet.
+* cannot be loaded: the addon is installed but the game client could not load it for some reason.
+* not installed: the addon has not be detected by the game client. 
+
 h2. User feedback
 
 * General discussion: "WoWAce forum thread":http://forums.wowace.com/showthread.php?t=17166

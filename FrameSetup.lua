@@ -1,5 +1,8 @@
 local addon = DiminishingReturns
 if not addon then return end
+local L = addon.L
+
+local supportState = {}
 
 local frames = {}
 local frameCallbacks = {}
@@ -8,12 +11,11 @@ local addonCallbacks = {}
 local safecall
 do
 	local function pcall_result(success, ...)
-		if success then
-			return ...
-		else
+		if not success then
 			addon:Debug('Callback error:', ...)
 			geterrorhandler()(...)
 		end
+		return ...
 	end
 
 	function safecall(func, ...)
@@ -50,31 +52,52 @@ end
 
 local addonSupportInitialized
 
+local function IsLoaded(name)
+	if name == "FrameXML" then
+		return IsLoggedIn()
+	else
+		return IsAddOnLoaded(name)
+	end 
+end
+
+local function CanBeLoaded(name)
+	if name == "FrameXML" then
+		return true
+	else
+		return select(5, GetAddOnInfo(name))
+	end 
+end
+
 local function CheckAddonSupport()
 	if not addonSupportInitialized then return end
-	if addonCallbacks.framexml and IsLoggedIn() then
-		addon:Debug('Calling addon support for FrameXML')
-		safecall(addonCallbacks.framexml)
-		addonCallbacks.framexml = nil
-	end
 	for name, callback in pairs(addonCallbacks) do
-		if IsAddOnLoaded(name) then
+		if IsLoaded(name) then
 			addon:Debug('Calling addon support for', name)
-			safecall(callback)
 			addonCallbacks[name] = nil
+			local success, reason = pcall(callback)
+			if success then
+				supportState[name] = '|cff00ff00'..L["active"]..'|r'
+			else
+				supportState[name] = '|cffff0000'..L["error: "]..reason..'|r'
+			end
 		end
 	end
 end
 
 function addon:RegisterAddonSupport(name, callback)
-	name = tostring(name):lower()
-	if name ~= "framexml" and not IsAddOnLoaded(name) then
-		local loadable, reason = select(5, GetAddOnInfo(name))
+	if not IsLoaded(name) then
+		local loadable, reason = CanBeLoaded(name)
 		if not loadable then
-			self:Debug('Not registering addon support for', name, ':', _G["ADDON_"..reason], '[', reason, ']')
+			self:Debug('Not registering addon support for', name, ':', _G["ADDON_"..reason], '['..reason..']')
+			if reason == 'MISSING' then
+				supportState[name] = '|cffbbbbbbnot installed|r'
+			else
+				supportState[name] = '|cffff0000cannot be loaded: '.._G["ADDON_"..reason]..'|r'
+			end
 			return
 		end
 	end
+	supportState[name] = '|cff00ffff'..L["to be loaded"]..'|r'
 	addonCallbacks[name] = callback
 	CheckAddonSupport()
 	if addonCallbacks[name] then
@@ -89,4 +112,13 @@ function addon:LoadAddonSupport()
 		addon:RegisterEvent('PLAYER_LOGIN', CheckAddonSupport)
 	end
 	addon:RegisterEvent('ADDON_LOADED', CheckAddonSupport)
+end
+
+SLASH_DRSTATUS1 = "/drstatus"
+SLASH_DRSTATUS2 = "/drsupport"
+SlashCmdList.DRSTATUS = function()
+	print('DiminishingReturns addon support:')
+	for name, state in pairs(supportState) do
+		print('-', name, ':', state)
+	end
 end
