@@ -92,13 +92,15 @@ do
 		addon:UnregisterEvent('PLAYER_LOGIN', ResolveSpells)
 		ResolveSpells = nil
 		for id, category in pairs(SPELLS) do
-			local name = GetSpellInfo(id)
-			if name then
-				SPELLS[name] = category
-			--@debug@
-			else
-				addon:Debug('Unknown spell', id, 'for', category)
-			--@end-debug@
+			if type(id) == "number" then
+				local name = GetSpellInfo(id)
+				if name then
+					SPELLS[name] = category
+				--@debug@
+				else
+					addon:Debug('Unknown spell', id, 'for', category)
+				--@end-debug@
+				end
 			end
 		end
 		for cat, icon in pairs(ICONS) do
