@@ -109,6 +109,7 @@ do
 			end
 		end
 		spellsResolved = true
+		addon:CheckActivation('SpellsResolved')
 	end
 	if not IsLoggedIn() then
 		addon:RegisterEvent('PLAYER_LOGIN', ResolveSpells)
@@ -267,21 +268,19 @@ function addon:CheckActivation(event)
 			activate = not IsResting()
 		else
 			local _, instanceType = IsInInstance()
-			activate = (instanceType ~= "raid" and instanceType ~= "party") and UnitIsPVP('player')
+			activate = UnitIsPVP('player') or instanceType == "pvp" or instanceType == "arena"
 		end
 	end
 	if activate then
 		if not addon.active then
 			addon:Debug('CheckActivation, pveMode=', addon.db.profile.pveMode, ', activating')
 			addon:RegisterEvent('COMBAT_LOG_EVENT_UNFILTERED', ParseCLEU)
-			addon:RegisterEvent('PLAYER_LEAVING_WORLD', WipeAll)
 			addon.active = true
 			addon:TriggerMessage('EnableDR')
 		end
 	elseif addon.active then
 		addon:Debug('CheckActivation, pveMode=', addon.db.profile.pveMode, ', disactivating')
 		addon:UnregisterEvent('COMBAT_LOG_EVENT_UNFILTERED', ParseCLEU)
-		addon:UnregisterEvent('PLAYER_LEAVING_WORLD', WipeAll)
 		WipeAll()
 		addon.active = false
 		addon:TriggerMessage('DisableDR')
@@ -289,6 +288,7 @@ function addon:CheckActivation(event)
 end
 
 addon:RegisterEvent('PLAYER_ENTERING_WORLD', 'CheckActivation')
+addon:RegisterEvent('PLAYER_LEAVING_WORLD', 'CheckActivation')
 addon:RegisterEvent('PLAYER_UPDATE_RESTING', 'CheckActivation')
 addon:RegisterEvent('UNIT_FACTION', function(self, event, unit)
 	if unit == "player" then return addon:CheckActivation(event) end
