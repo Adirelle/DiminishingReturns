@@ -109,7 +109,9 @@ do
 			end
 		end
 		spellsResolved = true
-		addon:CheckActivation('SpellsResolved')
+		if addon.CheckActivation then
+			addon:CheckActivation('SpellsResolved')
+		end
 	end
 	if not IsLoggedIn() then
 		addon:RegisterEvent('PLAYER_LOGIN', ResolveSpells)
