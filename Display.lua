@@ -184,7 +184,7 @@ local function UpdateDR(self, event, guid, cat, texture, count, duration, expire
 	if guid ~= self.guid or not addon.db.profile.categories[cat] then
 		return
 	end
-	if count < 3 and addon.db.profile.immunityOnly then
+	if count == 0 or (count < 3 and addon.db.profile.immunityOnly) then
 		return RemoveDR(self, event, guid, cat)
 	end
 	local activeIcons = self.activeIcons
@@ -192,9 +192,6 @@ local function UpdateDR(self, event, guid, cat, texture, count, duration, expire
 		if icon.category == cat then
 			return UpdateIcon(icon, texture, count, duration, expireTime)
 		end
-	end
-	if count < 3 and addon.db.profile.immunityOnly then
-		return
 	end
 	local previous = #activeIcons
 	icon = tremove(self.iconHeap) or SpawnIcon(self)
