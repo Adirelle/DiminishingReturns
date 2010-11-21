@@ -6,9 +6,8 @@ LibStub('LibAdiEvent-1.0').Embed(addon)
 addon:SetMessageChannel(addon)
 
 -- Debugging code
-if tekDebug then
-	local frame = tekDebug:GetFrame("DiminishingReturns")
-	function addon:Debug(...) frame:AddMessage(strjoin(" ", tostringall(...))) end
+if AdiDebug then
+	addon.Debug = AdiDebug:GetSink("DiminishingReturns")
 else
 	function addon.Debug() end
 end
