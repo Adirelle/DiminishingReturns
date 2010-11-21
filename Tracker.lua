@@ -268,14 +268,18 @@ function addon:IterateDR(guid)
 	end
 end
 
+local inDuel = false
+
 function addon:CheckActivation(event)
 	local activate = false
 	if spellsResolved then
 		if addon.db.profile.pveMode then
 			activate = not IsResting()
+			self:Debug('CheckActivation(PvE)', event, activate, "<= IsResting=", IsResting())
 		else
 			local _, instanceType = IsInInstance()
-			activate = UnitIsPVP('player') or instanceType == "pvp" or instanceType == "arena"
+			activate = inDuel or UnitIsPVP('player') or instanceType == "pvp" or instanceType == "arena"
+			self:Debug('CheckActivation(PvP)', event, activate, "<= inDuel=", inDuel, "playerInPvP=", UnitIsPVP("player"), "instanceType=", instanceType)
 		end
 	end
 	if activate then
@@ -293,6 +297,24 @@ function addon:CheckActivation(event)
 		addon:TriggerMessage('DisableDR')
 	end
 end
+
+local function BeginDuel()
+	if not inDuel then
+		inDuel = true
+		addon:CheckActivation("BeginDuel")
+	end
+end
+local function EndDuel()
+	if inDuel then
+		inDuel = false
+		addon:CheckActivation("EndDuel")
+	end
+end
+
+hooksecurefunc("AcceptDuel", BeginDuel)
+hooksecurefunc("StartDuel", BeginDuel)
+hooksecurefunc("CancelDuel", EndDuel)
+addon:RegisterEvent('DUEL_FINISHED', EndDuel)
 
 addon:RegisterEvent('PLAYER_ENTERING_WORLD', 'CheckActivation')
 addon:RegisterEvent('PLAYER_LEAVING_WORLD', 'CheckActivation')
