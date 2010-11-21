@@ -40,7 +40,7 @@ do
 		ctrlroot = [[Interface\Icons\Spell_Frost_FrostNova]],
 		scatters = 19503, -- Scatter Shot
 		silence =  2139, -- Counterspell
-		sleep = 2637, -- Hibernate	
+		sleep = 2637, -- Hibernate
 	}
 	-- Update with class specific icons
 	local _, pClass = UnitClass('player')
@@ -64,12 +64,12 @@ do
 		ICONS.ctrlroot = 122 -- Frost Nova
 		ICONS.rndroot = 12494 -- Frostbite
 	elseif pClass == "ROGUE" then
-		ICONS.silence = 1330 -- Garrote	
+		ICONS.silence = 1330 -- Garrote
 		ICONS.disarm = 51722 -- Dismantle
 		ICONS.fear = 2094 -- Blind
 		ICONS.ctrlstun = 408 -- Kidney Shot
 	elseif pClass == "WARRIOR" then
-		ICONS.silence = 18498 -- Gag Order (Warrior talent)	
+		ICONS.silence = 18498 -- Gag Order (Warrior talent)
 		ICONS.fear = 5246 -- Intimidating Shout
 		ICONS.ctrlstun = 12809 -- Concussion Blow
 		ICONS.rndstun = 12798 -- Revenge Stun
@@ -90,12 +90,12 @@ local spellsResolved = false
 do
 	local function ResolveSpells()
 		addon:UnregisterEvent('PLAYER_LOGIN', ResolveSpells)
-		ResolveSpells = nil
 		for id, category in pairs(SPELLS) do
 			if type(id) == "number" then
 				local name = GetSpellInfo(id)
 				if name then
 					SPELLS[name] = category
+					spellsResolved = true
 				--@debug@
 				else
 					addon:Debug('Unknown spell', id, 'for', category)
@@ -162,7 +162,7 @@ local function RemoveAllDR(guid)
 	end
 end
 
-local function ParseCLEU(self, _, timestamp, event, _, srcName, srcFlags, guid, name, flags, spellId, spell)	
+local function ParseCLEU(self, _, timestamp, event, _, srcName, srcFlags, guid, name, flags, spellId, spell)
 	-- Always process UNIT_DIED if we have information about the unit
 	if event == 'UNIT_DIED' then
 		if runningDR[guid] then

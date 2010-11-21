@@ -84,10 +84,10 @@ local function SpawnIcon(self)
 		cooldown:SetDrawEdge(true)
 		cooldown.noCooldownCount = true
 		icon.cooldown = cooldown
-		
+
 		textFrame:SetFrameLevel(cooldown:GetFrameLevel()+2)
 	end
-	
+
 	local bigText = textFrame:CreateFontString(nil, "OVERLAY")
 	bigText.fontSize = FONT_SIZE
 	bigText:SetFont(FONT_NAME, bigText.fontSize, FONT_FLAGS)
@@ -281,7 +281,7 @@ function addon:SpawnGenericFrame(anchor, GetDatabase, GetGUID, OnEnable, OnDisab
 	addon:Debug('Attaching to frame', anchor:GetName())
 	local frame = CreateFrame("Frame", nil, anchor)
 	frame:Hide()
-	
+
 	frame.activeIcons = {}
 	frame.iconHeap = {}
 
