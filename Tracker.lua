@@ -108,11 +108,16 @@ do
 				ICONS[cat] = select(3, GetSpellInfo(icon))
 			end
 		end
-		spellsResolved = true
-		if addon.CheckActivation then
-			addon:CheckActivation('SpellsResolved')
+		if spellsResolved then
+			addon:UnregisterEvent('SPELLS_CHANGED', ResolveSpells)
+			ResolveSpells = nil
+			addon:Debug('Spells OK')
+			if addon.CheckActivation then
+				addon:CheckActivation('SpellsResolved')
+			end
 		end
 	end
+	addon:RegisterEvent('SPELLS_CHANGED', ResolveSpells)
 	if not IsLoggedIn() then
 		addon:RegisterEvent('PLAYER_LOGIN', ResolveSpells)
 	else
