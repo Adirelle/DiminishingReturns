@@ -194,7 +194,7 @@ local function UpdateDR(self, event, guid, cat, texture, count, duration, expire
 		end
 	end
 	local previous = #activeIcons
-	icon = tremove(self.iconHeap) or SpawnIcon(self)
+	local icon = tremove(self.iconHeap) or SpawnIcon(self)
 	icon.category = cat
 	tinsert(activeIcons, icon)
 	SetAnchor(icon, activeIcons[previous], self.direction, self.spacing)

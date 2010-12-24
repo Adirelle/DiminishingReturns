@@ -244,7 +244,7 @@ timerFrame:SetScript('OnUpdate', function(self, elapsed)
 	end
 	if hasReset and addon.db.profile.soundAtReset then
 		local key = addon.db.profile.resetSound
-		local media = SharedMedia:Fetch('sound', media)
+		local media = SharedMedia:Fetch('sound', key)
 		addon:Debug('PlaySound', key, media)
 		PlaySound(media)
 	end

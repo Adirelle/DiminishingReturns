@@ -310,7 +310,6 @@ local function CreateOptions()
 		local key = label:gsub('[^%w]', '_')
 		local opts = {
 			name = label,
-			handler = handler,
 			handler = { GetDatabase = getDatabaseCallback },
 		}
 		for k, v in pairs(frameOptionProto) do
