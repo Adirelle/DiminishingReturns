@@ -32,7 +32,7 @@ addon:RegisterAddonSupport('Gladius', function()
 	end
 
 	if needHook then
-		hooksecurefunc(Gladius, 'UpdateAttribute', function(gladius, unit)
+		hooksecurefunc(Gladius, 'UpdateAttributes', function(gladius, unit)
 			addon.CheckFrame(gladius.buttons[unit].secure)
 		end)
 	end
