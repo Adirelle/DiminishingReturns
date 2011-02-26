@@ -236,10 +236,12 @@ local function UpdateGUID(self)
 end
 
 local function UpdateStatus(self)
-	local enabled = (addon.active or self.testMode) and self:GetDatabase().enabled
+	local enabled = (addon.active or self.testMode) and self.anchor:IsVisible() and self:GetDatabase().enabled
 	if enabled then
 		if not self.enabled then
 			self.enabled = true
+			self:RegisterEvent('UpdateDR', UpdateDR)
+			self:RegisterEvent('RemoveDR', RemoveDR)
 			self:OnEnable()
 		end
 		if not UpdateGUID(self) then
@@ -247,6 +249,8 @@ local function UpdateStatus(self)
 		end
 	elseif self.enabled then
 		self.guid, self.enabled = nil, nil, false
+		self:UnregisterEvent('UpdateDR', UpdateDR)
+		self:UnregisterEvent('RemoveDR', RemoveDR)
 		self:OnDisable()
 		self:Hide()
 	end
@@ -299,8 +303,10 @@ function addon:SpawnGenericFrame(anchor, GetDatabase, GetGUID, OnEnable, OnDisab
 	AdiEvent.Embed(frame)
 	frame:SetMessageChannel(addon)
 
-	frame:RegisterEvent('UpdateDR', UpdateDR)
-	frame:RegisterEvent('RemoveDR', RemoveDR)
+	local anchor_watch = function() return UpdateStatus(self) end
+	anchor:HookScript('OnShow', anchor_watch)
+	anchor:HookScript('OnHide', anchor_watch)
+
 	frame:RegisterEvent('EnableDR', UpdateStatus)
 	frame:RegisterEvent('DisableDR', UpdateStatus)
 	frame:RegisterEvent('SetTestMode', SetTestMode)
