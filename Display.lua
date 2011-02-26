@@ -303,7 +303,7 @@ function addon:SpawnGenericFrame(anchor, GetDatabase, GetGUID, OnEnable, OnDisab
 	AdiEvent.Embed(frame)
 	frame:SetMessageChannel(addon)
 
-	local anchor_watch = function() return UpdateStatus(self) end
+	local anchor_watch = function() return UpdateStatus(frame) end
 	anchor:HookScript('OnShow', anchor_watch)
 	anchor:HookScript('OnHide', anchor_watch)
 
