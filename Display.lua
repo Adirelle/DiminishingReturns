@@ -320,28 +320,27 @@ end
 
 -- SecureUnitButtonTemplate specific handling
 
-local guidCheckEvents = {
-	PLAYER_TARGET_CHANGED = '^target$',
-	PLAYER_FOCUS_CHANGED = '^focus$',
-	ARENA_OPPONENT_UPDATE = '^arena',
-	PARTY_MEMBERS_CHANGED = '^party',
-	RAID_ROSTER_UPDATE = '^raid',
-}
-
 local function OnSecureEnable(self)
 	local unit = self:GetUnit()
-	for event, pattern in pairs(guidCheckEvents) do
-		if unit:match(pattern) then
-			self:RegisterEvent(event, 'UpdateGUID')
-		end
+	if unit == "target" then
+		self:RegisterEvent('PLAYER_TARGET_CHANGED', 'UpdateGUID')
+	elseif unit == "focus" then
+		self:RegisterEvent('PLAYER_FOCUS_CHANGED', 'UpdateGUID')
+	elseif strsub(unit, 1, 5) == "arena" then
+		self:RegisterEvent('ARENA_OPPONENT_UPDATE', 'UpdateGUID')
+	elseif strsub(unit, 1, 5) == "party" or substr(unit, 1, 4) == "raid" then
+		self:RegisterEvent('PARTY_MEMBERS_CHANGED', 'UpdateGUID')
+		self:RegisterEvent('RAID_ROSTER_UPDATE', 'UpdateGUID')
 	end
 	self:UpdateGUID()
 end
 
 local function OnSecureDisable(self)
-	for event in pairs(guidCheckEvents) do
-		self:UnregisterEvent(event, 'UpdateGUID')
-	end
+	self:UnregisterEvent('PLAYER_TARGET_CHANGED', 'UpdateGUID')
+	self:UnregisterEvent('PLAYER_FOCUS_CHANGED', 'UpdateGUID')
+	self:UnregisterEvent('ARENA_OPPONENT_UPDATE', 'UpdateGUID')
+	self:UnregisterEvent('PARTY_MEMBERS_CHANGED', 'UpdateGUID')
+	self:UnregisterEvent('RAID_ROSTER_UPDATE', 'UpdateGUID')
 end
 
 local function GetSecureGUID(self)
