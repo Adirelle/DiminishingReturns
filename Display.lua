@@ -185,12 +185,14 @@ local function UpdateDR(self, event, guid, cat, texture, count, duration, expire
 		return
 	end
 	if count == 0 or (count < 3 and addon.db.profile.immunityOnly) then
-		return RemoveDR(self, event, guid, cat)
+		RemoveDR(self, event, guid, cat)
+		return true
 	end
 	local activeIcons = self.activeIcons
 	for i, icon in ipairs(activeIcons) do
 		if icon.category == cat then
-			return UpdateIcon(icon, texture, count, duration, expireTime)
+			UpdateIcon(icon, texture, count, duration, expireTime)
+			return true
 		end
 	end
 	local previous = #activeIcons
@@ -201,6 +203,7 @@ local function UpdateDR(self, event, guid, cat, texture, count, duration, expire
 	icon:Show()
 	UpdateIcon(icon, texture, count, duration, expireTime)
 	UpdateFrameSize(self)
+	return true
 end
 
 local function RefreshAllIcons(self)
@@ -213,8 +216,9 @@ local function RefreshAllIcons(self)
 	if self.testMode then
 		local count = 1
 		for cat in pairs(addon.CATEGORIES) do
-			UpdateDR(self, "ToggleTestMode", self.guid, cat, addon.ICONS[cat], count, 15, GetTime()-2*count+15)
-			count = (count == 3) and 1 or (count+1)
+			if UpdateDR(self, "ToggleTestMode", self.guid, cat, addon.ICONS[cat], count, 15, GetTime()-2*count+15) then
+				count = (count % 3) + 1
+			end
 		end
 	elseif self.guid then
 		local guid = self.guid
