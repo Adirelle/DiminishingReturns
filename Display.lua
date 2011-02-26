@@ -232,16 +232,18 @@ local function UpdateGUID(self)
 	if guid == self.guid then return end
 	self.guid = guid
 	RefreshAllIcons(self)
+	return true
 end
 
 local function UpdateStatus(self)
 	local enabled = (addon.active or self.testMode) and self:GetDatabase().enabled
 	if enabled then
-		if self.enabled then
-			RefreshAllIcons(self)
-		else
+		if not self.enabled then
 			self.enabled = true
 			self:OnEnable()
+		end
+		if not UpdateGUID(self) then
+			RefreshAllIcons(self)
 		end
 	elseif self.enabled then
 		self.guid, self.enabled = nil, nil, false
@@ -270,7 +272,6 @@ local function OnFrameConfigChanged(self, event, key)
 			icon:SetWidth(iconSize)
 			icon:SetHeight(iconSize)
 		end
-		RefreshAllIcons(self)
 	end
 	UpdateStatus(self)
 end
@@ -332,7 +333,6 @@ local function OnSecureEnable(self)
 		self:RegisterEvent('PARTY_MEMBERS_CHANGED', 'UpdateGUID')
 		self:RegisterEvent('RAID_ROSTER_UPDATE', 'UpdateGUID')
 	end
-	self:UpdateGUID()
 end
 
 local function OnSecureDisable(self)
@@ -355,6 +355,7 @@ function addon:SpawnFrame(anchor, secure, GetDatabase)
 		if name == "unit" and addon.active and frame.enabled then
 			frame:OnDisable()
 			frame:OnEnable()
+			frame:UpdateGUID()
 		end
 	end)
 	return frame
