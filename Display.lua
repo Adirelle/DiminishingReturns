@@ -339,7 +339,7 @@ local function OnSecureEnable(self)
 		self:RegisterEvent('PLAYER_FOCUS_CHANGED', 'UpdateGUID')
 	elseif strsub(unit, 1, 5) == "arena" then
 		self:RegisterEvent('ARENA_OPPONENT_UPDATE', 'UpdateGUID')
-	elseif strsub(unit, 1, 5) == "party" or substr(unit, 1, 4) == "raid" then
+	elseif strsub(unit, 1, 5) == "party" or strsub(unit, 1, 4) == "raid" then
 		self:RegisterEvent('PARTY_MEMBERS_CHANGED', 'UpdateGUID')
 		self:RegisterEvent('RAID_ROSTER_UPDATE', 'UpdateGUID')
 	end
