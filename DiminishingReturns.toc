@@ -20,6 +20,7 @@ libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
 libs\AceDB-3.0\AceDB-3.0.xml
 libs\DRData-1.0\DRData-1.0.lua
 libs\LibSharedMedia-3.0\lib.xml
+libs\LibNameplate-1.0\lib.xml
 #@end-no-lib-strip@
 
 # Not installable by the CC
