@@ -5,6 +5,16 @@ local	db
 	
 addon:RegisterAddonSupport('ShadowedUnitFrames', function()
 
+	local state, version = 'unknown', GetAddonMetaData('ShadowedUnitFrames', 'Version')
+	local major = tonumber(strmatch(version, '^v?(%d+%.?%d*)'))
+	if major then
+		if major >= 2 then
+			state = 'supported'
+		else
+			return 'unsupported', version
+		end
+	end
+
 	local defaults = {
 		enabled = true,
 		iconSize = 24,
@@ -36,6 +46,7 @@ addon:RegisterAddonSupport('ShadowedUnitFrames', function()
 		RegisterFrame('arena'..index)
 	end
 		
+	return state, version
 end)
 
 	

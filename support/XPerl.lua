@@ -38,5 +38,6 @@ addon:RegisterAddonSupport('XPerl', function()
 		hooksecurefunc('XPerl_SecureUnitButton_OnLoad', addon.CheckFrame)
 	end
 	
+	return 'unknown', GetAddonMetaData('XPerl', 'Version')
 end)
 

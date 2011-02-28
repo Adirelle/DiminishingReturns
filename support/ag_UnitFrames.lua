@@ -30,5 +30,6 @@ addon:RegisterAddonSupport('ag_UnitFrames', function()
 	RegisterFrame('target')
 	RegisterFrame('focus')
 	
+	return 'unknown', GetAddonMetaData('ag_UnitFrames', 'Version')	
 end)
 

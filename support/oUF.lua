@@ -53,6 +53,7 @@ for index = 1, GetNumAddOns() do
 			local oUF = _G[global]
 			if oUF then
 				addon:DeclareOUF(parent, oUF)
+				return 'supported', oUF.version
 			end
 		end)
 	end

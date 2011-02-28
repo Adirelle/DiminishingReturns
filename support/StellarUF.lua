@@ -33,5 +33,6 @@ addon:RegisterAddonSupport('Stuf', function()
 	RegisterFrame('target')
 	RegisterFrame('focus')
 	
+	return 'unknown', GetAddonMetaData('Stuf', 'Version')
 end)
 

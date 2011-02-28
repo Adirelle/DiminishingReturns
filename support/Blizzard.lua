@@ -37,5 +37,7 @@ addon:RegisterAddonSupport('FrameXML', function()
 
 	RegisterFrame('TargetFrame', 'target')
 	RegisterFrame('FocusFrame', 'focus')
+	
+	return 'supported', GetBuildInfo()
 end)
 

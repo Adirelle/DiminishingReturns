@@ -30,5 +30,6 @@ addon:RegisterAddonSupport('PitBull4', function()
 	RegisterSingletonFrame('target')
 	RegisterSingletonFrame('focus')
 
+	return 'supported', GetAddOnMetadata("PitBull4", "Version")
 end)
 

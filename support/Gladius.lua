@@ -3,6 +3,18 @@ if not addon then return end
 
 addon:RegisterAddonSupport('Gladius', function()
 
+	local version = GetAddOnMetadata("Gladius", "Version")
+	local state = 'unknwon'
+	if strmatch(version, '^r(%d+)$') then
+		if version >= 'r20101214230855' then
+			-- First 2.0 release
+			state = 'supported'
+		end
+	elseif strmatch(version, '^v1%.%d') then
+		-- 1.x is not supported anymore
+		return 'unsupported', version
+	end
+
 	local db = addon.db:RegisterNamespace('Gladius', {profile={
 		enabled = true,
 		iconSize = 32,
@@ -39,5 +51,6 @@ addon:RegisterAddonSupport('Gladius', function()
 		end)
 	end
 	
+	return state, version
 end)
 

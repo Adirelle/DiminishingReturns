@@ -74,11 +74,19 @@ local function CheckAddonSupport()
 		if IsLoaded(name) then
 			addon:Debug('Calling addon support for', name)
 			addonCallbacks[name] = nil
-			local success, reason = pcall(callback)
+			local success, state, version = pcall(callback)
 			if success then
-				supportState[name] = '|cff00ff00'..L["active"]..'|r'
+				local color
+				if state == 'supported' then
+					color = '00ff00'
+				elseif state == "unsupported" then
+					color = 'ff0000'
+				else
+					state, color = 'unknown', 'ffff00'
+				end
+				supportState[name] = format('|cff%s%s, version %s|r', color, L[state], version or "unknown")
 			else
-				supportState[name] = '|cffff0000'..L["error: "]..reason..'|r'
+				supportState[name] = '|cffff0000'..L["error: "]..state..'|r'
 			end
 		end
 	end

@@ -27,6 +27,7 @@ addon:RegisterAddonSupport('Blizzard_ArenaUI', function()
 	for i = 1,5 do
 		addon:RegisterFrame('ArenaEnemyFrame'..i, SetupFrame)
 	end
-	
+
+	return 'supported', GetBuildInfo()	
 end)
 
