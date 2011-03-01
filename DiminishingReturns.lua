@@ -48,6 +48,8 @@ local function OnLoad(self, event, name, ...)
 	end
 
 	addon:LoadAddonSupport()
+	
+	addon:TriggerMessage('OnProfileChanged')
 
 	if IsLoggedIn() then
 		self:CheckActivation('OnLoad')

@@ -16,12 +16,6 @@ local TEXTS = {
 	{         "0", 1.0, 0.0, 0.0 }
 }
 
-local borderBackdrop = {
-	edgeFile = [[Interface\Addons\DiminishingReturns\white16x16]],
-	edgeSize = 1,
-	insets = {left = 1, right = 1, top = 1, bottom = 1},
-}
-
 local function FitTextSize(text, width, height)
 	local name, _, flags = text:GetFont()
 	text:SetFont(name, text.fontSize, flags)
@@ -58,21 +52,42 @@ end
 local LBF = LibStub('LibButtonFacade', true)
 local SkinIcon
 if LBF then
-	local group = LBF:Group("DiminishingReturns", "Icons")
+	local group = LBF:Group("DiminishingReturns")
+	addon.DEFAULT_CONFIG.ButtonFacade = { skinID = "Blizzard" }
+
+	LBF:RegisterSkinCallback("DiminishingReturns", function(_, skinID, gloss, backdrop, _, _, colors)
+		local skin = addon.db.profile.ButtonFacade
+		skin.skinID, skin.gloss, skin.backdrop, skin.colors = skinID, gloss, backdrop, colors
+	end, addon)
+	
+	addon:RegisterEvent('OnProfileChanged', function()
+		local skin = addon.db.profile.ButtonFacade
+		group:Skin(skin.skinID, skin.gloss, skin.backdrop, skin.colors)
+	end)
+	
 	function SkinIcon(icon)
-		group:AddButton(
-			icon,
-			{
-				Icon = icon.texture,
-				Cooldown = icon.cooldown,
-				--Border = icon.border,
-				Count = icon.smallText,
-				Normal = false,
-			}
-		)
+		-- Extract existing data
+		local data = {
+			Icon = icon.texture,
+			Cooldown = icon.cooldown,
+			Border = icon.border,
+			Count = icon.smallText,
+		}
+	
+		-- Create a bunch of texture to skin
+		data.Backdrop = icon:CreateTexture(nil, "BACKGROUND")
+		data.Backdrop:SetAllPoints(icon)
+		data.Normal = icon:CreateTexture(nil, "ARTWORK")
+		data.Normal:SetAllPoints(icon)
+		icon.SetNormalTexture = function(_, ...) return data.Normal:SetTexture(...) end
+
+		-- Register the icon
+		group:AddButton(icon, data)
 	end
+	
 else
-	function SkinIcon(icon)	end -- NOOP
+	 -- NOOP
+	function SkinIcon()	end
 end
 
 local function SpawnIcon(self)
@@ -82,17 +97,13 @@ local function SpawnIcon(self)
 
 	local texture = icon:CreateTexture(nil, "ARTWORK")
 	texture:SetAllPoints(icon)
-	texture:SetTexCoord(0.05, 0.95, 0.05, 0.95)
+	texture:SetTexCoord(4/64, 60/64, 4/64, 60/64)
 	texture:SetTexture(1,1,1,1)
 	icon.texture = texture
 
-	local border = CreateFrame("Frame", nil, icon)
-	border:SetPoint("CENTER", icon)
-	border:SetWidth(self.iconSize + 2)
-	border:SetHeight(self.iconSize + 2)
-	border:SetBackdrop(borderBackdrop)
-	border:SetBackdropColor(0, 0, 0, 0)
-	border:SetBackdropBorderColor(1, 1, 1, 1)
+	local border = icon:CreateTexture(nil, "OVERLAY")
+	border:SetAllPoints(icon)
+	border:SetTexture([[Interface\AddOns\DiminishingReturns\icon_border]])
 	icon.border = border
 
 	local textFrame = CreateFrame("Frame", nil, icon)
@@ -183,7 +194,7 @@ local function UpdateIcon(icon, texture, count, duration, expireTime)
 		icon.cooldown:SetCooldown(expireTime-duration, duration)
 	end
 	icon.bigText:SetTextColor(r, g, b)
-	icon.border:SetBackdropBorderColor(r, g, b, 1)
+	icon.border:SetVertexColor(r, g, b, 1)
 
 	local timer
 	if addon.db.profile.bigTimer or addon.db.profile.immunityOnly then
