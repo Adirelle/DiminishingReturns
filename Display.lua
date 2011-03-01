@@ -55,6 +55,26 @@ local function UpdateTimer(self)
 	end
 end
 
+local LBF = LibStub('LibButtonFacade', true)
+local SkinIcon
+if LBF then
+	local group = LBF:Group("DiminishingReturns", "Icons")
+	function SkinIcon(icon)
+		group:AddButton(
+			icon,
+			{
+				Icon = icon.texture,
+				Cooldown = icon.cooldown,
+				--Border = icon.border,
+				Count = icon.smallText,
+				Normal = false,
+			}
+		)
+	end
+else
+	function SkinIcon(icon)	end -- NOOP
+end
+
 local function SpawnIcon(self)
 	local icon = CreateFrame("Frame", nil, self)
 	icon:SetWidth(self.iconSize)
@@ -107,6 +127,8 @@ local function SpawnIcon(self)
 	icon.smallText = smallText
 
 	icon:SetScript('OnUpdate', UpdateTimer)
+	
+	SkinIcon(icon)
 
 	return icon
 end
