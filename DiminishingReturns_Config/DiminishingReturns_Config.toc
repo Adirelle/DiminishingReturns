@@ -11,7 +11,7 @@
 # Use awesome AddonLoader to make the configuration LoD
 ## LoadManagers: AddonLoader
 ## X-LoadOn-InterfaceOptions: Diminishing Returns
-## X-LoadOn-Slash: /dimret
+## X-LoadOn-Slash: /dimret /drstatus /drsupport
 
 #@no-lib-strip@
 ..\DiminishingReturns\libs\AceDBOptions-3.0\AceDBOptions-3.0.xml

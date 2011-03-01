@@ -122,11 +122,7 @@ function addon:LoadAddonSupport()
 	addon:RegisterEvent('ADDON_LOADED', CheckAddonSupport)
 end
 
-SLASH_DRSTATUS1 = "/drstatus"
-SLASH_DRSTATUS2 = "/drsupport"
-SlashCmdList.DRSTATUS = function()
-	print('DiminishingReturns addon support:')
-	for name, state in pairs(supportState) do
-		print('-', name, ':', state)
-	end
+function addon:IterateSupportStatus()
+	return pairs(supportState)
 end
+

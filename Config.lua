@@ -107,7 +107,7 @@ local function CreateOptions()
 				get = function() return addon.db.profile.pveMode end,
 				set = function(_, value)
 					addon.db.profile.pveMode = value
-					addon:TriggerMessage('OnConfigChanged', 'pveMode', value)				
+					addon:TriggerMessage('OnConfigChanged', 'pveMode', value)
 				end,
 				order = 15,
 			},
@@ -126,7 +126,7 @@ local function CreateOptions()
 				get = function() return addon.db.profile.soundAtReset end,
 				set = function(_, value)
 					addon.db.profile.soundAtReset = value
-					addon:TriggerMessage('OnConfigChanged', 'soundAtReset', value)				
+					addon:TriggerMessage('OnConfigChanged', 'soundAtReset', value)
 				end,
 				order = 60,
 			},
@@ -139,7 +139,7 @@ local function CreateOptions()
 				get = function() return addon.db.profile.resetSound end,
 				set = function(_, value)
 					addon.db.profile.resetSound = value
-					addon:TriggerMessage('OnConfigChanged', 'resetSound', value)				
+					addon:TriggerMessage('OnConfigChanged', 'resetSound', value)
 				end,
 				disabled = function() return not addon.db.profile.soundAtReset end,
 				order = 65,
@@ -157,14 +157,14 @@ local function CreateOptions()
 			}
 		}
 	}
-	
+
 	local alOption = {
 			name = L['Postponed loading'],
 			desc = L["Use this option to postpone loading. Once loaded, DiminishingReturns is always active outside of PvE instances.\nThis option requires AddonLoader."],
 			type = 'select',
 			order = 60,
 	}
-	
+
 	if AddonLoader and AddonLoaderSV and AddonLoaderSV.overrides then
 		local DEFAULT_VALUE = "DEFAULT"
 		local loadOnSlash = "X-LoadOn-Slash: /drtest\n"
@@ -186,9 +186,9 @@ local function CreateOptions()
 		alOption.get = function() return "always" end
 		alOption.values = { always = L['Always'] }
 	end
-	
+
 	options.args.addonLoader = alOption
-	
+
 	local pointValues = {
 		TOPLEFT = L['Top left'],
 		TOP = L['Top'],
@@ -200,7 +200,7 @@ local function CreateOptions()
 		BOTTOM = L['Bottom'],
 		BOTTOMRIGHT = L['Bottom right'],
 	}
-	
+
 	local frameOptionProto = {
 		type = 'group',
 		get = function(info)
@@ -246,14 +246,14 @@ local function CreateOptions()
 				desc = L['Use this to set the size of the gap between icons, in pixels.'],
 				type = 'range',
 				min = 0,
-				max = 20,				
+				max = 20,
 				step = 1,
 				order = 30,
 			},
 			screenAnchor = {
 				name = L['Anchor to screen'],
 				desc = L['Check this to anchor the icon bar to the screen instead of the unit frame. This allows you to place it whereever you want.'],
-				type = 'toggle',				
+				type = 'toggle',
 				order = 35,
 			},
 			anchorPoint = {
@@ -304,7 +304,63 @@ local function CreateOptions()
 			},
 		}
 	}
-	
+
+	local t = {}
+	supportOptions = {
+		name = L['Support status'],
+		type = 'group',
+		args = {
+			_ver  = {
+				name = L["DiminishingReturns"],
+				order = 1,
+				type = 'header',
+			},
+			version = {
+				name = "DiminishingReturns @project-version@ @project-date-iso@",
+				type = 'description',
+				fontSize = "medium",
+				order = 10,
+			},
+			_drdata  = {
+				name = L["DRData-1.0 (DR categorization data)"],
+				order = 20,
+				type = 'header',
+			},
+			drdata = {
+				name = function()
+					local _, minor = LibStub('DRData-1.0')
+					return format(L["Internal version: %d"], minor)
+				end,
+				type = 'description',
+				fontSize = "medium",
+				order = 30,
+			},
+			_addons  = {
+				name = L["Addon support"],
+				order = 40,
+				type = 'header',
+			},
+			addons = {
+				name = function()
+					wipe(t)
+					for name, state in addon:IterateSupportStatus() do
+						tinsert(t, format("%s: %s", name, state))
+					end
+					return table.concat(t, "\n\n")
+				end,
+				type = 'description',
+				fontSize = "medium",
+				order = 50,
+			},
+			refresh = {
+				name = L['Refresh'],
+				type = 'execute',
+				func = function() end, -- Cause the GUI to refresh anyway
+				order = -1,
+			}
+		}
+	}
+
 	-- Replace registry function
 	function addon:RegisterFrameConfig(label, getDatabaseCallback)
 		local key = label:gsub('[^%w]', '_')
@@ -318,7 +374,7 @@ local function CreateOptions()
 		frameOptions.args.empty = nil
 		frameOptions.args[key] = opts
 	end
-	
+
 	-- Register existing config
 	if addon.pendingFrameConfig then
 		for label, getDatabaseCallback in pairs(addon.pendingFrameConfig) do
@@ -337,11 +393,15 @@ local AceConfigDialog = LibStub("AceConfigDialog-3.0")
 
 -- Main options
 AceConfig:RegisterOptionsTable('DimRet-main', function() if not options then CreateOptions() end return options end)
-AceConfigDialog:AddToBlizOptions('DimRet-main', OPTION_CATEGORY)
+local optionPanel = AceConfigDialog:AddToBlizOptions('DimRet-main', OPTION_CATEGORY)
 
 -- Frame options
 AceConfig:RegisterOptionsTable('DimRet-frames', function() if not frameOptions then CreateOptions() end return frameOptions end)
 AceConfigDialog:AddToBlizOptions('DimRet-frames', L['Frame options'], OPTION_CATEGORY)
+
+-- Support status
+AceConfig:RegisterOptionsTable('DimRet-support', function() if not supportOptions then CreateOptions() end return supportOptions end)
+local supportStatusPanel AceConfigDialog:AddToBlizOptions('DimRet-support', L['Addon support'], OPTION_CATEGORY)
 
 -- Profile options
 local dbOptions = LibStub('AceDBOptions-3.0'):GetOptionsTable(addon.db)
@@ -353,5 +413,10 @@ AceConfigDialog:AddToBlizOptions('DimRet-profiles', dbOptions.name, OPTION_CATEG
 
 -- Slash command
 _G['SLASH_DIMRET1'] = '/dimret'
-SlashCmdList.DIMRET = function() InterfaceOptionsFrame_OpenToCategory(OPTION_CATEGORY) end
+SlashCmdList.DIMRET = function() InterfaceOptionsFrame_OpenToCategory(optionPanel) end
 
+_G["SLASH_DRSTATUS1"] = "/drstatus"
+_G["SLASH_DRSTATUS2"] = "/drsupport"
+SlashCmdList.DRSTATUS = function()
+	InterfaceOptionsFrame_OpenToCategory(supportStatusPanel)
+end
