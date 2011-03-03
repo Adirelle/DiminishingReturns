@@ -46,10 +46,10 @@ local function OnLoad(self, event, name, ...)
 		self.LibDualSpec = LibDualSpec
 		LibDualSpec:EnhanceDatabase(db, "Diminishing Returns")
 	end
-
-	addon:LoadAddonSupport()
 	
 	addon:TriggerMessage('OnProfileChanged')
+
+	addon:LoadAddonSupport()
 
 	if IsLoggedIn() then
 		self:CheckActivation('OnLoad')

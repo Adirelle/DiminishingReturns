@@ -5,6 +5,10 @@ local DRData = LibStub('DRData-1.0')
 local SharedMedia = LibStub('LibSharedMedia-3.0')
 local band = bit.band
 
+-- database upvalue
+local prefs
+addon:RegisterEvent('OnProfileChanged', function() prefs = addon.db.profile end)
+
 local CATEGORIES = DRData:GetCategories()
 addon.CATEGORIES = CATEGORIES
 
@@ -182,10 +186,9 @@ local function ParseCLEU(self, _, timestamp, event, _, srcName, srcFlags, guid, 
 	if not increase or not category then return end
 	-- Ignore mobs for non-PvE categories
 	local isPlayer = band(flags, CLO_TYPE_PET_OR_PLAYER) ~= 0 or band(flags, CLO_CONTROL_PLAYER) ~= 0
-	local prefs = addon.db.profile
-	if not isPlayer and (not addon.db.profile.pveMode or not DRData:IsPVE(category)) then return end
+	if not isPlayer and (not prefs.pveMode or not DRData:IsPVE(category)) then return end
 	-- Category auto-learning
-	if prefs.learnCategories and band(srcFlags, CLO_AFFILIATION_MINE) ~= 0 and not prefs.categories[category] then
+	if prefs.learnCategories and band(srcFlags, CLO_AFFILIATION_MINE) ~= 0 then
 		prefs.categories[category] = true
 	end
 	-- Now do the job
@@ -229,7 +232,7 @@ timerFrame:SetScript('OnUpdate', function(self, elapsed)
 		return
 	end
 	local now = GetTime()
-	local watched = addon.db.profile.categories
+	local watched = prefs.categories
 	local hasReset = false
 	timer = 0.1
 	for guid, drs in pairs(runningDR) do
@@ -242,8 +245,8 @@ timerFrame:SetScript('OnUpdate', function(self, elapsed)
 			end
 		end
 	end
-	if hasReset and addon.db.profile.soundAtReset then
-		local key = addon.db.profile.resetSound
+	if hasReset and prefs.soundAtReset then
+		local key = prefs.resetSound
 		local media = SharedMedia:Fetch('sound', key)
 		addon:Debug('PlaySound', key, media)
 		PlaySound(media)
@@ -273,7 +276,7 @@ local inDuel = false
 function addon:CheckActivation(event)
 	local activate = false
 	if spellsResolved then
-		if addon.db.profile.pveMode then
+		if prefs.pveMode then
 			activate = not IsResting()
 			self:Debug('CheckActivation(PvE)', event, activate, "<= IsResting=", IsResting())
 		else
@@ -284,13 +287,13 @@ function addon:CheckActivation(event)
 	end
 	if activate then
 		if not addon.active then
-			addon:Debug('CheckActivation, pveMode=', addon.db.profile.pveMode, ', activating')
+			addon:Debug('CheckActivation, pveMode=', prefs.pveMode, ', activating')
 			addon:RegisterEvent('COMBAT_LOG_EVENT_UNFILTERED', ParseCLEU)
 			addon.active = true
 			addon:TriggerMessage('EnableDR')
 		end
 	elseif addon.active then
-		addon:Debug('CheckActivation, pveMode=', addon.db.profile.pveMode, ', disactivating')
+		addon:Debug('CheckActivation, pveMode=', prefs.pveMode, ', disactivating')
 		addon:UnregisterEvent('COMBAT_LOG_EVENT_UNFILTERED', ParseCLEU)
 		WipeAll()
 		addon.active = false

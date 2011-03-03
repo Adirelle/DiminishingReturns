@@ -16,6 +16,10 @@ local TEXTS = {
 	{         "0", 1.0, 0.0, 0.0 }
 }
 
+-- database upvalue
+local prefs
+addon:RegisterEvent('OnProfileChanged', function() prefs = addon.db.profile end)
+
 local function FitTextSize(text, width, height)
 	local name, _, flags = text:GetFont()
 	text:SetFont(name, text.fontSize, flags)
@@ -37,7 +41,7 @@ local function UpdateTimer(self)
 	if timeLeft <= 0 then
 		timer.expireTimer, timer.timeLeft = nil, nil
 		return timer:Hide()
-	elseif timeLeft < 3 and addon.db.profile.bigTimer then
+	elseif timeLeft < 3 and prefs.bigTimer then
 		timeLeft = strformat("%.1f", ceil(timeLeft * 10) / 10)
 	else
 		timeLeft = tostring(ceil(timeLeft))
@@ -49,6 +53,7 @@ local function UpdateTimer(self)
 	end
 end
 
+local AdiEvent = LibStub('LibAdiEvent-1.0')
 local LBF = LibStub('LibButtonFacade', true)
 local SkinIcon
 if LBF then
@@ -56,12 +61,12 @@ if LBF then
 	addon.DEFAULT_CONFIG.ButtonFacade = { skinID = "Blizzard" }
 
 	LBF:RegisterSkinCallback("DiminishingReturns", function(_, skinID, gloss, backdrop, _, _, colors)
-		local skin = addon.db.profile.ButtonFacade
+		local skin = prefs.ButtonFacade
 		skin.skinID, skin.gloss, skin.backdrop, skin.colors = skinID, gloss, backdrop, colors
 	end, addon)
 	
 	addon:RegisterEvent('OnProfileChanged', function()
-		local skin = addon.db.profile.ButtonFacade
+		local skin = prefs.ButtonFacade
 		group:Skin(skin.skinID, skin.gloss, skin.backdrop, skin.colors)
 	end)
 	
@@ -197,7 +202,7 @@ local function UpdateIcon(icon, texture, count, duration, expireTime)
 	icon.border:SetVertexColor(r, g, b, 1)
 
 	local timer
-	if addon.db.profile.bigTimer or addon.db.profile.immunityOnly then
+	if prefs.bigTimer or prefs.immunityOnly then
 		timer = icon.bigText
 		icon.smallText:Hide()
 	else
@@ -217,7 +222,7 @@ local function UpdateDR(self, event, guid, cat, texture, count, duration, expire
 	if guid ~= self.guid or not addon.db.profile.categories[cat] then
 		return
 	end
-	if count == 0 or (count < 3 and addon.db.profile.immunityOnly) then
+	if count == 0 or (count < 3 and prefs.immunityOnly) then
 		RemoveDR(self, event, guid, cat)
 		return true
 	end
@@ -316,8 +321,6 @@ local function OnFrameConfigChanged(self, event, key)
 	end
 	UpdateStatus(self)
 end
-
-local AdiEvent = LibStub('LibAdiEvent-1.0')
 
 function addon:SpawnGenericFrame(anchor, GetDatabase, GetGUID, OnEnable, OnDisable, ...)
 	addon:Debug('Attaching to frame', anchor:GetName())
