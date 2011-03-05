@@ -5,10 +5,12 @@ h2. Features
 * display running diminishing returns as icons, showing the diminishing status and remaining time,
 * uses DR category database from "DRData-1.0":http://wow.curse.com/downloads/wow-addons/details/drdata-1-0.aspx,
 * select which categories to show or enable the learning option so they are detected automatically,
+* (new in v1.1-beta-3) can track diminishing returns on group members,
 * main options and icon layout options are available using @/dimret@ and in the addon tab of interface options,
 * test mode available using @/drtest@.
 * "LibDualSpec-1.0":http://wow.curse.com/downloads/wow-addons/details/libdualspec-1-0.aspx support for per-spec profiles,
-* "AddonLoader":http://wow.curse.com/downloads/wow-addons/details/addon-loader.aspx support to reduce logon time.
+* "AddonLoader":http://wow.curse.com/downloads/wow-addons/details/addon-loader.aspx support to reduce logon time,
+* (new in v1.1-beta-3) "ButtonFacade":http://wow.curse.com/downloads/wow-addons/details/buttonfacade.aspx support.
 
 h2. Supported unit frames
 
@@ -28,7 +30,9 @@ The icon layout for each frame is configurable using the "frame layout" entry in
 To help understanding what is happening, you can use the /drsupport chat command, it will list all supported addon and their current state. DiminishingReturns relies on Blizzard API so if an addon is listed as "not installed", this is because WoW itself has not found it.
 
 Possible states:
-* active: the addon has been loaded and DiminishingReturns support is fully active.
+* supported: a fully-supported version of the addon has been loaded.
+* unsupported: an unsupported version of the addon has been loaded; DiminishingReturns ignores it.
+* unknown: the addon has been loaded but DiminishingReturns has not recognized its version; it may or may not work.
 * error: the addon has been loaded but an error occured in DiminishingReturns support code. Please report it.
 * to be loaded: the addon is installed but not loaded yet.
 * cannot be loaded: the addon is installed but the game client could not load it for some reason.
