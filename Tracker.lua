@@ -19,6 +19,7 @@ local CL_EVENTS = {
 }
 
 local CLO_AFFILIATION_MINE = COMBATLOG_OBJECT_AFFILIATION_MINE
+local CLO_AFFILIATION_FRIEND = bit.bor(CLO_AFFILIATION_MINE, COMBATLOG_OBJECT_AFFILIATION_PARTY, COMBATLOG_OBJECT_AFFILIATION_RAID)
 local CLO_CONTROL_PLAYER = COMBATLOG_OBJECT_CONTROL_PLAYER
 local CLO_REACTION_FRIENDLY = COMBATLOG_OBJECT_REACTION_FRIENDLY
 local CLO_TYPE_PET_OR_PLAYER = bit.bor(COMBATLOG_OBJECT_TYPE_PET, COMBATLOG_OBJECT_TYPE_PLAYER)
@@ -179,8 +180,12 @@ local function ParseCLEU(self, _, timestamp, event, _, srcName, srcFlags, guid, 
 		end
 		return
 	end
-	-- Ignore targetted friends
-	if band(flags, CLO_REACTION_FRIENDLY) ~= 0 then return end
+	-- Ignore friends unless asked for
+	local isFriend = false
+	if band(flags, CLO_REACTION_FRIENDLY) ~= 0 then
+		isFriend = band(flags, CLO_AFFILIATION_FRIEND) ~= 0
+		if not isFriend then return end -- Ignore outsiders
+	end
 	-- Ignore any spell or event we are not interested with
 	local increase, category = CL_EVENTS[event], SPELLS[spellId] or SPELLS[spell]
 	if not increase or not category then return end
@@ -201,6 +206,7 @@ local function ParseCLEU(self, _, timestamp, event, _, srcName, srcFlags, guid, 
 	local now = GetTime()
 	if not dr then
 		dr = new()
+		dr.isFriend = isFriend
 		dr.texture = ICONS[category]
 		dr.count = 0
 		targetDR[category] = dr
@@ -210,7 +216,7 @@ local function ParseCLEU(self, _, timestamp, event, _, srcName, srcFlags, guid, 
 	dr.expireTime = now + duration
 	if dr.count > 0 then
 		assert(type(duration) == "number")
-		self:TriggerMessage('UpdateDR', guid, category, dr.texture, dr.count, duration, dr.expireTime)
+		self:TriggerMessage('UpdateDR', guid, category, dr.isFriend, dr.texture, dr.count, duration, dr.expireTime)
 	end
 	timerFrame:Show()
 end
@@ -257,7 +263,7 @@ local function IterFunc(targetDR, cat)
 	local dr
 	cat, dr = next(targetDR, cat)
 	if cat then
-		return cat, dr.texture, dr.count, addon.db.profile.resetDelay, dr.expireTime
+		return cat, dr.isFriend, dr.texture, dr.count, prefs.resetDelay, dr.expireTime
 	end
 end
 

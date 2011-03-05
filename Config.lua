@@ -100,6 +100,17 @@ local function CreateOptions()
 				end,
 				order = 40,
 			},
+			friendly = {
+				name = L['Watch friends'],
+				desc = L['Track diminishing returns on group members.'],
+				type = 'toggle',
+				get = function() return addon.db.profile.friendly end,
+				set = function(_, value)
+					addon.db.profile.friendly = value
+					addon:TriggerMessage('OnConfigChanged', 'friendly', value)
+				end,
+				order = 16,
+			},
 			pveMode = {
 				name = L['PvE mode'],
 				desc = L['Check this box to display diminishing returns on mobs. Please remember that diminishing returns usually do not apply to mobs.'],

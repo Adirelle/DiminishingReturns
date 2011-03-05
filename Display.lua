@@ -218,8 +218,8 @@ local function UpdateIcon(icon, texture, count, duration, expireTime)
 	UpdateTimer(icon)
 end
 
-local function UpdateDR(self, event, guid, cat, texture, count, duration, expireTime)
-	if guid ~= self.guid or not addon.db.profile.categories[cat] then
+local function UpdateDR(self, event, guid, cat, isFriend, texture, count, duration, expireTime)
+	if guid ~= self.guid or (not prefs.categories[cat] and not (isFriend and prefs.friendly)) then
 		return
 	end
 	if count == 0 or (count < 3 and prefs.immunityOnly) then
@@ -254,14 +254,14 @@ local function RefreshAllIcons(self)
 	if self.testMode then
 		local count = 1
 		for cat in pairs(addon.CATEGORIES) do
-			if UpdateDR(self, "ToggleTestMode", self.guid, cat, addon.ICONS[cat], count, 15, GetTime()-2*count+15) then
+			if UpdateDR(self, "ToggleTestMode", self.guid, cat, true, addon.ICONS[cat], count, 15, GetTime()-2*count+15) then
 				count = (count % 3) + 1
 			end
 		end
 	elseif self.guid then
 		local guid = self.guid
-		for cat, texture, count, duration, expireTime in addon:IterateDR(guid) do
-			UpdateDR(self, "UpdateGUID", guid, cat, texture, count, duration, expireTime)
+		for cat, isFriend, texture, count, duration, expireTime in addon:IterateDR(guid) do
+			UpdateDR(self, "UpdateGUID", guid, cat, isFriend, texture, count, duration, expireTime)
 		end
 	else
 		return self:Hide()
