@@ -3,20 +3,17 @@ if not addon then return end
 
 addon:RegisterAddonSupport('PitBull4', function()
 
-	local defaults = {
-		enabled = true,
-		iconSize = 24,
-		direction = 'RIGHT',
-		spacing = 2,
-		anchorPoint = 'TOPLEFT',
-		relPoint = 'BOTTOMLEFT',
-		xOffset = 0,
-		yOffset = -4,
-	}
-
 	local db = addon.db:RegisterNamespace('PitBull4', {profile={
-		target = defaults,
-		focus = defaults,
+		['*'] = {
+			enabled = true,
+			iconSize = 24,
+			direction = 'RIGHT',
+			spacing = 2,
+			anchorPoint = 'TOPLEFT',
+			relPoint = 'BOTTOMLEFT',
+			xOffset = 0,
+			yOffset = -4,
+		}
 	}})
 
 	local function RegisterSingletonFrame(unit)

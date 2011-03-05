@@ -3,20 +3,17 @@ if not addon then return end
 
 addon:RegisterAddonSupport('XPerl', function()
 
-	local defaults = {
-		enabled = true,
-		iconSize = 24,
-		direction = 'RIGHT',
-		spacing = 2,
-		anchorPoint = 'BOTTOMLEFT',
-		relPoint = 'TOPLEFT',
-		xOffset = 4,
-		yOffset = 4,
-	}
-
 	local db = addon.db:RegisterNamespace('XPerl', {profile={
-		target = defaults,
-		focus = defaults,
+		['*'] = {
+			enabled = true,
+			iconSize = 24,
+			direction = 'RIGHT',
+			spacing = 2,
+			anchorPoint = 'BOTTOMLEFT',
+			relPoint = 'TOPLEFT',
+			xOffset = 4,
+			yOffset = 4,
+		}
 	}})
 	
 	local function ucfirst(s)

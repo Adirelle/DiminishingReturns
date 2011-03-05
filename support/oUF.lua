@@ -3,20 +3,17 @@ if not addon then return end
 
 -- This allow oUF addons to add support themselves
 function addon:DeclareOUF(parent, oUF)
-	local defaults = {
-		enabled = true,
-		iconSize = 24,
-		direction = 'RIGHT',
-		spacing = 2,
-		anchorPoint = 'TOPLEFT',
-		relPoint = 'BOTTOMLEFT',
-		xOffset = 0,
-		yOffset = -4,
-	}
-
-	db = addon.db:RegisterNamespace(parent, {profile={
-		target = defaults,
-		focus = defaults,
+	local db = addon.db:RegisterNamespace(parent, {profile={
+		['*'] = {
+			enabled = true,
+			iconSize = 24,
+			direction = 'RIGHT',
+			spacing = 2,
+			anchorPoint = 'TOPLEFT',
+			relPoint = 'BOTTOMLEFT',
+			xOffset = 0,
+			yOffset = -4,
+		}
 	}})
 	
 	local getDatabaseFuncs = {}

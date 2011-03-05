@@ -3,28 +3,33 @@ if not addon then return end
 
 -- FrameXML is a internal fake to have this working like other support
 addon:RegisterAddonSupport('FrameXML', function()
+
+	local topFrameDefaults = {
+		direction = 'BOTTOM',
+		anchorPoint = 'TOPLEFT',
+		relPoint = 'TOPRIGHT',
+		xOffset = -25,
+		yOffset = -20,
+	}
+	
+	local leftFrameDefaults = {
+		direction = 'RIGHT',
+		anchorPoint = 'TOPLEFT',
+		relPoint = 'BOTTOMLEFT',
+		xOffset = 14,
+		yOffset = 28,
+	}
 	
 	local db = addon.db:RegisterNamespace('Blizzard', {profile={
-		target = {
+		['**'] = {
 			enabled = true,
 			iconSize = 16,
-			direction = 'BOTTOM',
 			spacing = 2,
-			anchorPoint = 'TOPLEFT',
-			relPoint = 'TOPRIGHT',
-			xOffset = -25,
-			yOffset = -20,
 		},
-		focus = {
-			enabled = true,
-			iconSize = 16,
-			direction = 'RIGHT',
-			spacing = 2,
-			anchorPoint = 'TOPLEFT',
-			relPoint = 'BOTTOMLEFT',
-			xOffset = 14,
-			yOffset = 28,
-		},
+		target = topFrameDefaults,
+		player = topFrameDefaults,
+		focus = leftFrameDefaults,
+		party = leftFrameDefaults,
 	}})
 	
 	local function RegisterFrame(name, unit)
