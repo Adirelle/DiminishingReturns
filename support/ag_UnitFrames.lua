@@ -16,16 +16,14 @@ addon:RegisterAddonSupport('ag_UnitFrames', function()
 		}
 	}})
 	
-	local function RegisterFrame(unit)
-		local function GetDatabase() return db.profile[unit], db end
-		addon:RegisterFrameConfig('aUF: '..addon.L[unit], GetDatabase)
+	addon:RegisterCommonFrames(function(unit)
+		local refUnit = gsub(unit, "%d+$", "")
+		local function GetDatabase() return db.profile[refUnit], db end
+		addon:RegisterFrameConfig('aUF: '..addon.L[refUnit], GetDatabase)
 		addon:RegisterFrame('aUF'..unit, function(frame)
 			return addon:SpawnFrame(frame, frame, GetDatabase)
 		end)
-	end
-
-	RegisterFrame('target')
-	RegisterFrame('focus')
+	end)
 	
 	return 'unknown', GetAddonMetaData('ag_UnitFrames', 'Version')	
 end)

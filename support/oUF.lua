@@ -20,16 +20,18 @@ function addon:DeclareOUF(parent, oUF)
 	
 	-- Frame checking code
 	local function CheckFrame(frame)
-		local unit = frame.unit
-		if unit ~= 'target' and unit ~= 'focus' then return end
-		local GetDatabase = getDatabaseFuncs[unit]
-		if not GetDatabase then
-			-- Avoid creating several time the same config
-			GetDatabase = function() return db.profile[unit], db end
-			addon:RegisterFrameConfig(parent..': '..addon.L[unit], GetDatabase)
-			getDatabaseFuncs[unit] = GetDatabase
+		local unit = frame:GetAttribute('oUF-guessUnit') or frame.unit
+		local refUnit = gsub(unit, "%d+$", "")
+		if refUnit == "player" or refUnit == "target" or refUnit == "focus" or refUnit == "arena" or refUnit == "party" or refUnit == "raid" then
+			local GetDatabase = getDatabaseFuncs[refUnit]
+			if not GetDatabase then
+				-- Avoid creating several time the same config
+				GetDatabase = function() return db.profile[refUnit], db end
+				addon:RegisterFrameConfig(parent..': '..addon.L[refUnit], GetDatabase)
+				getDatabaseFuncs[refUnit] = GetDatabase
+			end
+			return addon:SpawnFrame(frame, frame, GetDatabase)
 		end
-		return addon:SpawnFrame(frame, frame, GetDatabase)
 	end
 
 	-- Check existing frames	

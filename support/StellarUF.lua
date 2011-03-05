@@ -16,17 +16,15 @@ addon:RegisterAddonSupport('Stuf', function()
 		}
 	}})
 
-	local function RegisterFrame(unit)
+	addon:RegisterCommonFrames(function(unit)
 		local function GetDatabase() return db.profile[unit], db end
 		addon:RegisterFrameConfig('STUF: '..addon.L[unit], GetDatabase)
 		addon:RegisterFrame('Stuf.units.'..unit, function(frame)
 			return addon:SpawnFrame(frame, frame, GetDatabase)
 		end)
-	end
-
-	RegisterFrame('target')
-	RegisterFrame('focus')
+	end)
 	
 	return 'unknown', GetAddonMetaData('Stuf', 'Version')
+
 end)
 

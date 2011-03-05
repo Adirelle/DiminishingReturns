@@ -16,16 +16,13 @@ addon:RegisterAddonSupport('PitBull4', function()
 		}
 	}})
 
-	local function RegisterSingletonFrame(unit)
+	addon:RegisterCommonFrames(function(unit)
 		local function GetDatabase() return db.profile[unit], db end
 		addon:RegisterFrameConfig('PitBull4: '..addon.L[unit], GetDatabase)
 		addon:RegisterFrame('PitBull4_Frames_'..unit, function(frame)
 			return addon:SpawnFrame(frame, frame, GetDatabase)
 		end)
-	end
-
-	RegisterSingletonFrame('target')
-	RegisterSingletonFrame('focus')
+	end)
 
 	return 'supported', GetAddOnMetadata("PitBull4", "Version")
 end)

@@ -33,8 +33,9 @@ addon:RegisterAddonSupport('FrameXML', function()
 	}})
 	
 	local function RegisterFrame(name, unit)
-		local function GetDatabase() return db.profile[unit], db end
-		addon:RegisterFrameConfig('Blizzard: '..addon.L[unit], GetDatabase)
+		local refUnit = gsub(unit, "%d+$", "")
+		local function GetDatabase() return db.profile[refUnit], db end
+		addon:RegisterFrameConfig('Blizzard: '..addon.L[refUnit], GetDatabase)
 		addon:RegisterFrame(name, function(frame)
 			return addon:SpawnFrame(frame, frame, GetDatabase)
 		end)
@@ -42,6 +43,11 @@ addon:RegisterAddonSupport('FrameXML', function()
 
 	RegisterFrame('TargetFrame', 'target')
 	RegisterFrame('FocusFrame', 'focus')
+	RegisterFrame('PlayerFrame', 'player')
+	RegisterFrame('FocusFrame', 'focus')
+	for i = 1, 4 do
+		RegisterFrame('PartyMemberFrame'..i, 'party'..i)
+	end
 	
 	return 'supported', GetBuildInfo()
 end)

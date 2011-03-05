@@ -126,3 +126,18 @@ function addon:IterateSupportStatus()
 	return pairs(supportState)
 end
 
+local commonUnits = { target = true, player = true, focus = true }
+for i = 1, 5 do
+	commonUnits["party"..i] = true
+	commonUnits["raid"..i] = true
+	commonUnits["arena"..i] = true
+end
+
+function addon:RegisterCommonFrames(func)
+	for unit in pairs(commonUnits) do
+		local ok, message = pcall(func, unit)
+		if not ok then
+			geterrorhandler()(message)
+		end
+	end
+end

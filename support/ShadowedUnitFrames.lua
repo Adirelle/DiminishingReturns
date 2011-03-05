@@ -26,19 +26,14 @@ addon:RegisterAddonSupport('ShadowedUnitFrames', function()
 		}
 	}})
 
-	local function RegisterFrame(unit)
-		local function GetDatabase() return db.profile[unit], db end
-		addon:RegisterFrameConfig('SUF: '..addon.L[unit], GetDatabase)
+	addon:RegisterCommonFrames(function(unit)
+		local refUnit = gsub(unit, "%d+$", "")
+		local function GetDatabase() return db.profile[refUnit], db end
+		addon:RegisterFrameConfig('SUF: '..addon.L[refUnit], GetDatabase)
 		addon:RegisterFrame('SUFUnit'..unit, function(frame)
 			return addon:SpawnFrame(frame, frame, GetDatabase)
 		end)
-	end
-
-	RegisterFrame('target')
-	RegisterFrame('focus')
-	for index = 1, 5 do
-		RegisterFrame('arena'..index)
-	end
+	end)
 		
 	return state, version
 end)
