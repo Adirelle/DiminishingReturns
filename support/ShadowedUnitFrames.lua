@@ -3,7 +3,7 @@ if not addon then return end
 
 addon:RegisterAddonSupport('ShadowedUnitFrames', function()
 
-	local state, version = 'unknown', GetAddonMetaData('ShadowedUnitFrames', 'Version')
+	local state, version = 'unknown', GetAddOnMetadata('ShadowedUnitFrames', 'Version')
 	local major = tonumber(strmatch(version, '^v?(%d+%.?%d*)'))
 	if major then
 		if major >= 2 then

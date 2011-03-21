@@ -412,7 +412,7 @@ AceConfigDialog:AddToBlizOptions('DimRet-frames', L['Frame options'], OPTION_CAT
 
 -- Support status
 AceConfig:RegisterOptionsTable('DimRet-support', function() if not supportOptions then CreateOptions() end return supportOptions end)
-local supportStatusPanel AceConfigDialog:AddToBlizOptions('DimRet-support', L['Addon support'], OPTION_CATEGORY)
+local supportStatusPanel = AceConfigDialog:AddToBlizOptions('DimRet-support', L['Addon support'], OPTION_CATEGORY)
 
 -- Profile options
 local dbOptions = LibStub('AceDBOptions-3.0'):GetOptionsTable(addon.db)
