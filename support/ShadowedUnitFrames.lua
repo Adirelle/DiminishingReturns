@@ -16,21 +16,22 @@ addon:RegisterAddonSupport('ShadowedUnitFrames', function()
 	local db = addon.db:RegisterNamespace('ShadowedUnitFrames', {profile={
 		['*'] = {
 			enabled = true,
-			iconSize = 24,
+			iconSize = 16,
 			direction = 'RIGHT',
 			spacing = 2,
 			anchorPoint = 'TOPLEFT',
-			relPoint = 'BOTTOMLEFT',
-			xOffset = 0,
+			relPoint = 'TOPRIGHT',
+			xOffset = 4,
 			yOffset = -4,
 		}
 	}})
 
 	addon:RegisterCommonFrames(function(unit)
-		local refUnit = gsub(unit, "%d+$", "")
+		local refUnit, index = strmatch(unit, "^(%w-)(%d*)$")
+		local name = index ~= "" and format("SUFHeader%sUnitButton%s", refUnit, index) or format("SUFUnit%s", refUnit)
 		local function GetDatabase() return db.profile[refUnit], db end
 		addon:RegisterFrameConfig('SUF: '..addon.L[refUnit], GetDatabase)
-		addon:RegisterFrame('SUFUnit'..unit, function(frame)
+		addon:RegisterFrame(name, function(frame)
 			return addon:SpawnFrame(frame, frame, GetDatabase)
 		end)
 	end)
