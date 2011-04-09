@@ -221,6 +221,11 @@ local function ParseCLEU(self, _, timestamp, event, _, srcName, srcFlags, guid, 
 	timerFrame:Show()
 end
 
+if select(4, GetBuildInfo()) >= 40100 then
+	local ParseCLEU40 = ParseCLEU
+	ParseCLEU = function(self, _, timestamp, event, _, ...) return ParseCLEU40(self, _, timestamp, event, ...) end
+end
+
 local function WipeAll(self)
 	for guid, drs in pairs(runningDR) do
 		for category in pairs(drs) do
