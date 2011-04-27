@@ -172,7 +172,7 @@ local function RemoveAllDR(guid)
 	end
 end
 
-local function ParseCLEU(self, _, timestamp, event, _, srcName, srcFlags, guid, name, flags, spellId, spell)
+local function ParseCLEU(self, _, timestamp, event, _, _, srcName, srcFlags, guid, name, flags, spellId, spell)
 	-- Always process UNIT_DIED if we have information about the unit
 	if event == 'UNIT_DIED' then
 		if runningDR[guid] then
@@ -219,11 +219,6 @@ local function ParseCLEU(self, _, timestamp, event, _, srcName, srcFlags, guid, 
 		self:TriggerMessage('UpdateDR', guid, category, dr.isFriend, dr.texture, dr.count, duration, dr.expireTime)
 	end
 	timerFrame:Show()
-end
-
-if select(4, GetBuildInfo()) >= 40100 then
-	local ParseCLEU40 = ParseCLEU
-	ParseCLEU = function(self, _, timestamp, event, _, ...) return ParseCLEU40(self, _, timestamp, event, ...) end
 end
 
 local function WipeAll(self)
