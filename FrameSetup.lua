@@ -1,3 +1,9 @@
+--[[
+Diminishing Returns - Attach diminishing return icons to unit frames.
+Copyright 2009-2011 Adirelle (adirelle@tagada-team.net)
+All rights reserved.
+--]]
+
 local addon = _G.DiminishingReturns
 if not addon then return end
 local L = addon.L

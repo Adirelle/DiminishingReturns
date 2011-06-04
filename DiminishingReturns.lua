@@ -1,3 +1,9 @@
+--[[
+Diminishing Returns - Attach diminishing return icons to unit frames.
+Copyright 2009-2011 Adirelle (adirelle@tagada-team.net)
+All rights reserved.
+--]]
+
 -- Addon creation and initialization
 
 _G.DiminishingReturns = CreateFrame("Frame")
