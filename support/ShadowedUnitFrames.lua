@@ -35,8 +35,8 @@ addon:RegisterAddonSupport('ShadowedUnitFrames', function()
 			return addon:SpawnFrame(frame, frame, GetDatabase)
 		end)
 	end)
-		
+
 	return state, version
 end)
 
-	
+

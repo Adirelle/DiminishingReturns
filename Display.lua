@@ -64,12 +64,12 @@ if LBF then
 		local skin = prefs.ButtonFacade
 		skin.skinID, skin.gloss, skin.backdrop, skin.colors = skinID, gloss, backdrop, colors
 	end, addon)
-	
+
 	addon:RegisterEvent('OnProfileChanged', function()
 		local skin = prefs.ButtonFacade
 		group:Skin(skin.skinID, skin.gloss, skin.backdrop, skin.colors)
 	end)
-	
+
 	function SkinIcon(icon)
 		-- Extract existing data
 		local data = {
@@ -78,7 +78,7 @@ if LBF then
 			Border = icon.border,
 			Count = icon.smallText,
 		}
-	
+
 		-- Create a bunch of texture to skin
 		data.Backdrop = icon:CreateTexture(nil, "BACKGROUND")
 		data.Backdrop:SetAllPoints(icon)
@@ -89,7 +89,7 @@ if LBF then
 		-- Register the icon
 		group:AddButton(icon, data)
 	end
-	
+
 else
 	 -- NOOP
 	function SkinIcon()	end
@@ -143,7 +143,7 @@ local function SpawnIcon(self)
 	icon.smallText = smallText
 
 	icon:SetScript('OnUpdate', UpdateTimer)
-	
+
 	SkinIcon(icon)
 
 	return icon

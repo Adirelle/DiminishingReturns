@@ -15,7 +15,7 @@ addon:RegisterAddonSupport('ag_UnitFrames', function()
 			yOffset = -4,
 		}
 	}})
-	
+
 	addon:RegisterCommonFrames(function(unit)
 		local refUnit = gsub(unit, "%d+$", "")
 		local function GetDatabase() return db.profile[refUnit], db end
@@ -24,7 +24,7 @@ addon:RegisterAddonSupport('ag_UnitFrames', function()
 			return addon:SpawnFrame(frame, frame, GetDatabase)
 		end)
 	end)
-	
+
 	return 'unknown', GetAddonMetaData('ag_UnitFrames', 'Version')	
 end)
 

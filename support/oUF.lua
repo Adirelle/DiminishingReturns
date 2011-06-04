@@ -15,9 +15,9 @@ function addon:DeclareOUF(parent, oUF)
 			yOffset = -4,
 		}
 	}})
-	
+
 	local getDatabaseFuncs = {}
-	
+
 	-- Frame checking code
 	local function CheckFrame(frame)
 		local unit = frame:GetAttribute('oUF-guessUnit') or frame.unit
@@ -34,17 +34,17 @@ function addon:DeclareOUF(parent, oUF)
 		end
 	end
 
-	-- Check existing frames	
+	-- Check existing frames
 	for i, frame in pairs(oUF.objects) do
 		CheckFrame(frame)
-	end	
-	
+	end
+
 	-- Register check for future frames
 	oUF:RegisterInitCallback(CheckFrame)
 end
 
 -- Scan for declared oUF
-for index = 1, GetNumAddOns() do 
+for index = 1, GetNumAddOns() do
 	local global = GetAddOnMetadata(index, 'X-oUF')
 	if global then
 		local parent = GetAddOnInfo(index)

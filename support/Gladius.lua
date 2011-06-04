@@ -26,7 +26,7 @@ addon:RegisterAddonSupport('Gladius', function()
 		yOffset = 0,
 	}})
 
-	local function GetDatabase() 
+	local function GetDatabase()
 		return db.profile, db
 	end
 
@@ -50,7 +50,7 @@ addon:RegisterAddonSupport('Gladius', function()
 			addon.CheckFrame(gladius.buttons[unit].secure)
 		end)
 	end
-	
+
 	return state, version
 end)
 

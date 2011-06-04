@@ -14,7 +14,7 @@ addon:RegisterAddonSupport('Blizzard_ArenaUI', function()
 		yOffset = -2,
 	}})
 
-	local function GetDatabase() 
+	local function GetDatabase()
 		return db.profile, db
 	end
 
@@ -28,6 +28,6 @@ addon:RegisterAddonSupport('Blizzard_ArenaUI', function()
 		addon:RegisterFrame('ArenaEnemyFrame'..i, SetupFrame)
 	end
 
-	return 'supported', GetBuildInfo()	
+	return 'supported', GetBuildInfo()
 end)
 

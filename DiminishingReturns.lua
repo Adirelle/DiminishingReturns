@@ -33,20 +33,20 @@ local function OnLoad(self, event, name, ...)
 	if name:lower() ~= "diminishingreturns" then return end
 	self:UnregisterEvent('ADDON_LOADED', OnLoad)
 	OnLoad = nil
-	
+
 	local db = LibStub('AceDB-3.0'):New("DiminishingReturnsDB", {profile=DEFAULT_CONFIG})
 	db.RegisterCallback(self, 'OnProfileChanged')
 	db.RegisterCallback(self, 'OnProfileCopied', 'OnProfileChanged')
 	db.RegisterCallback(self, 'OnProfileReset', 'OnProfileChanged')
 	self.db = db
-	
+
 	-- Optional LibDualSpec-1.0 support
 	local LibDualSpec = LibStub('LibDualSpec-1.0', true)
 	if LibDualSpec then
 		self.LibDualSpec = LibDualSpec
 		LibDualSpec:EnhanceDatabase(db, "Diminishing Returns")
 	end
-	
+
 	addon:TriggerMessage('OnProfileChanged')
 
 	addon:LoadAddonSupport()

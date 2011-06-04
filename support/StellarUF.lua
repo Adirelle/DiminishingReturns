@@ -23,7 +23,7 @@ addon:RegisterAddonSupport('Stuf', function()
 			return addon:SpawnFrame(frame, frame, GetDatabase)
 		end)
 	end)
-	
+
 	return 'unknown', GetAddonMetaData('Stuf', 'Version')
 
 end)

@@ -11,7 +11,7 @@ addon:RegisterAddonSupport('FrameXML', function()
 		xOffset = -25,
 		yOffset = -20,
 	}
-	
+
 	local leftFrameDefaults = {
 		direction = 'RIGHT',
 		anchorPoint = 'TOPLEFT',
@@ -19,7 +19,7 @@ addon:RegisterAddonSupport('FrameXML', function()
 		xOffset = 14,
 		yOffset = 28,
 	}
-	
+
 	local db = addon.db:RegisterNamespace('Blizzard', {profile={
 		['**'] = {
 			enabled = true,
@@ -31,7 +31,7 @@ addon:RegisterAddonSupport('FrameXML', function()
 		focus = leftFrameDefaults,
 		party = leftFrameDefaults,
 	}})
-	
+
 	local function RegisterFrame(name, unit)
 		local refUnit = gsub(unit, "%d+$", "")
 		local function GetDatabase() return db.profile[refUnit], db end
@@ -48,7 +48,7 @@ addon:RegisterAddonSupport('FrameXML', function()
 	for i = 1, 4 do
 		RegisterFrame('PartyMemberFrame'..i, 'party'..i)
 	end
-	
+
 	return 'supported', GetBuildInfo()
 end)
 

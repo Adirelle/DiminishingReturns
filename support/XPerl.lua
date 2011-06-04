@@ -15,11 +15,11 @@ addon:RegisterAddonSupport('XPerl', function()
 			yOffset = 4,
 		}
 	}})
-	
+
 	local function ucfirst(s)
 		return s:sub(1,1):upper()..s:sub(2)
 	end
-	
+
 	addon:RegisterCommonFrames(function(unit)
 		local refUnit = gsub(unit, "%d+$", "")
 		local function GetDatabase() return db.profile[refUnit], db end
@@ -30,7 +30,7 @@ addon:RegisterAddonSupport('XPerl', function()
 	end)
 
 	hooksecurefunc('XPerl_SecureUnitButton_OnLoad', addon.CheckFrame)
-	
+
 	return 'unknown', GetAddonMetaData('XPerl', 'Version')
 end)
 

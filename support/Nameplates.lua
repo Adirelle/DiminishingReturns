@@ -20,7 +20,7 @@ local function SetupNameplates(LibNameplate)
 	local function GetNameplateGUID(self)
 		return LibNameplate:GetGUID(self.anchor) or nil
 	end
-	
+
 	local function OnNameplateEnable(self)
 		LibNameplate.RegisterCallback(self, "LibNameplate_FoundGUID", "UpdateGUID")
 		LibNameplate.RegisterCallback(self, "LibNameplate_RecycleNameplate", "UpdateGUID")

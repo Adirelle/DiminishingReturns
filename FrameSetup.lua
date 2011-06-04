@@ -57,7 +57,7 @@ local function IsLoaded(name)
 		return IsLoggedIn()
 	else
 		return IsAddOnLoaded(name)
-	end 
+	end
 end
 
 local function CanBeLoaded(name)
@@ -65,7 +65,7 @@ local function CanBeLoaded(name)
 		return true
 	else
 		return select(5, GetAddOnInfo(name))
-	end 
+	end
 end
 
 local function CheckAddonSupport()
