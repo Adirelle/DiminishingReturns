@@ -1,9 +1,16 @@
 -- Addon creation and initialization
 
-DiminishingReturns = CreateFrame("Frame")
-local addon = DiminishingReturns
+_G.DiminishingReturns = CreateFrame("Frame")
+local addon = _G.DiminishingReturns
 LibStub('LibAdiEvent-1.0').Embed(addon)
 addon:SetMessageChannel(addon)
+
+--<GLOBALS
+local _G = _G
+local CreateFrame = _G.CreateFrame
+local IsLoggedIn = _G.IsLoggedIn
+local SlashCmdList = _G.SlashCmdList
+--GLOBALS>
 
 -- Debugging code
 if AdiDebug then
@@ -64,6 +71,7 @@ function addon:SetTestMode(mode)
 	addon:TriggerMessage('SetTestMode', self.testMode)
 end
 
+-- GLOBALS: SLASH_DRTEST1
 SLASH_DRTEST1 = "/drtest"
 SlashCmdList.DRTEST = function()
 	addon:SetTestMode(not addon.testMode)

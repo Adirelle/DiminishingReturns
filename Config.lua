@@ -1,12 +1,25 @@
 local OPTION_CATEGORY = 'Diminishing Returns'
 
 -- AddonLoader support
+-- GLOBALS: AddonLoader AddonLoaderSV
 if AddonLoader and AddonLoader.RemoveInterfaceOptions then
 	AddonLoader:RemoveInterfaceOptions(OPTION_CATEGORY)
 end
 
-local addon = DiminishingReturns
+local addon = _G.DiminishingReturns
 if not addon then return end
+
+--<GLOBALS
+local _G = _G
+local format = _G.format
+local GetSpellInfo = _G.GetSpellInfo
+local InterfaceOptionsFrame_OpenToCategory = _G.InterfaceOptionsFrame_OpenToCategory
+local pairs = _G.pairs
+local SlashCmdList = _G.SlashCmdList
+local tconcat = _G.table.concat
+local tinsert = _G.tinsert
+local wipe = _G.wipe
+--GLOBALS>
 
 -----------------------------------------------------------------------------
 -- Option table
@@ -15,7 +28,7 @@ if not addon then return end
 local L = addon.L
 local SharedMedia = LibStub('LibSharedMedia-3.0')
 
-local options, frameOptions
+local options, frameOptions, supportOptions
 
 local function CreateOptions()
 	local drdata = LibStub('DRData-1.0')
@@ -27,18 +40,18 @@ local function CreateOptions()
 			if spellCat == cat then
 				local name, _, icon = GetSpellInfo(spellId)
 				if name and not tmp[name] then
-					tinsert(tmp, string.format('|T%s:0|t %s', icon, name))
+					tinsert(tmp, format('|T%s:0|t %s', icon, name))
 					tmp[name] = true
 				end
 			end
 		end
 		local key, label, icon = cat, name, addon.ICONS[cat]
 		if icon then
-			label = string.format("|T%s:24|t %s", icon, name)
+			label = format("|T%s:24|t %s", icon, name)
 		end
 		categoryGroup[key] = {
 			name = label,
-			desc = string.format(L['This category is triggered by the following effects:\n%s'], table.concat(tmp, '\n')),
+			desc = format(L['This category is triggered by the following effects:\n%s'], tconcat(tmp, '\n')),
 			type = 'toggle',
 			get = function()
 				return addon.db.profile.categories[key]
@@ -357,7 +370,7 @@ local function CreateOptions()
 					for name, state in addon:IterateSupportStatus() do
 						tinsert(t, format("%s: %s", name, state))
 					end
-					return table.concat(t, "\n\n")
+					return tconcat(t, "\n\n")
 				end,
 				type = 'description',
 				fontSize = "medium",

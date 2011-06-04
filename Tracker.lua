@@ -1,9 +1,39 @@
-local addon = DiminishingReturns
+local addon = _G.DiminishingReturns
 if not addon then return end
+
+--<GLOBALS
+local _G = _G
+local assert = _G.assert
+local band = _G.bit.band
+local bor = _G.bit.bor
+local COMBATLOG_OBJECT_AFFILIATION_MINE = _G.COMBATLOG_OBJECT_AFFILIATION_MINE
+local COMBATLOG_OBJECT_AFFILIATION_PARTY = _G.COMBATLOG_OBJECT_AFFILIATION_PARTY
+local COMBATLOG_OBJECT_AFFILIATION_RAID = _G.COMBATLOG_OBJECT_AFFILIATION_RAID
+local COMBATLOG_OBJECT_CONTROL_PLAYER = _G.COMBATLOG_OBJECT_CONTROL_PLAYER
+local COMBATLOG_OBJECT_REACTION_FRIENDLY = _G.COMBATLOG_OBJECT_REACTION_FRIENDLY
+local COMBATLOG_OBJECT_TYPE_PET = _G.COMBATLOG_OBJECT_TYPE_PET
+local COMBATLOG_OBJECT_TYPE_PLAYER = _G.COMBATLOG_OBJECT_TYPE_PLAYER
+local CreateFrame = _G.CreateFrame
+local GetSpellInfo = _G.GetSpellInfo
+local GetTime = _G.GetTime
+local hooksecurefunc = _G.hooksecurefunc
+local IsInInstance = _G.IsInInstance
+local IsLoggedIn = _G.IsLoggedIn
+local IsResting = _G.IsResting
+local next = _G.next
+local pairs = _G.pairs
+local PlaySound = _G.PlaySound
+local select = _G.select
+local setmetatable = _G.setmetatable
+local tremove = _G.tremove
+local type = _G.type
+local UnitClass = _G.UnitClass
+local UnitIsPVP = _G.UnitIsPVP
+local wipe = _G.wipe
+--GLOBALS>
 
 local DRData = LibStub('DRData-1.0')
 local SharedMedia = LibStub('LibSharedMedia-3.0')
-local band = bit.band
 
 -- database upvalue
 local prefs
@@ -19,10 +49,10 @@ local CL_EVENTS = {
 }
 
 local CLO_AFFILIATION_MINE = COMBATLOG_OBJECT_AFFILIATION_MINE
-local CLO_AFFILIATION_FRIEND = bit.bor(CLO_AFFILIATION_MINE, COMBATLOG_OBJECT_AFFILIATION_PARTY, COMBATLOG_OBJECT_AFFILIATION_RAID)
+local CLO_AFFILIATION_FRIEND = bor(CLO_AFFILIATION_MINE, COMBATLOG_OBJECT_AFFILIATION_PARTY, COMBATLOG_OBJECT_AFFILIATION_RAID)
 local CLO_CONTROL_PLAYER = COMBATLOG_OBJECT_CONTROL_PLAYER
 local CLO_REACTION_FRIENDLY = COMBATLOG_OBJECT_REACTION_FRIENDLY
-local CLO_TYPE_PET_OR_PLAYER = bit.bor(COMBATLOG_OBJECT_TYPE_PET, COMBATLOG_OBJECT_TYPE_PLAYER)
+local CLO_TYPE_PET_OR_PLAYER = bor(COMBATLOG_OBJECT_TYPE_PET, COMBATLOG_OBJECT_TYPE_PLAYER)
 
 local ICONS
 do

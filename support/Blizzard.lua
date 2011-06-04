@@ -1,8 +1,13 @@
-local addon = DiminishingReturns
+local addon = _G.DiminishingReturns
 if not addon then return end
 
 -- FrameXML is a internal fake to have this working like other support
 addon:RegisterAddonSupport('FrameXML', function()
+	--<GLOBALS
+	local _G = _G
+	local GetBuildInfo = _G.GetBuildInfo
+	local gsub = _G.gsub
+	--GLOBALS>
 
 	local topFrameDefaults = {
 		direction = 'BOTTOM',

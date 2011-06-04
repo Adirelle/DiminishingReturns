@@ -1,7 +1,12 @@
-local addon = DiminishingReturns
+local addon = _G.DiminishingReturns
 if not addon then return end
 
 addon:RegisterAddonSupport('ag_UnitFrames', function()
+	--<GLOBALS
+	local _G = _G
+	local GetAddOnMetadata = _G.GetAddOnMetadata
+	local gsub = _G.gsub
+	--GLOBALS>
 
 	local db = addon.db:RegisterNamespace('ag_UnitFrames', {profile={
 		['*'] = {
@@ -25,6 +30,6 @@ addon:RegisterAddonSupport('ag_UnitFrames', function()
 		end)
 	end)
 
-	return 'unknown', GetAddonMetaData('ag_UnitFrames', 'Version')	
+	return 'unknown', GetAddOnMetadata('ag_UnitFrames', 'Version')
 end)
 

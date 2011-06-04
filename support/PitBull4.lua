@@ -1,7 +1,11 @@
-local addon = DiminishingReturns
+local addon = _G.DiminishingReturns
 if not addon then return end
 
 addon:RegisterAddonSupport('PitBull4', function()
+	--<GLOBALS
+	local _G = _G
+	local GetAddOnMetadata = _G.GetAddOnMetadata
+	--GLOBALS>
 
 	local db = addon.db:RegisterNamespace('PitBull4', {profile={
 		['*'] = {

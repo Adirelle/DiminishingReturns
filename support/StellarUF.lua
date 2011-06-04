@@ -1,7 +1,11 @@
-local addon = DiminishingReturns
+local addon = _G.DiminishingReturns
 if not addon then return end
 
 addon:RegisterAddonSupport('Stuf', function()
+	--<GLOBALS
+	local _G = _G
+	local GetAddOnMetadata = _G.GetAddOnMetadata
+	--GLOBALS>
 
 	local db = addon.db:RegisterNamespace('StellarUF', {profile={
 		['*'] = {
@@ -24,7 +28,7 @@ addon:RegisterAddonSupport('Stuf', function()
 		end)
 	end)
 
-	return 'unknown', GetAddonMetaData('Stuf', 'Version')
+	return 'unknown', GetAddOnMetadata('Stuf', 'Version')
 
 end)
 

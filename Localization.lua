@@ -1,5 +1,14 @@
-local addon = DiminishingReturns
+local addon = _G.DiminishingReturns
 if not addon then return end
+
+--<GLOBALS
+local _G = _G
+local GetLocale = _G.GetLocale
+local pairs = _G.pairs
+local rawset = _G.rawset
+local setmetatable = _G.setmetatable
+local tostring = _G.tostring
+--GLOBALS>
 
 local L = setmetatable({}, {
 	__index = function(self, key)

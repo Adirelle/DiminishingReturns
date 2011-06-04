@@ -1,7 +1,13 @@
-local addon = DiminishingReturns
+local addon = _G.DiminishingReturns
 if not addon then return end
 
 addon:RegisterAddonSupport('XPerl', function()
+	--<GLOBALS
+	local _G = _G
+	local GetAddOnMetadata = _G.GetAddOnMetadata
+	local gsub = _G.gsub
+	local hooksecurefunc = _G.hooksecurefunc
+	--GLOBALS>
 
 	local db = addon.db:RegisterNamespace('XPerl', {profile={
 		['*'] = {
@@ -31,6 +37,6 @@ addon:RegisterAddonSupport('XPerl', function()
 
 	hooksecurefunc('XPerl_SecureUnitButton_OnLoad', addon.CheckFrame)
 
-	return 'unknown', GetAddonMetaData('XPerl', 'Version')
+	return 'unknown', GetAddOnMetadata('XPerl', 'Version')
 end)
 

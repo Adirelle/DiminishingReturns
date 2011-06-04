@@ -1,7 +1,11 @@
-local addon = DiminishingReturns
+local addon = _G.DiminishingReturns
 if not addon then return end
 
 addon:RegisterAddonSupport('Blizzard_ArenaUI', function()
+	--<GLOBALS
+	local _G = _G
+	local GetBuildInfo = _G.GetBuildInfo
+	--GLOBALS>
 
 	local db = addon.db:RegisterNamespace('Blizzard_ArenaUI', {profile={
 		enabled = true,

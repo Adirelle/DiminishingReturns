@@ -1,7 +1,13 @@
-local addon = DiminishingReturns
+local addon = _G.DiminishingReturns
 if not addon then return end
 
 addon:RegisterAddonSupport('Gladius', function()
+	--<GLOBALS
+	local _G = _G
+	local GetAddOnMetadata = _G.GetAddOnMetadata
+	local hooksecurefunc = _G.hooksecurefunc
+	local strmatch = _G.strmatch
+	--GLOBALS>
 
 	local version = GetAddOnMetadata("Gladius", "Version")
 	local state = 'unknwon'
@@ -45,6 +51,7 @@ addon:RegisterAddonSupport('Gladius', function()
 	end
 
 	if needHook then
+		-- GLOBALS: Gladius
 		hooksecurefunc(Gladius, 'CreateButton', function(gladius, unit)
 			addon:Debug('Gladius:CreateButton', unit)
 			addon.CheckFrame(gladius.buttons[unit].secure)

@@ -1,6 +1,19 @@
-local addon = DiminishingReturns
+local addon = _G.DiminishingReturns
 if not addon then return end
 local L = addon.L
+
+--<GLOBALS
+local _G = _G
+local format = _G.format
+local GetAddOnInfo = _G.GetAddOnInfo
+local geterrorhandler = _G.geterrorhandler
+local hooksecurefunc = _G.hooksecurefunc
+local IsAddOnLoaded = _G.IsAddOnLoaded
+local IsLoggedIn = _G.IsLoggedIn
+local pairs = _G.pairs
+local pcall = _G.pcall
+local select = _G.select
+--GLOBALS>
 
 local supportState = {}
 

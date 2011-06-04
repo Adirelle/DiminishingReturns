@@ -1,5 +1,8 @@
-local addon = DiminishingReturns
+local addon = _G.DiminishingReturns
 if not addon then return end
+
+--<GLOBALS
+--GLOBALS>
 
 local function SetupNameplates(LibNameplate)
 	local db = addon.db:RegisterNamespace('Nameplates', {profile={

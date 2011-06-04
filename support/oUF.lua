@@ -1,5 +1,14 @@
-local addon = DiminishingReturns
+local addon = _G.DiminishingReturns
 if not addon then return end
+
+--<GLOBALS
+local _G = _G
+local GetAddOnInfo = _G.GetAddOnInfo
+local GetAddOnMetadata = _G.GetAddOnMetadata
+local GetNumAddOns = _G.GetNumAddOns
+local gsub = _G.gsub
+local pairs = _G.pairs
+--GLOBALS>
 
 -- This allow oUF addons to add support themselves
 function addon:DeclareOUF(parent, oUF)

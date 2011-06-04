@@ -1,7 +1,16 @@
-local addon = DiminishingReturns
+local addon = _G.DiminishingReturns
 if not addon then return end
 
-for index = 1, GetNumAddOns() do	
+--<GLOBALS
+local _G = _G
+local GetAddOnInfo = _G.GetAddOnInfo
+local GetAddOnMetadata = _G.GetAddOnMetadata
+local geterrorhandler = _G.geterrorhandler
+local GetNumAddOns = _G.GetNumAddOns
+local loadstring = _G.loadstring
+--GLOBALS>
+
+for index = 1, GetNumAddOns() do
 	local callback = GetAddOnMetadata(index, 'X-DiminishingReturns-Callback')
 	if callback then
 		local parent, version = GetAddOnInfo(index), GetAddOnMetadata(index, 'Version')

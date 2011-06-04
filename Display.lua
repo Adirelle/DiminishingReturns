@@ -1,5 +1,26 @@
-local addon = DiminishingReturns
+local addon = _G.DiminishingReturns
 if not addon then return end
+
+--<GLOBALS
+local _G = _G
+local ceil = _G.ceil
+local CreateFrame = _G.CreateFrame
+local format = _G.format
+local GameFontNormal = _G.GameFontNormal
+local GetTime = _G.GetTime
+local ipairs = _G.ipairs
+local max = _G.max
+local pairs = _G.pairs
+local SecureButton_GetModifiedUnit = _G.SecureButton_GetModifiedUnit
+local select = _G.select
+local strsub = _G.strsub
+local tinsert = _G.tinsert
+local tostring = _G.tostring
+local tremove = _G.tremove
+local UnitGUID = _G.UnitGUID
+local unpack = _G.unpack
+local wipe = _G.wipe
+--GLOBALS>
 
 local FONT_NAME, FONT_SIZE, FONT_FLAGS = GameFontNormal:GetFont(), 16, "OUTLINE"
 
@@ -25,14 +46,12 @@ local function FitTextSize(text, width, height)
 	text:SetFont(name, text.fontSize, flags)
 	local ratio = text:GetStringWidth() / (width-2)
 	if height then
-		ratio = math.max(ratio, text:GetStringHeight() / (height-2))
+		ratio = max(ratio, text:GetStringHeight() / (height-2))
 	end
 	if ratio > 1 then
 		text:SetFont(name, text.fontSize / ratio, flags)
 	end
 end
-
-local ceil, GetTime, strformat = math.ceil, GetTime, string.format
 
 local function UpdateTimer(self)
 	local timer = self.timer
@@ -42,7 +61,7 @@ local function UpdateTimer(self)
 		timer.expireTimer, timer.timeLeft = nil, nil
 		return timer:Hide()
 	elseif timeLeft < 3 and prefs.bigTimer then
-		timeLeft = strformat("%.1f", ceil(timeLeft * 10) / 10)
+		timeLeft = format("%.1f", ceil(timeLeft * 10) / 10)
 	else
 		timeLeft = tostring(ceil(timeLeft))
 	end
@@ -161,7 +180,7 @@ end
 
 local function UpdateFrameSize(self)
 	local iconSize, spacing = self.iconSize, self.spacing
-	local barSize = iconSize + math.max((iconSize + spacing) * (#(self.activeIcons) - 1), 0)
+	local barSize = iconSize + max((iconSize + spacing) * (#(self.activeIcons) - 1), 0)
 	if ANCHORING[self.direction][3] ~= 0 then
 		self:SetWidth(barSize)
 		self:SetHeight(iconSize)
