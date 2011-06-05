@@ -65,9 +65,7 @@ do
 	-- Basic icons
 	ICONS = {
 		taunt = 355, -- Taunt (Warrior)
-		banish = 18647, -- Banish
-		charge = 100, -- Charge
-		cheapshot = 1833, -- Cheap Shot
+		banish = 710, -- Banish
 		ctrlstun = [[Interface\Icons\Spell_Frost_FrozenCore]],
 		cyclone = 33786, -- Cyclone
 		disarm = 676, -- Disarm
@@ -81,20 +79,19 @@ do
 		ctrlroot = [[Interface\Icons\Spell_Frost_FrostNova]],
 		scatters = 19503, -- Scatter Shot
 		silence =  2139, -- Counterspell
-		sleep = 2637, -- Hibernate
+		dragons = 31661, -- Dragon's Breath
 	}
 	-- Update with class specific icons
 	local _, pClass = UnitClass('player')
 	if pClass == "DRUID" then
 		ICONS.taunt = 6795 -- Growl (Druid)
-		ICONS.cheapshot = 9005 -- Pounce
 		ICONS.ctrlroot = 339 -- Entangling Roots
 		ICONS.ctrlstun = 5211 -- Bash
 	elseif pClass == "HUNTER" then
 		ICONS.taunt = 20736 -- Distracting Shot
 		ICONS.disorient = 3355 -- Freezing Trap
 		ICONS.silence = 34490 -- Silencing Shot
-		ICONS.disarm = 53359 -- Chimera Shot - Scorpid
+		ICONS.disarm = 50541 -- Clench (Scorpid)
 		ICONS.ctrlstun = 19577 -- Intimidation
 		ICONS.ctrlroot = 4167 -- Web (Spider)
 		ICONS.fear = 1513 -- Scare Beast
