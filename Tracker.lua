@@ -116,6 +116,21 @@ do
 		ICONS.rndstun = 12798 -- Revenge Stun
 		ICONS.rndroot = 23694 -- Improved Hamstring
 	end
+	--@debug@
+	for cat in pairs(ICONS) do
+		if not CATEGORIES[cat] then
+			geterrorhandler()('no category '..cat)
+			ICONS[cat] = nil
+		end
+	end
+	--@end-debug@
+	setmetatable(ICONS, { __index = function(t, cat)
+		--@debug@
+		geterrorhandler()('Missing icon for category '..cat)
+		--@end-debug@
+		t[cat] = [[Interface\\Icons\\INV_Misc_QuestionMark]]
+		return [[Interface\\Icons\\INV_Misc_QuestionMark]]
+	end})
 end
 addon.ICONS = ICONS
 
@@ -123,6 +138,10 @@ local SPELLS = {}
 for id, category in pairs(DRData:GetSpells()) do
 	if CATEGORIES[category] then
 		SPELLS[id] = category
+	--@debug@
+	else
+		geterrorhandler()('Spell '..id..' assigned to unknown category '..category)
+	--@end-debug@
 	end
 end
 addon.SPELLS = SPELLS
@@ -139,17 +158,24 @@ do
 					spellsResolved = true
 				--@debug@
 				else
-					addon:Debug('Unknown spell', id, 'for', category)
+					geterrorhandler()('Unknown spell '..id..' (category '..category..')')
 				--@end-debug@
 				end
 			end
 		end
-		for cat, icon in pairs(ICONS) do
-			if type(icon) == "number" then
-				ICONS[cat] = select(3, GetSpellInfo(icon))
-			end
-		end
 		if spellsResolved then
+			for category, icon in pairs(ICONS) do
+				if type(icon) == "number" then
+					local name, _, texture = GetSpellInfo(icon)
+					if name and texture then
+						ICONS[category] = texture
+					--@debug@
+					else
+						geterrorhandler()('Unknown spell '..icon..' for icon of ategory'..category)
+					--@end-debug@
+					end
+				end
+			end
 			addon:UnregisterEvent('SPELLS_CHANGED', ResolveSpells)
 			ResolveSpells = nil
 			addon:Debug('Spells OK')
