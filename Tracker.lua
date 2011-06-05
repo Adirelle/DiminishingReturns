@@ -291,7 +291,7 @@ timerFrame:SetScript('OnUpdate', function(self, elapsed)
 		local key = prefs.resetSound
 		local media = SharedMedia:Fetch('sound', key)
 		addon:Debug('PlaySound', key, media)
-		PlaySound(media)
+		PlaySoundFile(media, "SFX")
 	end
 end)
 
