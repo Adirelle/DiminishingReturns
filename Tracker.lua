@@ -183,6 +183,30 @@ end
 local runningDR = {}
 local timerFrame = CreateFrame("Frame")
 
+local function SpawnDR(guid, category, isFriend, increase, duration)
+	local targetDR = runningDR[guid]
+	if not targetDR then
+		targetDR = new()
+		runningDR[guid] = targetDR
+	end
+	local dr = targetDR[category]
+	local now = GetTime()
+	if not dr then
+		dr = new()
+		dr.isFriend = isFriend
+		dr.texture = ICONS[category]
+		dr.count = 0
+		targetDR[category] = dr
+	end
+	dr.count = dr.count + increase
+	dr.expireTime = now + duration
+	if dr.count > 0 then
+		assert(type(duration) == "number")
+		addon:TriggerMessage('UpdateDR', guid, category, isFriend, dr.texture, dr.count, duration, dr.expireTime)
+	end
+	timerFrame:Show()
+end
+
 local function RemoveDR(guid, cat)
 	local targetDR = runningDR[guid]
 	local dr = targetDR and targetDR[cat]
@@ -195,6 +219,9 @@ local function RemoveDR(guid, cat)
 			runningDR[guid] = del(targetDR)
 			if not next(runningDR) then
 				timerFrame:Hide()
+				if addon.testMode then
+					addon:SetTestMode(false)
+				end
 			end
 		end
 	end
@@ -216,15 +243,15 @@ local function ParseCLEU(self, _, timestamp, event, _, _, srcName, srcFlags, gui
 		end
 		return
 	end
+	-- Ignore any spell or event we are not interested with
+	local increase, category = CL_EVENTS[event], SPELLS[spellId] or SPELLS[spell]
+	if not increase or not category then return end
 	-- Ignore friends unless asked for
 	local isFriend = false
 	if band(flags, CLO_REACTION_FRIENDLY) ~= 0 then
 		isFriend = band(flags, CLO_AFFILIATION_FRIEND) ~= 0
 		if not isFriend then return end -- Ignore outsiders
 	end
-	-- Ignore any spell or event we are not interested with
-	local increase, category = CL_EVENTS[event], SPELLS[spellId] or SPELLS[spell]
-	if not increase or not category then return end
 	-- Ignore mobs for non-PvE categories
 	local isPlayer = band(flags, CLO_TYPE_PET_OR_PLAYER) ~= 0 or band(flags, CLO_CONTROL_PLAYER) ~= 0
 	if not isPlayer and (not prefs.pveMode or not DRData:IsPVE(category)) then return end
@@ -232,30 +259,34 @@ local function ParseCLEU(self, _, timestamp, event, _, _, srcName, srcFlags, gui
 	if prefs.learnCategories and band(srcFlags, CLO_AFFILIATION_MINE) ~= 0 then
 		prefs.categories[category] = true
 	end
-	-- Now do the job
-	local targetDR = runningDR[guid]
-	if not targetDR then
-		targetDR = new()
-		runningDR[guid] = targetDR
-	end
-	local dr = targetDR[category]
-	local now = GetTime()
-	if not dr then
-		dr = new()
-		dr.isFriend = isFriend
-		dr.texture = ICONS[category]
-		dr.count = 0
-		targetDR[category] = dr
-	end
-	dr.count = dr.count + increase
-	local duration = prefs.resetDelay
-	dr.expireTime = now + duration
-	if dr.count > 0 then
-		assert(type(duration) == "number")
-		self:TriggerMessage('UpdateDR', guid, category, dr.isFriend, dr.texture, dr.count, duration, dr.expireTime)
-	end
-	timerFrame:Show()
+	-- Create or extend the DR
+	return SpawnDR(guid, category, isFriend, increase, prefs.resetDelay)
 end
+
+local function SpawnTestDR(unit)
+	local guid = UnitGUID(unit)
+	if guid then
+		local isFriend = UnitCanAssist("player", unit)
+		local count = 1
+		for cat in pairs(addon.CATEGORIES) do
+			SpawnDR(guid, cat, isFriend, 1 + count % 3, 2*count+math.random(1,9))
+			count = count % 3 + 1
+		end
+	end
+end
+
+addon:RegisterEvent('SetTestMode', function(_, event, value)
+	addon:Debug(_, event, value)
+	if not value then return end
+	SpawnTestDR("player")
+	SpawnTestDR("pet")
+	if not UnitIsUnit("pet", "target") and not UnitIsUnit("player", "target") then
+		SpawnTestDR("target")
+	end
+	if not UnitIsUnit("pet", "focus") and not UnitIsUnit("player", "focus") and not UnitIsUnit("target", "focus") then
+		SpawnTestDR("focus")
+	end
+end)
 
 local function WipeAll(self)
 	for guid, drs in pairs(runningDR) do

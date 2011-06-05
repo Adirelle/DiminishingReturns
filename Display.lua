@@ -12,7 +12,6 @@ local _G = _G
 local ceil = _G.ceil
 local CreateFrame = _G.CreateFrame
 local format = _G.format
-local GameFontNormal = _G.GameFontNormal
 local GetTime = _G.GetTime
 local ipairs = _G.ipairs
 local max = _G.max
@@ -276,14 +275,7 @@ local function RefreshAllIcons(self)
 		self.iconHeap[icon] = true
 	end
 	wipe(activeIcons)
-	if self.testMode then
-		local count = 1
-		for cat in pairs(addon.CATEGORIES) do
-			if UpdateDR(self, "ToggleTestMode", self.guid, cat, true, addon.ICONS[cat], count, 15, GetTime()-2*count+15) then
-				count = (count % 3) + 1
-			end
-		end
-	elseif self.guid then
+	if self.guid then
 		local guid = self.guid
 		for cat, isFriend, texture, count, duration, expireTime in addon:IterateDR(guid) do
 			UpdateDR(self, "UpdateGUID", guid, cat, isFriend, texture, count, duration, expireTime)
