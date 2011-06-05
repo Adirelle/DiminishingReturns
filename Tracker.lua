@@ -275,19 +275,19 @@ timerFrame:SetScript('OnUpdate', function(self, elapsed)
 	end
 	local now = GetTime()
 	local watched = prefs.categories
-	local hasReset = false
+	local playSound = false
 	timer = 0.1
 	for guid, drs in pairs(runningDR) do
 		for cat, dr in pairs(drs) do
 			if now >= dr.expireTime then
-				if dr.count > 0 and watched[cat] then
-					hasReset = true
+				if dr.count > 0 and not dr.isFriend and watched[cat] then
+					playSound = true
 				end
 				RemoveDR(guid, cat)
 			end
 		end
 	end
-	if hasReset and prefs.soundAtReset then
+	if playSound and prefs.soundAtReset then
 		local key = prefs.resetSound
 		local media = SharedMedia:Fetch('sound', key)
 		addon:Debug('PlaySound', key, media)
