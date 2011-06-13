@@ -51,12 +51,11 @@ local function CreateOptions()
 				end
 			end
 		end
-		local key, label, icon = cat, name, addon.ICONS[cat]
-		if icon then
-			label = format("|T%s:24|t %s", icon, name)
-		end
+		local key, name = cat, name
 		categoryGroup[key] = {
-			name = label,
+			name = function()
+				return format("|T%s:24|t %s", addon.ICONS[key], name)
+			end,
 			desc = format(L['This category is triggered by the following effects:\n%s'], tconcat(tmp, '\n')),
 			type = 'toggle',
 			get = function()
