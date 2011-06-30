@@ -299,7 +299,7 @@ local function RemoveAllDR(guid)
 	end
 end
 
-local function ParseCLEU(self, _, timestamp, event, _, _, srcName, srcFlags, guid, name, flags, spellId, spell)
+local function ParseCLEU(self, _, timestamp, event, _, _, srcName, srcFlags, _, guid, name, flags, _, spellId, spell)
 	-- Always process UNIT_DIED if we have information about the unit
 	if event == 'UNIT_DIED' then
 		if runningDR[guid] then
@@ -325,14 +325,6 @@ local function ParseCLEU(self, _, timestamp, event, _, _, srcName, srcFlags, gui
 	end
 	-- Create or extend the DR
 	return SpawnDR(guid, category, isFriend, increase, prefs.resetDelay)
-end
-
--- 4.2 compat layer
-if select(4, GetBuildInfo()) == 40200 then
-	local BaseParseCLEU = ParseCLEU
-	function ParseCLEU(self, _, timestamp, event, _, _, srcName, srcFlags, _, guid, name, flags, _, ...)
-		return BaseParseCLEU(self, _, timestamp, event, _, _, srcName, srcFlags, guid, name, flags, ...)
-	end
 end
 
 local function SpawnTestDR(unit)
