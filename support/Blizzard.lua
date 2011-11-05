@@ -15,33 +15,40 @@ addon:RegisterAddonSupport('FrameXML', function()
 	local gsub = _G.gsub
 	--GLOBALS>
 
-	local topFrameDefaults = {
-		direction = 'BOTTOM',
-		anchorPoint = 'TOPLEFT',
-		relPoint = 'TOPRIGHT',
-		xOffset = -25,
-		yOffset = -20,
+	local defaults = {
+		profile = {
+			['**'] = {
+				enabled = true,
+				iconSize = 16,
+				spacing = 2,
+			},
+			player = {
+				direction = 'RIGHT',
+				anchorPoint = 'BOTTOMLEFT',
+				relPoint = 'TOPLEFT',
+				xOffset = 110,
+				yOffset = -20,
+			},
+			target = {
+				direction = 'RIGHT',
+				anchorPoint = 'BOTTOMLEFT',
+				relPoint = 'TOPLEFT',
+				xOffset = 8,
+				yOffset = -20,
+			},
+			party = {
+				direction = 'RIGHT',
+				anchorPoint = 'TOPLEFT',
+				relPoint = 'TOPRIGHT',
+				xOffset = -8,
+				yOffset = -28,
+			}
+		}
 	}
+	defaults.profile.focus = defaults.profile.target
+	defaults.profile.party = defaults.profile.target
 
-	local leftFrameDefaults = {
-		direction = 'RIGHT',
-		anchorPoint = 'TOPLEFT',
-		relPoint = 'BOTTOMLEFT',
-		xOffset = 14,
-		yOffset = 28,
-	}
-
-	local db = addon.db:RegisterNamespace('Blizzard', {profile={
-		['**'] = {
-			enabled = true,
-			iconSize = 16,
-			spacing = 2,
-		},
-		target = topFrameDefaults,
-		player = topFrameDefaults,
-		focus = leftFrameDefaults,
-		party = leftFrameDefaults,
-	}})
+	local db = addon.db:RegisterNamespace('Blizzard', defaults)
 
 	local function RegisterFrame(name, unit)
 		local refUnit = gsub(unit, "%d+$", "")
