@@ -50,12 +50,19 @@ local function SetupNameplates(LibNameplate)
 	end)
 end
 
+local found = false
 local function TestLibNameplate()
+	if found then return end
 	local lib, minor = LibStub('LibNameplate-1.0', true)
 	if lib then
+		found = true
 		addon:Debug("Found LibNameplate-1.0", minor)
 		addon:UnregisterEvent('ADDON_LOADED', TestLibNameplate)
 		return SetupNameplates(lib)
 	end
 end
+
 addon:RegisterEvent('ADDON_LOADED', TestLibNameplate)
+hooksecurefunc(addon, "LoadAddonSupport", TestLibNameplate)
+
+
