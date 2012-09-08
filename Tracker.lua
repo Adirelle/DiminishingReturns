@@ -71,23 +71,24 @@ end})
 
 -- Common icons
 local DEFAULT_ICONS = {
-	charge = 100, -- Charge
-	taunt = 355, -- Taunt (Warrior)
 	banish = 710, -- Banish
+	bindelemental = 76780, -- Bind Elemental
+	charge = 100, -- Charge
+	ctrlroot = [[Interface\Icons\Spell_Frost_FrostNova]],
 	ctrlstun = [[Interface\Icons\Spell_Frost_FrozenCore]],
 	cyclone = 33786, -- Cyclone
 	disarm = 676, -- Disarm
 	disorient = 1776, -- Gouge
+	dragons = 31661, -- Dragon's Breath
 	entrapment = 19184, -- Entrapment
 	fear = 5782, -- Fear
 	horror = 6789, -- Death Coil
+	iceward = 111264, -- Ice Ward
 	mc = 605, -- Mind Control
 	rndstun = [[Interface\Icons\INV_Mace_02]],
-	ctrlroot = [[Interface\Icons\Spell_Frost_FrostNova]],
 	scatters = 19503, -- Scatter Shot
 	silence =  2139, -- Counterspell
-	dragons = 31661, -- Dragon's Breath
-	bindelemental = 76780, -- Bind Elemental
+	taunt = 355, -- Taunt (Warrior)
 }
 
 -- Update with class specific icons
