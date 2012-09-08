@@ -70,7 +70,8 @@ setmetatable(ICONS, { __index = function(t, cat)
 end})
 
 -- Common icons
-local	DEFAULT_ICONS = {
+local DEFAULT_ICONS = {
+	charge = 100, -- Charge
 	taunt = 355, -- Taunt (Warrior)
 	banish = 710, -- Banish
 	ctrlstun = [[Interface\Icons\Spell_Frost_FrozenCore]],
@@ -81,12 +82,12 @@ local	DEFAULT_ICONS = {
 	fear = 5782, -- Fear
 	horror = 6789, -- Death Coil
 	mc = 605, -- Mind Control
-	rndroot = [[Interface\Icons\Ability_ShockWave]],
 	rndstun = [[Interface\Icons\INV_Mace_02]],
 	ctrlroot = [[Interface\Icons\Spell_Frost_FrostNova]],
 	scatters = 19503, -- Scatter Shot
 	silence =  2139, -- Counterspell
 	dragons = 31661, -- Dragon's Breath
+	bindelemental = 76780, -- Bind Elemental
 }
 
 -- Update with class specific icons
@@ -108,7 +109,6 @@ elseif pClass == "MAGE" then
 	DEFAULT_ICONS.ctrlstun = 44572 -- Deep Freeze
 	DEFAULT_ICONS.rndstun = 12355 -- Impact
 	DEFAULT_ICONS.ctrlroot = 122 -- Frost Nova
-	DEFAULT_ICONS.rndroot = 12494 -- Frostbite
 elseif pClass == "ROGUE" then
 	DEFAULT_ICONS.silence = 1330 -- Garrote
 	DEFAULT_ICONS.disarm = 51722 -- Dismantle
@@ -119,7 +119,6 @@ elseif pClass == "WARRIOR" then
 	DEFAULT_ICONS.fear = 5246 -- Intimidating Shout
 	DEFAULT_ICONS.ctrlstun = 12809 -- Concussion Blow
 	DEFAULT_ICONS.rndstun = 12798 -- Revenge Stun
-	DEFAULT_ICONS.rndroot = 23694 -- Improved Hamstring
 end
 
 --@debug@
