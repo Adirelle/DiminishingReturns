@@ -1,6 +1,6 @@
 --[[
 Diminishing Returns - Attach diminishing return icons to unit frames.
-Copyright 2009-2011 Adirelle (adirelle@tagada-team.net)
+Copyright 2009-2012 Adirelle (adirelle@gmail.com)
 All rights reserved.
 --]]
 
