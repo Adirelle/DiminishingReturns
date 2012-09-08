@@ -141,7 +141,6 @@ local function SpawnIcon(self)
 	if not self.noCooldown then
 		local cooldown = CreateFrame("Cooldown", nil, icon)
 		cooldown:SetAllPoints(icon)
-		cooldown:SetDrawEdge(true)
 		cooldown.noCooldownCount = true
 		icon.cooldown = cooldown
 
