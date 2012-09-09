@@ -15,7 +15,6 @@ local format = _G.format
 local GetTime = _G.GetTime
 local ipairs = _G.ipairs
 local max = _G.max
-local pairs = _G.pairs
 local SecureButton_GetModifiedUnit = _G.SecureButton_GetModifiedUnit
 local select = _G.select
 local strsub = _G.strsub
@@ -27,7 +26,7 @@ local unpack = _G.unpack
 local wipe = _G.wipe
 --GLOBALS>
 
-local FONT_NAME, FONT_SIZE, FONT_FLAGS = GameFontNormal:GetFont(), 16, "OUTLINE"
+local FONT_NAME, FONT_SIZE, FONT_FLAGS = _G.GameFontNormal:GetFont(), 16, "OUTLINE"
 
 local ANCHORING = {
 	LEFT   = { "RIGHT",  "LEFT",   -1,  0 },

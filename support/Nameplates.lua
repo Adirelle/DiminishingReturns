@@ -8,6 +8,8 @@ local addon = _G.DiminishingReturns
 if not addon then return end
 
 --<GLOBALS
+local _G = _G
+local hooksecurefunc = _G.hooksecurefunc
 --GLOBALS>
 
 local function SetupNameplates(LibNameplate)

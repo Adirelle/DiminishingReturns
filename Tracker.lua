@@ -20,21 +20,26 @@ local COMBATLOG_OBJECT_REACTION_FRIENDLY = _G.COMBATLOG_OBJECT_REACTION_FRIENDLY
 local COMBATLOG_OBJECT_TYPE_PET = _G.COMBATLOG_OBJECT_TYPE_PET
 local COMBATLOG_OBJECT_TYPE_PLAYER = _G.COMBATLOG_OBJECT_TYPE_PLAYER
 local CreateFrame = _G.CreateFrame
+local geterrorhandler = _G.geterrorhandler
 local GetSpellInfo = _G.GetSpellInfo
 local GetTime = _G.GetTime
 local hooksecurefunc = _G.hooksecurefunc
 local IsInInstance = _G.IsInInstance
 local IsLoggedIn = _G.IsLoggedIn
 local IsResting = _G.IsResting
+local IsSpellKnown = _G.IsSpellKnown
 local next = _G.next
 local pairs = _G.pairs
-local PlaySound = _G.PlaySound
+local PlaySoundFile = _G.PlaySoundFile
 local select = _G.select
 local setmetatable = _G.setmetatable
 local tremove = _G.tremove
 local type = _G.type
+local UnitCanAssist = _G.UnitCanAssist
 local UnitClass = _G.UnitClass
+local UnitGUID = _G.UnitGUID
 local UnitIsPVP = _G.UnitIsPVP
+local UnitIsUnit = _G.UnitIsUnit
 local wipe = _G.wipe
 --GLOBALS>
 
