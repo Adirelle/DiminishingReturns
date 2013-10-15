@@ -40,20 +40,25 @@ local options, frameOptions, supportOptions
 local function CreateOptions()
 	local drdata = LibStub('DRData-1.0')
 	local categoryGroup = {}
+	local categoryIcons = {}
 	local tmp = {}
+	local order = 10
 	for cat, spells in pairs(SPELLS_BY_CATEGORY) do
 		wipe(tmp)
+		local iconValues = {}
 		for i, spellId in ipairs(spells) do
 			local name, _, icon = GetSpellInfo(spellId)
 			if name and not tmp[name] then
-				tinsert(tmp, format('|T%s:0|t %s', icon, name))
+				local str = format('|T%s:0:0:0:0:64:64:4:60:4:60|t %s', icon, name)
+				tinsert(tmp, str)
+				iconValues[icon] = str
 				tmp[name] = true
 			end
 		end
 		local key, name = cat, CATEGORIES[cat]
 		categoryGroup[key] = {
 			name = function()
-				return format("|T%s:24|t %s", ICONS[key], name)
+				return format("|T%s:20:20:0:0:64:64:4:60:4:60|t %s", ICONS[key], name)
 			end,
 			desc = format(L['This category is triggered by the following effects:\n%s'], tconcat(tmp, '\n')),
 			type = 'toggle',
@@ -63,126 +68,157 @@ local function CreateOptions()
 			set = function(_, value)
 				addon.db.profile.categories[key] = value
 				addon:TriggerMessage('OnConfigChanged', 'categories,'..key, value)
-			end
+			end,
+			order = order,
 		}
+		if #tmp > 1 then
+			categoryIcons[key] = {
+				name = name,
+				desc = format(L["Select the icon to display for %s"], name),
+				type = 'select',
+				values = iconValues,
+				get = function()
+					return addon.db.profile.icons[key]
+				end,
+				set = function(_, value)
+					addon.db.profile.icons[key] = value
+					ICONS[key] = value
+				end,
+				order = order,
+			}
+		end
+		order = order + 10
 	end
 
 	options = {
 		name = OPTION_CATEGORY,
 		type = 'group',
+		childGroups = 'tab',
 		args = {
-			learnCategories = {
-				name = L['Learn categories to show'],
-				desc = L['When enabled, DiminishingReturns will discover the categories to display when you use spells that triggers them.'],
-				type = 'toggle',
-				width = 'double',
-				get = function() return addon.db.profile.learnCategories end,
-				set = function(_, value)
-					addon.db.profile.learnCategories = value
-					addon:TriggerMessage('OnConfigChanged', 'learnCategories', value)
-				end,
+			general = {
+				name = L['General'],
+				type = 'group',
 				order = 10,
+				args = {
+					learnCategories = {
+						name = L['Learn categories to show'],
+						desc = L['When enabled, DiminishingReturns will discover the categories to display when you use spells that triggers them.'],
+						type = 'toggle',
+						width = 'double',
+						get = function() return addon.db.profile.learnCategories end,
+						set = function(_, value)
+							addon.db.profile.learnCategories = value
+							addon:TriggerMessage('OnConfigChanged', 'learnCategories', value)
+						end,
+						order = 10,
+					},
+					resetDelay = {
+						name = L['Reset duration'],
+						desc = L['This is the delay between the end of an effect and the time it can be applied at full length again. This delay is officialy 15 seconds but higher values have been recorded. You can do some tests and adjust this value accordingly. This will not affect running diminishing returns.'],
+						type = 'range',
+						min = 15,
+						max = 20,
+						step = 0.1,
+						bigStep = 1,
+						get = function() return addon.db.profile.resetDelay end,
+						set = function(_, value) addon.db.profile.resetDelay = value end,
+						order = 30,
+					},
+					bigTimer = {
+						name = L['Big timer'],
+						desc = L['Check this box to swap diminishing and timer texts.'],
+						type = 'toggle',
+						get = function() return addon.db.profile.bigTimer or addon.db.profile.immunityOnly end,
+						set = function(_, value)
+							addon.db.profile.bigTimer = value
+							addon:TriggerMessage('OnConfigChanged', 'bigTimer', value)
+						end,
+						disabled = function()
+							return addon.db.profile.immunityOnly
+						end,
+						order = 40,
+					},
+					friendly = {
+						name = L['Watch friends'],
+						desc = L['Track diminishing returns on group members.'],
+						type = 'toggle',
+						get = function() return addon.db.profile.friendly end,
+						set = function(_, value)
+							addon.db.profile.friendly = value
+							addon:TriggerMessage('OnConfigChanged', 'friendly', value)
+						end,
+						order = 16,
+					},
+					pveMode = {
+						name = L['PvE mode'],
+						desc = L['Check this box to display diminishing returns on mobs. Please remember that diminishing returns usually do not apply to mobs.'],
+						type = 'toggle',
+						get = function() return addon.db.profile.pveMode end,
+						set = function(_, value)
+							addon.db.profile.pveMode = value
+							addon:TriggerMessage('OnConfigChanged', 'pveMode', value)
+						end,
+						order = 15,
+					},
+					testMode = {
+						name = L['Enable test mode'],
+						desc = L['Check this to display bogus icons on every supported frames.'],
+						type = 'toggle',
+						get = function() return addon.testMode end,
+						set = function(_, value) addon:SetTestMode(value) end,
+						order = 17,
+					},
+					soundAtReset = {
+						name = L['Play sound at reset'],
+						desc = L['Check this to play a sound when the diminishing return of a watched category is reset on any target.'],
+						type = 'toggle',
+						get = function() return addon.db.profile.soundAtReset end,
+						set = function(_, value)
+							addon.db.profile.soundAtReset = value
+							addon:TriggerMessage('OnConfigChanged', 'soundAtReset', value)
+						end,
+						order = 60,
+					},
+					resetSound = {
+						name = L['"Reset" sound'],
+						desc = L['Select the sound to play at reset. See SharedMedia documentation to know how to add new sounds.'],
+						type = 'select',
+						dialogControl = 'LSM30_Sound',
+						values = SharedMedia:HashTable('sound'),
+						get = function() return addon.db.profile.resetSound end,
+						set = function(_, value)
+							addon.db.profile.resetSound = value
+							addon:TriggerMessage('OnConfigChanged', 'resetSound', value)
+						end,
+						disabled = function() return not addon.db.profile.soundAtReset end,
+						order = 65,
+					},
+					immunityOnly = {
+						name = L["Show only immunities"],
+						desc = L["Check this to display an icon only when the unit is immune to the spells of a category."],
+						type = 'toggle',
+						get = function() return addon.db.profile.immunityOnly end,
+						set = function(_, value)
+							addon.db.profile.immunityOnly = value
+							addon:TriggerMessage('OnConfigChanged', 'immunityOnly', value)
+						end,
+						order = 50,
+					}
+				}
 			},
 			categories = {
 				name = L['Shown categories'],
 				desc = L['Select diminishing returns categories to display.'],
 				type = 'group',
-				inline = true,
 				args = categoryGroup,
 				order = 20,
 			},
-			resetDelay = {
-				name = L['Reset duration'],
-				desc = L['This is the delay between the end of an effect and the time it can be applied at full length again. This delay is officialy 15 seconds but higher values have been recorded. You can do some tests and adjust this value accordingly. This will not affect running diminishing returns.'],
-				type = 'range',
-				min = 15,
-				max = 20,
-				step = 0.1,
-				bigStep = 1,
-				get = function() return addon.db.profile.resetDelay end,
-				set = function(_, value) addon.db.profile.resetDelay = value end,
-				order = 30,
+			icons = {
+				name = L['Icons'],
+				type = 'group',
+				args = categoryIcons,
+				order = 25,
 			},
-			bigTimer = {
-				name = L['Big timer'],
-				desc = L['Check this box to swap diminishing and timer texts.'],
-				type = 'toggle',
-				get = function() return addon.db.profile.bigTimer or addon.db.profile.immunityOnly end,
-				set = function(_, value)
-					addon.db.profile.bigTimer = value
-					addon:TriggerMessage('OnConfigChanged', 'bigTimer', value)
-				end,
-				disabled = function()
-					return addon.db.profile.immunityOnly
-				end,
-				order = 40,
-			},
-			friendly = {
-				name = L['Watch friends'],
-				desc = L['Track diminishing returns on group members.'],
-				type = 'toggle',
-				get = function() return addon.db.profile.friendly end,
-				set = function(_, value)
-					addon.db.profile.friendly = value
-					addon:TriggerMessage('OnConfigChanged', 'friendly', value)
-				end,
-				order = 16,
-			},
-			pveMode = {
-				name = L['PvE mode'],
-				desc = L['Check this box to display diminishing returns on mobs. Please remember that diminishing returns usually do not apply to mobs.'],
-				type = 'toggle',
-				get = function() return addon.db.profile.pveMode end,
-				set = function(_, value)
-					addon.db.profile.pveMode = value
-					addon:TriggerMessage('OnConfigChanged', 'pveMode', value)
-				end,
-				order = 15,
-			},
-			testMode = {
-				name = L['Enable test mode'],
-				desc = L['Check this to display bogus icons on every supported frames.'],
-				type = 'toggle',
-				get = function() return addon.testMode end,
-				set = function(_, value) addon:SetTestMode(value) end,
-				order = 17,
-			},
-			soundAtReset = {
-				name = L['Play sound at reset'],
-				desc = L['Check this to play a sound when the diminishing return of a watched category is reset on any target.'],
-				type = 'toggle',
-				get = function() return addon.db.profile.soundAtReset end,
-				set = function(_, value)
-					addon.db.profile.soundAtReset = value
-					addon:TriggerMessage('OnConfigChanged', 'soundAtReset', value)
-				end,
-				order = 60,
-			},
-			resetSound = {
-				name = L['"Reset" sound'],
-				desc = L['Select the sound to play at reset. See SharedMedia documentation to know how to add new sounds.'],
-				type = 'select',
-				dialogControl = 'LSM30_Sound',
-				values = SharedMedia:HashTable('sound'),
-				get = function() return addon.db.profile.resetSound end,
-				set = function(_, value)
-					addon.db.profile.resetSound = value
-					addon:TriggerMessage('OnConfigChanged', 'resetSound', value)
-				end,
-				disabled = function() return not addon.db.profile.soundAtReset end,
-				order = 65,
-			},
-			immunityOnly = {
-				name = L["Show only immunities"],
-				desc = L["Check this to display an icon only when the unit is immune to the spells of a category."],
-				type = 'toggle',
-				get = function() return addon.db.profile.immunityOnly end,
-				set = function(_, value)
-					addon.db.profile.immunityOnly = value
-					addon:TriggerMessage('OnConfigChanged', 'immunityOnly', value)
-				end,
-				order = 50,
-			}
 		}
 	}
 
@@ -215,7 +251,7 @@ local function CreateOptions()
 		alOption.values = { always = L['Always'] }
 	end
 
-	options.args.addonLoader = alOption
+	options.args.general.args.addonLoader = alOption
 
 	local pointValues = {
 		TOPLEFT = L['Top left'],
