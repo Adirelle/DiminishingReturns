@@ -68,79 +68,16 @@ local CLO_TYPE_PET_OR_PLAYER = bor(COMBATLOG_OBJECT_TYPE_PET, COMBATLOG_OBJECT_T
 local ICONS = {}
 addon.ICONS = ICONS
 
--- Defaults to question mark
-setmetatable(ICONS, { __index = function(t, cat)
-	t[cat] = [[Interface\\Icons\\INV_Misc_QuestionMark]]
-	return [[Interface\\Icons\\INV_Misc_QuestionMark]]
-end})
-
--- Common icons
-local DEFAULT_ICONS = {
-	banish = 710, -- Banish
-	bindelemental = 76780, -- Bind Elemental
-	charge = 100, -- Charge
-	ctrlroot = [[Interface\Icons\Spell_Frost_FrostNova]],
-	ctrlstun = [[Interface\Icons\Spell_Frost_FrozenCore]],
-	cyclone = 33786, -- Cyclone
-	disarm = 676, -- Disarm
-	disorient = 1776, -- Gouge
-	dragons = 31661, -- Dragon's Breath
-	entrapment = 19184, -- Entrapment
-	fear = 5782, -- Fear
-	horror = 6789, -- Death Coil
-	iceward = 111264, -- Ice Ward
-	mc = 605, -- Mind Control
-	rndstun = [[Interface\Icons\INV_Mace_02]],
-	scatters = 19503, -- Scatter Shot
-	silence =  2139, -- Counterspell
-	taunt = 355, -- Taunt (Warrior)
-}
-
--- Update with class specific icons
-local _, pClass = UnitClass('player')
-if pClass == "DRUID" then
-	DEFAULT_ICONS.taunt = 6795 -- Growl (Druid)
-	DEFAULT_ICONS.ctrlroot = 339 -- Entangling Roots
-	DEFAULT_ICONS.ctrlstun = 5211 -- Bash
-elseif pClass == "HUNTER" then
-	DEFAULT_ICONS.taunt = 20736 -- Distracting Shot
-	DEFAULT_ICONS.disorient = 3355 -- Freezing Trap
-	DEFAULT_ICONS.silence = 34490 -- Silencing Shot
-	DEFAULT_ICONS.disarm = 50541 -- Clench (Scorpid)
-	DEFAULT_ICONS.ctrlstun = 19577 -- Intimidation
-	DEFAULT_ICONS.ctrlroot = 4167 -- Web (Spider)
-	DEFAULT_ICONS.fear = 1513 -- Scare Beast
-elseif pClass == "MAGE" then
-	DEFAULT_ICONS.disorient = 118 -- Polymorph
-	DEFAULT_ICONS.ctrlstun = 44572 -- Deep Freeze
-	DEFAULT_ICONS.rndstun = 12355 -- Impact
-	DEFAULT_ICONS.ctrlroot = 122 -- Frost Nova
-elseif pClass == "ROGUE" then
-	DEFAULT_ICONS.silence = 1330 -- Garrote
-	DEFAULT_ICONS.disarm = 51722 -- Dismantle
-	DEFAULT_ICONS.fear = 2094 -- Blind
-	DEFAULT_ICONS.ctrlstun = 408 -- Kidney Shot
-elseif pClass == "WARRIOR" then
-	DEFAULT_ICONS.silence = 18498 -- Gag Order (Warrior talent)
-	DEFAULT_ICONS.fear = 5246 -- Intimidating Shout
-	DEFAULT_ICONS.ctrlstun = 12809 -- Concussion Blow
-	DEFAULT_ICONS.rndstun = 12798 -- Revenge Stun
-end
-
---@debug@
--- Sanity check
-for cat in pairs(DEFAULT_ICONS) do
-	if not CATEGORIES[cat] then
-		geterrorhandler()('no category '..cat)
-		DEFAULT_ICONS[cat] = nil
-	end
-end
---@end-debug@
-
 local SPELLS = {}
+local SPELLS_BY_CATEGORY = {}
 for id, category in pairs(DRData:GetSpells()) do
 	if CATEGORIES[category] then
 		SPELLS[id] = category
+		if not SPELLS_BY_CATEGORY[category] then
+			SPELLS_BY_CATEGORY[category] = { id }
+		else
+			tinsert(SPELLS_BY_CATEGORY[category], id)
+		end
 	--@debug@
 	else
 		geterrorhandler()('Spell '..id..' assigned to unknown category '..category)
@@ -148,55 +85,38 @@ for id, category in pairs(DRData:GetSpells()) do
 	end
 end
 addon.SPELLS = SPELLS
+addon.SPELLS_BY_CATEGORY = SPELLS_BY_CATEGORY
 
--- Update icons
-local UpdateIcons
-do
-	local found, newIcons = {}, {}
-	function UpdateIcons()
-		wipe(found)
-		wipe(newIcons)
-
-		-- Load default icons
-		for category, icon in pairs(DEFAULT_ICONS) do
-			if type(icon) == "number" then
-				icon = select(3, GetSpellInfo(icon))
-			end
-			if icon then
-				newIcons[category], found[category] = icon, 10
-			end
-		end
-
-		-- Try to get better suited icons
-		for id, category in  pairs(DRData:GetSpells()) do
-			local icon = select(3, GetSpellInfo(id))
-			if icon then
-				local level = found[category] or 0
-				if level < 30 and IsSpellKnown(id) then
+-- Search icons on demand
+setmetatable(ICONS, { __index = function(t, category)
+	local spells = SPELLS_BY_CATEGORY[category]
+	local icon = [[Interface\\Icons\\INV_Misc_QuestionMark]]
+	if spells then
+		local score = 0
+		for i, id in ipairs(spells) do
+			local thisIcon = select(3, GetSpellInfo(id))
+			if thisIcon then
+				if score < 30 and IsSpellKnown(id) then
 					-- Character spell
-					newIcons[category], found[category] = icon, 30
-				elseif level < 20 and IsSpellKnown(id, true) then
+					icon, score = thisIcon, 30
+				elseif score < 20 and IsSpellKnown(id, true) then
 					-- Pet spell
-					newIcons[category], found[category] = icon, 20
+					icon, score = thisIcon, 20
+				elseif score < 10 then
+					-- Any spell
+					icon, score = thisIcon, 10
 				end
 			end
 		end
-
-		-- Update icons
-		local changed = false
-		for category, icon in pairs(newIcons) do
-			if ICONS[category] ~= icon then
-				ICONS[category] = icon
-				addon:Debug(category, icon, found[category])
-				changed = true
-			end
-		end
-
-		if changed then
-			addon:Debug('Icons updated')
-			addon:TriggerMessage('IconsChanged')
-		end
 	end
+	t[category] = icon
+	return icon
+end})
+
+-- Update icons
+local function UpdateIcons()
+	wipe(ICONS)
+	addon:TriggerMessage('IconsChanged')
 end
 addon:RegisterEvent('SPELLS_CHANGED', UpdateIcons)
 
