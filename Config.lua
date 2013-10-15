@@ -32,6 +32,7 @@ local wipe = _G.wipe
 -----------------------------------------------------------------------------
 
 local L = addon.L
+local ICONS, CATEGORIES, SPELLS_BY_CATEGORY = addon.ICONS, addon.CATEGORIES, addon.SPELLS_BY_CATEGORY
 local SharedMedia = LibStub('LibSharedMedia-3.0')
 
 local options, frameOptions, supportOptions
@@ -40,21 +41,19 @@ local function CreateOptions()
 	local drdata = LibStub('DRData-1.0')
 	local categoryGroup = {}
 	local tmp = {}
-	for cat, name in pairs(addon.CATEGORIES) do
+	for cat, spells in pairs(SPELLS_BY_CATEGORY) do
 		wipe(tmp)
-		for spellId, spellCat in pairs(drdata:GetSpells()) do
-			if spellCat == cat then
-				local name, _, icon = GetSpellInfo(spellId)
-				if name and not tmp[name] then
-					tinsert(tmp, format('|T%s:0|t %s', icon, name))
-					tmp[name] = true
-				end
+		for i, spellId in ipairs(spells) do
+			local name, _, icon = GetSpellInfo(spellId)
+			if name and not tmp[name] then
+				tinsert(tmp, format('|T%s:0|t %s', icon, name))
+				tmp[name] = true
 			end
 		end
-		local key, name = cat, name
+		local key, name = cat, CATEGORIES[cat]
 		categoryGroup[key] = {
 			name = function()
-				return format("|T%s:24|t %s", addon.ICONS[key], name)
+				return format("|T%s:24|t %s", ICONS[key], name)
 			end,
 			desc = format(L['This category is triggered by the following effects:\n%s'], tconcat(tmp, '\n')),
 			type = 'toggle',
