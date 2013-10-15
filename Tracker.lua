@@ -89,11 +89,12 @@ addon.SPELLS_BY_CATEGORY = SPELLS_BY_CATEGORY
 
 -- Search icons on demand
 setmetatable(ICONS, { __index = function(t, category)
-	local spells = SPELLS_BY_CATEGORY[category]
-	local icon = [[Interface\\Icons\\INV_Misc_QuestionMark]]
-	if spells then
+	local icon
+	if prefs.icons[category] then
+		icon = prefs.icons[category]
+	elseif SPELLS_BY_CATEGORY[category] then
 		local score = 0
-		for i, id in ipairs(spells) do
+		for i, id in ipairs(SPELLS_BY_CATEGORY[category]) do
 			local thisIcon = select(3, GetSpellInfo(id))
 			if thisIcon then
 				if score < 30 and IsSpellKnown(id) then
@@ -108,17 +109,15 @@ setmetatable(ICONS, { __index = function(t, category)
 				end
 			end
 		end
+	else
+		icon = [[Interface\\Icons\\INV_Misc_QuestionMark]]
 	end
-	t[category] = icon
-	return icon
+	if icon then
+		t[category] = icon
+		return icon
+	end
+	return [[Interface\\Icons\\INV_Misc_QuestionMark]]
 end})
-
--- Update icons
-local function UpdateIcons()
-	wipe(ICONS)
-	addon:TriggerMessage('IconsChanged')
-end
-addon:RegisterEvent('SPELLS_CHANGED', UpdateIcons)
 
 local spellsResolved = false
 do
@@ -138,7 +137,7 @@ do
 			end
 		end
 		if spellsResolved then
-			UpdateIcons()
+			wipe(ICONS)
 			addon:UnregisterEvent('SPELLS_CHANGED', ResolveSpells)
 			ResolveSpells = nil
 			addon:Debug('Spells OK')

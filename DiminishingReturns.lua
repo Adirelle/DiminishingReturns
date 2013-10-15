@@ -35,6 +35,7 @@ local DEFAULT_CONFIG = {
 	bigTimer = false,
 	immunityOnly = false,
 	pveMode = false,
+	icons = {},
 }
 addon.DEFAULT_CONFIG = DEFAULT_CONFIG
 
