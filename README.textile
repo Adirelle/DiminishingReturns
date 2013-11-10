@@ -15,7 +15,7 @@ h2. Features
 h2. Supported unit frames
 
 * Blizzard target, focus and arena enemy frames,
-* Nameplates, using "LibNameplate-1.0":http://wow.curse.com/downloads/wow-addons/details/libnameplate-1-0.aspx,
+* Nameplates, using "LibNameplateRegistry-1.0":http://www.curse.com/addons/wow/libnameplateregistry-1-0,
 * "Shadowed Unit Frames":http://wow.curse.com/downloads/wow-addons/details/shadowed-unit-frames.aspx: target, focus and arena frames (ShadowedUF_Arena is no longer supported),
 * "Gladius":http://wow.curse.com/downloads/wow-addons/details/gladius.aspx 2.0.x (arena unit frames),
 * "X-Perl UnitFrames":http://wow.curse.com/downloads/wow-addons/details/xperl.aspx: target and focus.

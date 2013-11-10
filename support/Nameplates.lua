@@ -12,7 +12,9 @@ local _G = _G
 local hooksecurefunc = _G.hooksecurefunc
 --GLOBALS>
 
-local function SetupNameplates(LibNameplate)
+addon:RegisterAddonSupport('LibNameplateRegistry-1.0', function()
+	local lib, version = LibStub('LibNameplateRegistry-1.0', true)
+
 	local db = addon.db:RegisterNamespace('Nameplates', {profile={
 		enabled = true,
 		iconSize = 16,
@@ -29,42 +31,27 @@ local function SetupNameplates(LibNameplate)
 	end
 
 	local function GetNameplateGUID(self)
-		return LibNameplate:GetGUID(self.anchor) or nil
+		return lib:GetPlateGUID(self.anchor) or nil
 	end
 
 	local function OnNameplateEnable(self)
-		LibNameplate.RegisterCallback(self, "LibNameplate_FoundGUID", "UpdateGUID")
-		LibNameplate.RegisterCallback(self, "LibNameplate_RecycleNameplate", "UpdateGUID")
+		lib.LNR_RegisterCallback(self, "LNR_ON_GUID_FOUND", "UpdateGUID")
+		lib.LNR_RegisterCallback(self, "LNR_ON_RECYCLE_PLATE", "UpdateGUID")
 	end
 
 	local function OnNameplateDisable(self)
-		LibNameplate.UnregisterAllCallbacks(self)
+		lib.LNR_UnregisterAllCallbacks(self)
 	end
 
 	addon:RegisterFrameConfig('Nameplates', GetDatabase)
 
 	local seen = {}
-	LibNameplate.RegisterCallback(addon, 'LibNameplate_NewNameplate', function(_ , nameplate)
+	lib.LNR_RegisterCallback(addon, 'LNR_ON_NEW_PLATE', function(_ , nameplate)
 		if seen[nameplate] or seen[nameplate:GetParent()] then return end
 		seen[nameplate] = true
 		addon:Debug("Detected new nameplate", nameplate:GetName() or "anonymous")
 		return addon:SpawnGenericFrame(nameplate, GetDatabase, GetNameplateGUID, OnNameplateEnable, OnNameplateDisable, 'noCooldown', true)
 	end)
-end
 
-local found = false
-local function TestLibNameplate()
-	if found then return end
-	local lib, minor = LibStub('LibNameplate-1.0', true)
-	if lib then
-		found = true
-		addon:Debug("Found LibNameplate-1.0", minor)
-		addon:UnregisterEvent('ADDON_LOADED', TestLibNameplate)
-		return SetupNameplates(lib)
-	end
-end
-
-addon:RegisterEvent('ADDON_LOADED', TestLibNameplate)
-hooksecurefunc(addon, "LoadAddonSupport", TestLibNameplate)
-
-
+	return 'supported', version
+end)
