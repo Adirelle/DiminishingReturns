@@ -3,27 +3,27 @@ Diminishing Returns (DR) helps tracking your teammate and own diminishing return
 h2. Features
 
 * display running diminishing returns as icons, showing the diminishing status and remaining time,
-* uses DR category database from "DRData-1.0":http://wow.curse.com/downloads/wow-addons/details/drdata-1-0.aspx,
+* uses DR category database from "DRData-1.0":http://www.curse.com/addons/wow/drdata-1-0.aspx,
 * select which categories to show or enable the learning option so they are detected automatically,
 * (new in v1.1-beta-3) can track diminishing returns on group members,
 * main options and icon layout options are available using @/dimret@ and in the addon tab of interface options,
 * test mode available using @/drtest@.
-* "LibDualSpec-1.0":http://wow.curse.com/downloads/wow-addons/details/libdualspec-1-0.aspx support for per-spec profiles,
-* "AddonLoader":http://wow.curse.com/downloads/wow-addons/details/addon-loader.aspx support to reduce logon time,
-* (new in v1.1-beta-3) "ButtonFacade":http://wow.curse.com/downloads/wow-addons/details/buttonfacade.aspx support.
+* "LibDualSpec-1.0":http://www.curse.com/addons/wow/libdualspec-1-0support for per-spec profiles,
+* "AddonLoader":http://www.curse.com/addons/wow/addon-loader support to reduce logon time,
+* (new in v1.1-beta-3) "ButtonFacade":http://www.curse.com/addons/wow/buttonfacade support.
 
 h2. Supported unit frames
 
 * Blizzard target, focus and arena enemy frames,
 * Nameplates, using "LibNameplateRegistry-1.0":http://www.curse.com/addons/wow/libnameplateregistry-1-0,
-* "Shadowed Unit Frames":http://wow.curse.com/downloads/wow-addons/details/shadowed-unit-frames.aspx: target, focus and arena frames (ShadowedUF_Arena is no longer supported),
-* "Gladius":http://wow.curse.com/downloads/wow-addons/details/gladius.aspx 2.0.x (arena unit frames),
-* "X-Perl UnitFrames":http://wow.curse.com/downloads/wow-addons/details/xperl.aspx: target and focus.
+* "Shadowed Unit Frames":http://www.curse.com/addons/wow/shadowed-unit-frames: target, focus and arena frames (ShadowedUF_Arena is no longer supported),
+* "Gladius":http://www.curse.com/addons/wow/gladius. 2.0.x (arena unit frames),
+* "X-Perl UnitFrames":http://www.curse.com/addons/wow/xperl: target and focus.
 * "oUF":http://www.wowinterface.com/downloads/info9994-oUF.html: target and focus.
 * "Stellar UF":http://www.wowinterface.com/downloads/fileinfo.php?id=11182: target and focus.
-* "oUF_Adirelle":http://wow.curse.com/downloads/wow-addons/details/ouf_adirelle.aspx: target and focus.
-* (untested) "PitBull Unit Frames 4.0":http://wow.curse.com/downloads/wow-addons/details/pitbull4.aspx: target and focus.
-* (untested) "ag UnitFrames":http://wow.curse.com/downloads/wow-addons/details/ag_unitframes.aspx: target and focus.
+* "oUF_Adirelle":http://www.curse.com/addons/wow/ouf_adirelle: target and focus.
+* (untested) "PitBull Unit Frames 4.0":http://www.curse.com/addons/wow/pitbull4: target and focus.
+* (untested) "ag UnitFrames":http://www.curse.com/addons/wow/ag_unitframes: target and focus.
 
 The icon layout for each frame is configurable using the "frame layout" entry in interface options.
 
