@@ -4,10 +4,11 @@ Copyright 2009-2012 Adirelle (adirelle@gmail.com)
 All rights reserved.
 --]]
 
+local addonName, ns = ...
+
 -- Addon creation and initialization
 
-_G.DiminishingReturns = CreateFrame("Frame")
-local addon = _G.DiminishingReturns
+local addon = CreateFrame("Frame", addonName)
 
 --<GLOBALS
 local _G = _G
