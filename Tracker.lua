@@ -122,7 +122,7 @@ end})
 local spellsResolved = false
 do
 	local function ResolveSpells()
-		addon:UnregisterEvent('PLAYER_LOGIN', ResolveSpells)
+		addon:UnregisterEvent('PLAYER_LOGIN')
 		for id, category in pairs(SPELLS) do
 			if type(id) == "number" then
 				local name = GetSpellInfo(id)
@@ -138,7 +138,7 @@ do
 		end
 		if spellsResolved then
 			wipe(ICONS)
-			addon:UnregisterEvent('SPELLS_CHANGED', ResolveSpells)
+			addon:UnregisterEvent('SPELLS_CHANGED')
 			ResolveSpells = nil
 			addon:Debug('Spells OK')
 			if addon.CheckActivation then
@@ -355,7 +355,7 @@ function addon:CheckActivation(event)
 		end
 	elseif addon.active then
 		addon:Debug('CheckActivation, pveMode=', prefs.pveMode, ', disactivating')
-		addon:UnregisterEvent('COMBAT_LOG_EVENT_UNFILTERED', ParseCLEU)
+		addon:UnregisterEvent('COMBAT_LOG_EVENT_UNFILTERED')
 		WipeAll()
 		addon.active = false
 		addon:SendMessage('DisableDR')

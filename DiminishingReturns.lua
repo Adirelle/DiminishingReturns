@@ -71,7 +71,7 @@ end
 
 local function OnLoad(self, event, name, ...)
 	if name:lower() ~= "diminishingreturns" then return end
-	self:UnregisterEvent('ADDON_LOADED', OnLoad)
+	addon:UnregisterEvent('ADDON_LOADED')
 	OnLoad = nil
 
 	local db = LibStub('AceDB-3.0'):New("DiminishingReturnsDB", {profile=DEFAULT_CONFIG})

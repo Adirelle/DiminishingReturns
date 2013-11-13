@@ -395,11 +395,11 @@ local function OnSecureEnable(self)
 end
 
 local function OnSecureDisable(self)
-	self:UnregisterEvent('PLAYER_TARGET_CHANGED', 'UpdateGUID')
-	self:UnregisterEvent('PLAYER_FOCUS_CHANGED', 'UpdateGUID')
-	self:UnregisterEvent('ARENA_OPPONENT_UPDATE', 'UpdateGUID')
-	self:UnregisterEvent('PARTY_MEMBERS_CHANGED', 'UpdateGUID')
-	self:UnregisterEvent('RAID_ROSTER_UPDATE', 'UpdateGUID')
+	self:UnregisterEvent('PLAYER_TARGET_CHANGED')
+	self:UnregisterEvent('PLAYER_FOCUS_CHANGED')
+	self:UnregisterEvent('ARENA_OPPONENT_UPDATE')
+	self:UnregisterEvent('PARTY_MEMBERS_CHANGED')
+	self:UnregisterEvent('RAID_ROSTER_UPDATE')
 end
 
 local function GetSecureGUID(self)
