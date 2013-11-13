@@ -129,7 +129,7 @@ function iconProto:Update(texture, count, duration, expireTime)
 	self.texture:SetTexture(texture)
 	if self.cooldown then
 		self.cooldown:SetCooldown(expireTime-duration, duration)
-	end+
+	end
 	self.bigText:SetTextColor(r, g, b)
 	self.border:SetVertexColor(r, g, b, 1)
 
