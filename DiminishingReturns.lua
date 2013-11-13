@@ -24,6 +24,33 @@ else
 	function addon.Debug() end
 end
 
+do
+	local mixins = { Debug = addon.Debug }
+
+	-- Events
+	local __RegisterEvent = addon.RegisterEvent
+	local __UnregisterEvent = addon.UnregisterEvent
+
+	local dispatcher = LibStub('CallbackHandler-1.0'):New(mixins, "RegisterEvent", "UnregisterEvent", "UnregisterEvents")
+
+	function dispatcher:OnUsed(_, event) return __RegisterEvent(addon, event) end
+	function dispatcher:OnUnused(_, event) return  __UnregisterEvent(addon, event) end
+	addon:SetScript('OnEvent', dispatcher.Fire)
+
+	-- Messages
+	local messagging = LibStub('CallbackHandler-1.0'):New(mixins, "RegisterMessage", "UnregisterMessage", "UnregisterAllMessages")
+	mixins.SendMessage = messagging.Fire
+
+	-- Embedding event dispatcher and messaging
+	function addon:EmbedEventDispatcher(target)
+		for name, methods in pairs(mixins) do
+			target[name] = methods
+		end
+	end
+end
+
+addon:EmbedEventDispatcher(addon)
+
 local DEFAULT_CONFIG = {
 	learnCategories = true,
 	categories = { ['*'] = false },

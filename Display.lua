@@ -354,8 +354,7 @@ function addon:SpawnGenericFrame(anchor, GetDatabase, GetGUID, OnEnable, OnDisab
 	frame:SetWidth(1)
 	frame:SetHeight(1)
 
-	AdiEvent.Embed(frame)
-	frame:SetMessageChannel(addon)
+	addon:EmbedEventDispatcher(frame)
 
 	local anchor_watch = function() return UpdateStatus(frame) end
 	anchor:HookScript('OnShow', anchor_watch)
