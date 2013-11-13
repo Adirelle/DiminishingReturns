@@ -43,7 +43,7 @@ local TEXTS = {
 
 -- database upvalue
 local prefs
-addon:RegisterEvent('OnProfileChanged', function() prefs = addon.db.profile end)
+addon.RegisterMessage('Display', 'OnProfileChanged', function() prefs = addon.db.profile end)
 
 local function FitTextSize(text, width, height)
 	local name, _, flags = text:GetFont()
@@ -87,7 +87,7 @@ if LBF then
 		skin.skinID, skin.gloss, skin.backdrop, skin.colors = skinID, gloss, backdrop, colors
 	end, addon)
 
-	addon:RegisterEvent('OnProfileChanged', function()
+	addon.RegisterMessage('Display-LBF', 'OnProfileChanged', function()
 		local skin = prefs.ButtonFacade
 		group:Skin(skin.skinID, skin.gloss, skin.backdrop, skin.colors)
 	end)
@@ -296,8 +296,8 @@ local function UpdateStatus(self)
 	if enabled then
 		if not self.enabled then
 			self.enabled = true
-			self:RegisterEvent('UpdateDR', UpdateDR)
-			self:RegisterEvent('RemoveDR', RemoveDR)
+			self:RegisterMessage('UpdateDR', UpdateDR)
+			self:RegisterMessage('RemoveDR', RemoveDR)
 			self:OnEnable()
 		end
 		if not UpdateGUID(self) then
@@ -305,8 +305,8 @@ local function UpdateStatus(self)
 		end
 	elseif self.enabled then
 		self.guid, self.enabled = nil, nil, false
-		self:UnregisterEvent('UpdateDR', UpdateDR)
-		self:UnregisterEvent('RemoveDR', RemoveDR)
+		self:UnregisterMessage('UpdateDR', UpdateDR)
+		self:UnregisterMessage('RemoveDR', RemoveDR)
 		self:OnDisable()
 		self:Hide()
 	end
@@ -360,12 +360,12 @@ function addon:SpawnGenericFrame(anchor, GetDatabase, GetGUID, OnEnable, OnDisab
 	anchor:HookScript('OnShow', anchor_watch)
 	anchor:HookScript('OnHide', anchor_watch)
 
-	frame:RegisterEvent('EnableDR', UpdateStatus)
-	frame:RegisterEvent('DisableDR', UpdateStatus)
-	frame:RegisterEvent('SetTestMode', SetTestMode)
-	frame:RegisterEvent('OnConfigChanged', UpdateStatus)
-	frame:RegisterEvent('OnFrameConfigChanged', OnFrameConfigChanged)
-	frame:RegisterEvent('OnProfileChanged', OnFrameConfigChanged)
+	frame:RegisterMessage('EnableDR', UpdateStatus)
+	frame:RegisterMessage('DisableDR', UpdateStatus)
+	frame:RegisterMessage('SetTestMode', SetTestMode)
+	frame:RegisterMessage('OnConfigChanged', UpdateStatus)
+	frame:RegisterMessage('OnFrameConfigChanged', OnFrameConfigChanged)
+	frame:RegisterMessage('OnProfileChanged', OnFrameConfigChanged)
 
 	-- Allow to setup arbitrary values
 	for i = 1, select('#', ...), 2 do

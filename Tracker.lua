@@ -48,7 +48,7 @@ local SharedMedia = LibStub('LibSharedMedia-3.0')
 
 -- database upvalue
 local prefs
-addon:RegisterEvent('OnProfileChanged', function() prefs = addon.db.profile end)
+addon.RegisterMessage('Tracker', 'OnProfileChanged', function() prefs = addon.db.profile end)
 
 local CATEGORIES = DRData:GetCategories()
 addon.CATEGORIES = CATEGORIES
@@ -190,7 +190,7 @@ local function SpawnDR(guid, category, isFriend, increase, duration)
 	dr.expireTime = now + duration
 	if dr.count > 0 then
 		assert(type(duration) == "number")
-		addon:TriggerMessage('UpdateDR', guid, category, isFriend, dr.texture, dr.count, duration, dr.expireTime)
+		addon:SendMessage('UpdateDR', guid, category, isFriend, dr.texture, dr.count, duration, dr.expireTime)
 	end
 	timerFrame:Show()
 end
@@ -200,7 +200,7 @@ local function RemoveDR(guid, cat)
 	local dr = targetDR and targetDR[cat]
 	if dr then
 		if dr.count > 0 then
-			addon:TriggerMessage('RemoveDR', guid, cat)
+			addon:SendMessage('RemoveDR', guid, cat)
 		end
 		targetDR[cat] = del(dr)
 		if not next(targetDR) then
@@ -263,7 +263,7 @@ local function SpawnTestDR(unit)
 	end
 end
 
-addon:RegisterEvent('SetTestMode', function(_, event, value)
+addon.RegisterMessage('Tracker', 'SetTestMode', function(_, event, value)
 	addon:Debug(_, event, value)
 	if not value then return end
 	SpawnTestDR("player")
@@ -351,14 +351,14 @@ function addon:CheckActivation(event)
 			addon:Debug('CheckActivation, pveMode=', prefs.pveMode, ', activating')
 			addon:RegisterEvent('COMBAT_LOG_EVENT_UNFILTERED', ParseCLEU)
 			addon.active = true
-			addon:TriggerMessage('EnableDR')
+			addon:SendMessage('EnableDR')
 		end
 	elseif addon.active then
 		addon:Debug('CheckActivation, pveMode=', prefs.pveMode, ', disactivating')
 		addon:UnregisterEvent('COMBAT_LOG_EVENT_UNFILTERED', ParseCLEU)
 		WipeAll()
 		addon.active = false
-		addon:TriggerMessage('DisableDR')
+		addon:SendMessage('DisableDR')
 	end
 end
 
@@ -386,6 +386,6 @@ addon:RegisterEvent('PLAYER_UPDATE_RESTING', 'CheckActivation')
 addon:RegisterEvent('UNIT_FACTION', function(self, event, unit)
 	if unit == "player" then return addon:CheckActivation(event) end
 end)
-addon:RegisterEvent('OnConfigChanged', function(self, event, name)
+addon.RegisterMessage('Tracker', 'OnConfigChanged', function(self, event, name)
 	if name == "pveMode" then return addon:CheckActivation(event) end
 end)

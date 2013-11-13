@@ -66,7 +66,7 @@ local DEFAULT_CONFIG = {
 addon.DEFAULT_CONFIG = DEFAULT_CONFIG
 
 function addon:OnProfileChanged(self, ...)
-	addon:TriggerMessage('OnProfileChanged')
+	addon:SendMessage('OnProfileChanged')
 end
 
 local function OnLoad(self, event, name, ...)
@@ -87,7 +87,7 @@ local function OnLoad(self, event, name, ...)
 		LibDualSpec:EnhanceDatabase(db, "Diminishing Returns")
 	end
 
-	addon:TriggerMessage('OnProfileChanged')
+	addon:SendMessage('OnProfileChanged')
 
 	addon:LoadAddonSupport()
 
@@ -101,7 +101,7 @@ addon:RegisterEvent('ADDON_LOADED', OnLoad)
 -- Test mode
 function addon:SetTestMode(mode)
 	self.testMode = mode
-	addon:TriggerMessage('SetTestMode', self.testMode)
+	addon:SendMessage('SetTestMode', self.testMode)
 end
 
 -- GLOBALS: SLASH_DRTEST1

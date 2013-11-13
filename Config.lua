@@ -67,7 +67,7 @@ local function CreateOptions()
 			end,
 			set = function(_, value)
 				addon.db.profile.categories[key] = value
-				addon:TriggerMessage('OnConfigChanged', 'categories,'..key, value)
+				addon:SendMessage('OnConfigChanged', 'categories,'..key, value)
 			end,
 			order = order,
 		}
@@ -108,7 +108,7 @@ local function CreateOptions()
 						get = function() return addon.db.profile.learnCategories end,
 						set = function(_, value)
 							addon.db.profile.learnCategories = value
-							addon:TriggerMessage('OnConfigChanged', 'learnCategories', value)
+							addon:SendMessage('OnConfigChanged', 'learnCategories', value)
 						end,
 						order = 10,
 					},
@@ -131,7 +131,7 @@ local function CreateOptions()
 						get = function() return addon.db.profile.bigTimer or addon.db.profile.immunityOnly end,
 						set = function(_, value)
 							addon.db.profile.bigTimer = value
-							addon:TriggerMessage('OnConfigChanged', 'bigTimer', value)
+							addon:SendMessage('OnConfigChanged', 'bigTimer', value)
 						end,
 						disabled = function()
 							return addon.db.profile.immunityOnly
@@ -145,7 +145,7 @@ local function CreateOptions()
 						get = function() return addon.db.profile.friendly end,
 						set = function(_, value)
 							addon.db.profile.friendly = value
-							addon:TriggerMessage('OnConfigChanged', 'friendly', value)
+							addon:SendMessage('OnConfigChanged', 'friendly', value)
 						end,
 						order = 16,
 					},
@@ -156,7 +156,7 @@ local function CreateOptions()
 						get = function() return addon.db.profile.pveMode end,
 						set = function(_, value)
 							addon.db.profile.pveMode = value
-							addon:TriggerMessage('OnConfigChanged', 'pveMode', value)
+							addon:SendMessage('OnConfigChanged', 'pveMode', value)
 						end,
 						order = 15,
 					},
@@ -175,7 +175,7 @@ local function CreateOptions()
 						get = function() return addon.db.profile.soundAtReset end,
 						set = function(_, value)
 							addon.db.profile.soundAtReset = value
-							addon:TriggerMessage('OnConfigChanged', 'soundAtReset', value)
+							addon:SendMessage('OnConfigChanged', 'soundAtReset', value)
 						end,
 						order = 60,
 					},
@@ -188,7 +188,7 @@ local function CreateOptions()
 						get = function() return addon.db.profile.resetSound end,
 						set = function(_, value)
 							addon.db.profile.resetSound = value
-							addon:TriggerMessage('OnConfigChanged', 'resetSound', value)
+							addon:SendMessage('OnConfigChanged', 'resetSound', value)
 						end,
 						disabled = function() return not addon.db.profile.soundAtReset end,
 						order = 65,
@@ -200,7 +200,7 @@ local function CreateOptions()
 						get = function() return addon.db.profile.immunityOnly end,
 						set = function(_, value)
 							addon.db.profile.immunityOnly = value
-							addon:TriggerMessage('OnConfigChanged', 'immunityOnly', value)
+							addon:SendMessage('OnConfigChanged', 'immunityOnly', value)
 						end,
 						order = 50,
 					}
@@ -275,7 +275,7 @@ local function CreateOptions()
 			local key = info[#info]
 			local db = info.handler:GetDatabase()
 			db[key] = value
-			addon:TriggerMessage("OnFrameConfigChanged", key, value)
+			addon:SendMessage("OnFrameConfigChanged", key, value)
 		end,
 		args = {
 			enabled = {
