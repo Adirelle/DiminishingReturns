@@ -76,7 +76,6 @@ local function UpdateTimer(self)
 	end
 end
 
-local AdiEvent = LibStub('LibAdiEvent-1.0')
 local LBF = LibStub('LibButtonFacade', true)
 local SkinIcon
 if LBF then

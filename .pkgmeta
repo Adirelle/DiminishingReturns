@@ -26,7 +26,6 @@ externals:
     url: svn://svn.wowace.com/wow/ace-gui-3-0-shared-media-widgets/mainline/trunk/AceGUI-3.0-SharedMediaWidgets
     tag: latest
   libs/DRData-1.0: git://git.wowace.com/wow/drdata-1-0/mainline.git
-  libs/LibAdiEvent-1.0: git://github.com/Adirelle/LibAdiEvent-1.0.git
 
 move-folders:
   DiminishingReturns/DiminishingReturns_Config: DiminishingReturns_Config

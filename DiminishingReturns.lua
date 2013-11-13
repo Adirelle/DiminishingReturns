@@ -8,8 +8,6 @@ All rights reserved.
 
 _G.DiminishingReturns = CreateFrame("Frame")
 local addon = _G.DiminishingReturns
-LibStub('LibAdiEvent-1.0').Embed(addon)
-addon:SetMessageChannel(addon)
 
 --<GLOBALS
 local _G = _G
