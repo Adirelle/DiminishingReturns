@@ -69,7 +69,7 @@ function addon:OnProfileChanged(self, ...)
 	addon:SendMessage('OnProfileChanged')
 end
 
-local function OnLoad(self, event, name, ...)
+function addon:OnLoad(event, name, ...)
 	if name:lower() ~= "diminishingreturns" then return end
 	addon:UnregisterEvent('ADDON_LOADED')
 	OnLoad = nil
@@ -96,7 +96,7 @@ local function OnLoad(self, event, name, ...)
 	end
 end
 
-addon:RegisterEvent('ADDON_LOADED', OnLoad)
+addon:RegisterEvent('ADDON_LOADED', 'OnLoad')
 
 -- Test mode
 function addon:SetTestMode(mode)
