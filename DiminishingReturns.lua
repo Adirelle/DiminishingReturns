@@ -69,12 +69,14 @@ function addon:OnProfileChanged(self, ...)
 	addon:SendMessage('OnProfileChanged')
 end
 
-function addon:OnLoad(event, name, ...)
-	if name:lower() ~= "diminishingreturns" then return end
-	addon:UnregisterEvent('ADDON_LOADED')
-	OnLoad = nil
+function addon:ADDON_LOADED(event, name, ...)
+	if name ~= addonName then return end
 
-	local db = LibStub('AceDB-3.0'):New("DiminishingReturnsDB", {profile=DEFAULT_CONFIG})
+	-- Future events will only call CheckAddonSupport
+	self.ADDON_LOADED = self.CheckAddonSupport
+
+	-- Initialize the database
+	local db = LibStub('AceDB-3.0'):New("DiminishingReturnsDB", { profile = DEFAULT_CONFIG })
 	db.RegisterCallback(self, 'OnProfileChanged')
 	db.RegisterCallback(self, 'OnProfileCopied', 'OnProfileChanged')
 	db.RegisterCallback(self, 'OnProfileReset', 'OnProfileChanged')
@@ -87,21 +89,30 @@ function addon:OnLoad(event, name, ...)
 		LibDualSpec:EnhanceDatabase(db, "Diminishing Returns")
 	end
 
-	addon:SendMessage('OnProfileChanged')
+	-- Propagate settings
+	self:SendMessage('OnProfileChanged')
 
-	addon:LoadAddonSupport()
+	self:RegisterEvent('SPELLS_CHANGED', 'ResolveSpells')
 
 	if IsLoggedIn() then
+		self:PLAYER_LOGIN()
+	else
+		self:RegisterEvent('PLAYER_LOGIN')
+	end
+end
+addon:RegisterEvent('ADDON_LOADED')
+
+function addon:PLAYER_LOGIN()
+	self:CheckAddonSupport()
+	if not self:ResolveSpells() then
 		self:CheckActivation('OnLoad')
 	end
 end
 
-addon:RegisterEvent('ADDON_LOADED', 'OnLoad')
-
 -- Test mode
 function addon:SetTestMode(mode)
 	self.testMode = mode
-	addon:SendMessage('SetTestMode', self.testMode)
+	self:SendMessage('SetTestMode', self.testMode)
 end
 
 -- GLOBALS: SLASH_DRTEST1

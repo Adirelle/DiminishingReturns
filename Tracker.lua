@@ -119,38 +119,26 @@ setmetatable(ICONS, { __index = function(t, category)
 	return [[Interface\\Icons\\INV_Misc_QuestionMark]]
 end})
 
-local spellsResolved = false
-do
-	local function ResolveSpells()
-		addon:UnregisterEvent('PLAYER_LOGIN')
-		for id, category in pairs(SPELLS) do
-			if type(id) == "number" then
-				local name = GetSpellInfo(id)
-				if name then
-					SPELLS[name] = category
-					spellsResolved = true
-				--@debug@
-				else
-					geterrorhandler()('Unknown spell '..id..' (category '..category..')')
-				--@end-debug@
-				end
-			end
-		end
-		if spellsResolved then
-			wipe(ICONS)
-			addon:UnregisterEvent('SPELLS_CHANGED')
-			ResolveSpells = nil
-			addon:Debug('Spells OK')
-			if addon.CheckActivation then
-				addon:CheckActivation('SpellsResolved')
+function addon:ResolveSpells()
+	if spellsResolved then return end
+	for id, category in pairs(SPELLS) do
+		if type(id) == "number" then
+			local name = GetSpellInfo(id)
+			if name then
+				SPELLS[name] = category
+				spellsResolved = true
+			--@debug@
+			else
+				geterrorhandler()('Unknown spell '..id..' (category '..category..')')
+			--@end-debug@
 			end
 		end
 	end
-	addon:RegisterEvent('SPELLS_CHANGED', ResolveSpells)
-	if not IsLoggedIn() then
-		addon:RegisterEvent('PLAYER_LOGIN', ResolveSpells)
-	else
-		ResolveSpells()
+	if spellsResolved then
+		wipe(ICONS)
+		self:Debug('Spells changed')
+		self:CheckActivation('SpellsResolved')
+		return true
 	end
 end
 

@@ -69,8 +69,6 @@ function addon:RegisterFrameConfig(label, getDatabaseCallback)
 	addon.pendingFrameConfig[label] = getDatabaseCallback
 end
 
-local addonSupportInitialized
-
 local function IsLoaded(name)
 	if name == "FrameXML" then
 		return IsLoggedIn()
@@ -87,11 +85,10 @@ local function CanBeLoaded(name)
 	end
 end
 
-local function CheckAddonSupport()
-	if not addonSupportInitialized then return end
+function addon:CheckAddonSupport()
 	for name, callback in pairs(addonCallbacks) do
 		if IsLoaded(name) then
-			addon:Debug('Calling addon support for', name)
+			self:Debug('Calling addon support for', name)
 			addonCallbacks[name] = nil
 			local success, state, version = pcall(callback)
 			if success then
@@ -126,19 +123,10 @@ function addon:RegisterAddonSupport(name, callback)
 	end
 	supportState[name] = '|cff00ffff'..L["to be loaded"]..'|r'
 	addonCallbacks[name] = callback
-	CheckAddonSupport()
+	self:CheckAddonSupport()
 	if addonCallbacks[name] then
 		self:Debug('Registered addon support for', name)
 	end
-end
-
-function addon:LoadAddonSupport()
-	addonSupportInitialized = true
-	CheckAddonSupport()
-	if addonCallbacks.framexml then
-		addon:RegisterEvent('PLAYER_LOGIN', CheckAddonSupport)
-	end
-	addon:RegisterEvent('ADDON_LOADED', CheckAddonSupport)
 end
 
 function addon:IterateSupportStatus()
