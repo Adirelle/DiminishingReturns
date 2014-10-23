@@ -16,8 +16,9 @@ local gsub = _G.gsub
 local pairs = _G.pairs
 --GLOBALS>
 
--- This allow oUF addons to add support themselves
-function addon:DeclareOUF(parent, oUF)
+local function InitializeOUF(parent, oUF)
+	addon:Debug('InitializeOUF', parent, oUF)
+
 	local db = addon.db:RegisterNamespace(parent, {profile={
 		['*'] = {
 			enabled = true,
@@ -56,6 +57,16 @@ function addon:DeclareOUF(parent, oUF)
 
 	-- Register check for future frames
 	oUF:RegisterInitCallback(CheckFrame)
+
+	return 'supported', oUF.version
+end
+
+-- This allow oUF addons to register themselves
+function addon:DeclareOUF(parent, oUF)
+	addon:Debug('DeclareOUF', parent, oUF)
+	addon:RegisterAddonSupport(parent, function()
+		return InitializeOUF(parent, oUF)
+	end)
 end
 
 -- Scan for declared oUF
@@ -66,8 +77,7 @@ for index = 1, GetNumAddOns() do
 		addon:RegisterAddonSupport(parent, function()
 			local oUF = _G[global]
 			if oUF then
-				addon:DeclareOUF(parent, oUF)
-				return 'supported', oUF.version
+				return InitializeOUF(parent, oUF)
 			end
 		end)
 	end
