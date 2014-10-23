@@ -53,12 +53,12 @@ addon.RegisterMessage('Display', 'OnProfileChanged', function() prefs = addon.db
 local function FitTextSize(text, width, height)
 	local name, _, flags = text:GetFont()
 	text:SetFont(name, text.fontSize, flags)
-	local ratio = text:GetStringWidth() / (width-2)
+	local ratio = text:GetStringWidth() / (width-4)
 	if height then
-		ratio = max(ratio, text:GetStringHeight() / (height-2))
+		ratio = max(ratio, text:GetStringHeight() / (height-4))
 	end
 	if ratio > 1 then
-		text:SetFont(name, text.fontSize / ratio, flags)
+		text:SetFont(name, floor(text.fontSize / ratio), flags)
 	end
 end
 
