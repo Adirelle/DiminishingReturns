@@ -10,6 +10,7 @@ local addon = _G.DiminishingReturns
 if not addon then return end
 
 local templateFrame = CreateFrame("Frame")
+templateFrame.Debug = addon.Debug
 
 --<GLOBALS
 local _G = _G
