@@ -174,7 +174,7 @@ function iconProto:Initialize(iconSize, noCooldown)
 
 	local border = self:CreateTexture(nil, "OVERLAY")
 	border:SetAllPoints(self)
-	border:SetTexture([[Interface\AddOns\DiminishingReturns\self_border]])
+	border:SetTexture([[Interface\AddOns\DiminishingReturns\icon_border]])
 	self.border = border
 
 	local textFrame = CreateFrame("Frame", nil, self)
