@@ -251,9 +251,7 @@ local function SpawnTestDR(unit)
 	end
 end
 
-addon.RegisterMessage('Tracker', 'SetTestMode', function(_, event, value)
-	addon:Debug(_, event, value)
-	if not value then return end
+function addon:SpawnTestDR()
 	SpawnTestDR("player")
 	SpawnTestDR("pet")
 	if not UnitIsUnit("pet", "target") and not UnitIsUnit("player", "target") then
@@ -262,7 +260,7 @@ addon.RegisterMessage('Tracker', 'SetTestMode', function(_, event, value)
 	if not UnitIsUnit("pet", "focus") and not UnitIsUnit("player", "focus") and not UnitIsUnit("target", "focus") then
 		SpawnTestDR("focus")
 	end
-end)
+end
 
 local function WipeAll(self)
 	for guid, drs in pairs(runningDR) do

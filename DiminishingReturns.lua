@@ -113,6 +113,9 @@ end
 function addon:SetTestMode(mode)
 	self.testMode = mode
 	self:SendMessage('SetTestMode', self.testMode)
+	if mode then
+		self:SpawnTestDR()
+	end
 end
 
 -- GLOBALS: SLASH_DRTEST1
