@@ -157,7 +157,7 @@ do
 end
 
 local runningDR = {}
-local timerFrame = CreateFrame("Frame")
+local StartTimer, StopTimer
 
 local function SpawnDR(guid, category, isFriend, increase, duration)
 	local targetDR = runningDR[guid]
@@ -180,7 +180,7 @@ local function SpawnDR(guid, category, isFriend, increase, duration)
 		assert(type(duration) == "number")
 		addon:SendMessage('UpdateDR', guid, category, isFriend, dr.texture, dr.count, duration, dr.expireTime)
 	end
-	timerFrame:Show()
+	StartTimer()
 end
 
 local function RemoveDR(guid, cat)
@@ -194,7 +194,7 @@ local function RemoveDR(guid, cat)
 		if not next(targetDR) then
 			runningDR[guid] = del(targetDR)
 			if not next(runningDR) then
-				timerFrame:Hide()
+				StopTimer()
 				if addon.testMode then
 					addon:SetTestMode(false)
 				end
@@ -270,35 +270,44 @@ local function WipeAll(self)
 	end
 end
 
-local timer = 0
-timerFrame:Hide()
-timerFrame:SetScript('OnShow', function() timer = 0 end)
-timerFrame:SetScript('OnUpdate', function(self, elapsed)
-	if timer > 0 then
-		timer = timer - elapsed
-		return
-	end
-	local now = GetTime()
-	local watched = prefs.categories
-	local playSound = false
-	timer = 0.1
-	for guid, drs in pairs(runningDR) do
-		for cat, dr in pairs(drs) do
-			if now >= dr.expireTime then
-				if dr.count > 0 and not dr.isFriend and watched[cat] then
-					playSound = true
+do
+	local running, Tick
+
+	function Tick()
+		local now = GetTime()
+		local watched = prefs.categories
+		local playSound = false
+		for guid, drs in pairs(runningDR) do
+			for cat, dr in pairs(drs) do
+				if now >= dr.expireTime then
+					if dr.count > 0 and not dr.isFriend and watched[cat] then
+						playSound = true
+					end
+					RemoveDR(guid, cat)
 				end
-				RemoveDR(guid, cat)
 			end
 		end
+		if playSound and prefs.soundAtReset then
+			local key = prefs.resetSound
+			local media = SharedMedia:Fetch('sound', key)
+			addon:Debug('PlaySound', key, media)
+			PlaySoundFile(media, "SFX")
+		end
+		if running then
+			C_Timer.After(0.1, Tick)
+		end
 	end
-	if playSound and prefs.soundAtReset then
-		local key = prefs.resetSound
-		local media = SharedMedia:Fetch('sound', key)
-		addon:Debug('PlaySound', key, media)
-		PlaySoundFile(media, "SFX")
+
+	function StartTimer()
+		if running then return end
+		running = true
+		Tick()
 	end
-end)
+
+	function StopTimer()
+		running = false
+	end
+end
 
 local function IterFunc(targetDR, cat)
 	local dr
