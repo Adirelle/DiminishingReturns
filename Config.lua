@@ -58,7 +58,7 @@ local function CreateOptions()
 		local key, name = cat, CATEGORIES[cat]
 		categoryGroup[key] = {
 			name = function()
-				return format("|T%s:20:20:0:0:64:64:4:60:4:60|t %s", ICONS[key], name)
+				return format("|T%s:20:20:0:0:64:64:5:59:5:59|t %s", ICONS[key], name)
 			end,
 			desc = format(L['This category is triggered by the following effects:\n%s'], tconcat(tmp, '\n')),
 			type = 'toggle',
