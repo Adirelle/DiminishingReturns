@@ -218,16 +218,16 @@ local frameMeta = { __index = frameProto }
 addon:EmbedEventDispatcher(frameProto)
 
 function frameProto:GetIcon()
-	local icon = next(self.iconPool)
+	local icon = next(self.iconHeap)
 	if not icon then
 		icon = setmetatable(CreateFrame("Frame", nil, self), iconMeta)
 		icon:Initialize(self.iconSize, self.noCooldown)
 		icon.Release = function()
-			self.iconPool[icon] = true
+			self.iconHeap[icon] = true
 			icon:Hide()
 		end
 	else
-		self.iconPool[icon] = nil
+		self.iconHeap[icon] = nil
 	end
 	return icon
 end
