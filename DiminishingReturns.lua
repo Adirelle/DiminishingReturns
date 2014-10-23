@@ -9,7 +9,6 @@ local addonName, ns = ...
 -- Addon creation and initialization
 
 local addon = CreateFrame("Frame", addonName)
-ns.frameMeta = getmetatable(addon)
 
 --<GLOBALS
 local _G = _G

@@ -9,6 +9,8 @@ local addonName, ns = ...
 local addon = _G.DiminishingReturns
 if not addon then return end
 
+local templateFrame = CreateFrame("Frame")
+
 --<GLOBALS
 local _G = _G
 local ceil = _G.ceil
@@ -59,7 +61,7 @@ local function FitTextSize(text, width, height)
 	end
 end
 
-local iconProto = setmetatable({}, { ns.frameMeta })
+local iconProto = setmetatable({}, { __index = templateFrame })
 local iconMeta = { __index = iconProto }
 
 function iconProto:UpdateTimer()
@@ -209,7 +211,7 @@ function iconProto:Initialize(iconSize, noCooldown)
 	self:Skin()
 end
 
-local frameProto = setmetatable({}, { ns.frameMeta })
+local frameProto = setmetatable({}, { __index = templateFrame })
 local frameMeta = { __index = frameProto }
 
 addon:EmbedEventDispatcher(frameProto)
