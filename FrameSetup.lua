@@ -86,6 +86,9 @@ local function CanBeLoaded(name)
 end
 
 function addon:CheckAddonSupport()
+	if not self.db then
+		return -- Not yet initialized
+	end
 	for name, callback in pairs(addonCallbacks) do
 		if IsLoaded(name) then
 			self:Debug('Calling addon support for', name)
