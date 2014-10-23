@@ -393,7 +393,7 @@ function addon:SpawnGenericFrame(anchor, GetDatabase, GetGUID, OnEnable, OnDisab
 	-- Setup arbitrary values
 	for i = 1, select('#', ...), 2 do
 		local k, v = select(i, ...)
-		self[k] = v
+		frame[k] = v
 	end
 
 	frame:Initialize(anchor)
