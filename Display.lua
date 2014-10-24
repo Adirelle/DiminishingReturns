@@ -46,10 +46,6 @@ local TEXTS = {
 	{         "0", 1.0, 0.0, 0.0 }
 }
 
--- database upvalue
-local prefs
-addon.RegisterMessage('Display', 'OnProfileChanged', function() prefs = addon.db.profile end)
-
 local function FitTextSize(text, width, height)
 	local name, _, flags = text:GetFont()
 	text:SetFont(name, text.fontSize, flags)
@@ -72,7 +68,7 @@ function iconProto:UpdateTimer()
 	if timeLeft <= 0 then
 		timer.expireTimer, timer.timeLeft = nil, nil
 		return timer:Hide()
-	elseif timeLeft < 3 and prefs.bigTimer then
+	elseif timeLeft < 3 and addon.db.profile.bigTimer then
 		timeLeft = format("%.1f", ceil(timeLeft * 10) / 10)
 	else
 		timeLeft = tostring(ceil(timeLeft))
@@ -90,12 +86,12 @@ if LBF then
 	addon.DEFAULT_CONFIG.ButtonFacade = { skinID = "Blizzard" }
 
 	LBF:RegisterSkinCallback("DiminishingReturns", function(_, skinID, gloss, backdrop, _, _, colors)
-		local skin = prefs.ButtonFacade
+		local skin = addon.db.profile.ButtonFacade
 		skin.skinID, skin.gloss, skin.backdrop, skin.colors = skinID, gloss, backdrop, colors
 	end, addon)
 
 	addon.RegisterMessage('Display-LBF', 'OnProfileChanged', function()
-		local skin = prefs.ButtonFacade
+		local skin = addon.db.profile.ButtonFacade
 		group:Skin(skin.skinID, skin.gloss, skin.backdrop, skin.colors)
 	end)
 
@@ -137,7 +133,7 @@ function iconProto:Update(texture, count, duration, expireTime)
 	self.border:SetVertexColor(r, g, b, 1)
 
 	local timer
-	if prefs.bigTimer or prefs.immunityOnly then
+	if addon.db.profile.bigTimer or addon.db.profile.immunityOnly then
 		timer = self.bigText
 		self.smallText:Hide()
 	else
@@ -260,10 +256,10 @@ function frameProto:RemoveDR(event, guid, cat)
 end
 
 function frameProto:UpdateDR(event, guid, cat, isFriend, texture, count, duration, expireTime)
-	if guid ~= self.guid or (not prefs.categories[cat] and not (isFriend and prefs.friendly)) then
+	if guid ~= self.guid or not addon.db.profile.categories[cat] or (isFriend and not addon.db.profile.friendly) then
 		return
 	end
-	if count == 0 or (count < 3 and prefs.immunityOnly) then
+	if count == 0 or (count < 3 and addon.db.profile.immunityOnly) then
 		self:RemoveDR(event, guid, cat)
 		return true
 	end
