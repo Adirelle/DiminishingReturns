@@ -62,6 +62,7 @@ local DEFAULT_CONFIG = {
 	immunityOnly = false,
 	pveMode = false,
 	icons = {},
+	friendly = false,
 }
 addon.DEFAULT_CONFIG = DEFAULT_CONFIG
 
