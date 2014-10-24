@@ -211,7 +211,7 @@ local function RemoveAllDR(guid)
 	end
 end
 
-local function ParseCLEU(self, _, timestamp, event, _, _, srcName, srcFlags, _, guid, name, flags, _, spellId, spell)
+local function ParseCLEU(_, timestamp, event, _, _, srcName, srcFlags, _, guid, name, flags, _, spellId, spell)
 	-- Always process UNIT_DIED if we have information about the unit
 	if event == 'UNIT_DIED' then
 		if runningDR[guid] then
@@ -222,7 +222,7 @@ local function ParseCLEU(self, _, timestamp, event, _, _, srcName, srcFlags, _, 
 	-- Ignore any spell or event we are not interested with
 	local increase, category = CL_EVENTS[event], SPELLS[spellId] or SPELLS[spell]
 	if not increase or not category then return end
-	-- Ignore friends unless asked for
+	-- Detect friends
 	local isFriend = false
 	if band(flags, CLO_REACTION_FRIENDLY) ~= 0 then
 		isFriend = band(flags, CLO_AFFILIATION_FRIEND) ~= 0
@@ -378,9 +378,9 @@ addon:RegisterEvent('DUEL_FINISHED', EndDuel)
 addon:RegisterEvent('PLAYER_ENTERING_WORLD', 'CheckActivation')
 addon:RegisterEvent('PLAYER_LEAVING_WORLD', 'CheckActivation')
 addon:RegisterEvent('PLAYER_UPDATE_RESTING', 'CheckActivation')
-addon:RegisterEvent('UNIT_FACTION', function(self, event, unit)
+addon:RegisterEvent('UNIT_FACTION', function(event, unit)
 	if unit == "player" then return addon:CheckActivation(event) end
 end)
-addon.RegisterMessage('Tracker', 'OnConfigChanged', function(self, event, name)
+addon.RegisterMessage('Tracker', 'OnConfigChanged', function(event, name)
 	if name == "pveMode" then return addon:CheckActivation(event) end
 end)
