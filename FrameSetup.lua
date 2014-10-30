@@ -81,7 +81,11 @@ local function CanBeLoaded(name)
 	if name == "FrameXML" then
 		return true
 	else
-		return select(5, GetAddOnInfo(name))
+		local loadable, reason = select(4, GetAddOnInfo(name))
+		if not loadable and reason == "DEMAND_LOADED" then
+			return true
+		end
+		return loadable, reason
 	end
 end
 
