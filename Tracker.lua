@@ -222,14 +222,21 @@ local function ParseCLEU(_, timestamp, event, _, _, srcName, srcFlags, _, guid, 
 	local isFriend = false
 	if band(flags, CLO_REACTION_FRIENDLY) ~= 0 then
 		isFriend = band(flags, CLO_AFFILIATION_FRIEND) ~= 0
-		if not isFriend then return end -- Ignore outsiders
+		if not addon.testMode and not isFriend then
+			-- Ignore outsiders
+			return
+		end
 	end
-	-- Ignore mobs for non-PvE categories
-	local isPlayer = band(flags, CLO_TYPE_PET_OR_PLAYER) ~= 0 or band(flags, CLO_CONTROL_PLAYER) ~= 0
-	if not isPlayer and (not addon.db.profile.pveMode or not DRData:IsPVE(category)) then return end
-	-- Category auto-learning
-	if addon.db.profile.learnCategories and band(srcFlags, CLO_AFFILIATION_MINE) ~= 0 then
-		addon.db.profile.categories[category] = true
+	if not addon.testMode then
+		-- Ignore mobs for non-PvE categories
+		local isPlayer = band(flags, CLO_TYPE_PET_OR_PLAYER) ~= 0 or band(flags, CLO_CONTROL_PLAYER) ~= 0
+		if not isPlayer and (not addon.db.profile.pveMode or not DRData:IsPVE(category)) then
+			return
+		end
+		-- Category auto-learning
+		if addon.db.profile.learnCategories and band(srcFlags, CLO_AFFILIATION_MINE) ~= 0 then
+			addon.db.profile.categories[category] = true
+		end
 	end
 	-- Create or extend the DR
 	return SpawnDR(guid, category, isFriend, increase, addon.db.profile.resetDelay)
