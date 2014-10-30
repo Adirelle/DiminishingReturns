@@ -329,12 +329,16 @@ function addon:CheckActivation(event)
 	local activate = false
 	if spellsResolved then
 		if addon.db.profile.pveMode then
-			activate = not IsResting() or InCombatLockdown() or event == "PLAYER_REGEN_DISABLED"
+			activate = not IsResting()
 			self:Debug('CheckActivation(PvE)', event, activate, "<= IsResting=", IsResting())
 		else
 			local _, instanceType = IsInInstance()
 			activate = inDuel or UnitIsPVP('player') or instanceType == "pvp" or instanceType == "arena"
 			self:Debug('CheckActivation(PvP)', event, activate, "<= inDuel=", inDuel, "playerInPvP=", UnitIsPVP("player"), "instanceType=", instanceType)
+		end
+		if addon.testMode or InCombatLockdown() or event == "PLAYER_REGEN_DISABLED" then
+			self:Debug('CheckActivation: combat/test mode override')
+			activate = true
 		end
 	end
 	if activate then
@@ -381,4 +385,7 @@ addon:RegisterEvent('UNIT_FACTION', function(event, unit)
 end)
 addon.RegisterMessage('Tracker', 'OnConfigChanged', function(event, name)
 	if name == "pveMode" then return addon:CheckActivation(event) end
+end)
+addon.RegisterMessage('Tracker', 'SetTestMode', function(event, name)
+	return addon:CheckActivation(event)
 end)
