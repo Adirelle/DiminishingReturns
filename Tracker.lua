@@ -329,7 +329,7 @@ function addon:CheckActivation(event)
 	local activate = false
 	if spellsResolved then
 		if addon.db.profile.pveMode then
-			activate = not IsResting()
+			activate = not IsResting() or InCombatLockdown() or event == "PLAYER_REGEN_DISABLED"
 			self:Debug('CheckActivation(PvE)', event, activate, "<= IsResting=", IsResting())
 		else
 			local _, instanceType = IsInInstance()
@@ -374,6 +374,8 @@ addon:RegisterEvent('DUEL_FINISHED', EndDuel)
 addon:RegisterEvent('PLAYER_ENTERING_WORLD', 'CheckActivation')
 addon:RegisterEvent('PLAYER_LEAVING_WORLD', 'CheckActivation')
 addon:RegisterEvent('PLAYER_UPDATE_RESTING', 'CheckActivation')
+addon:RegisterEvent('PLAYER_REGEN_ENABLED', 'CheckActivation')
+addon:RegisterEvent('PLAYER_REGEN_DISABLED', 'CheckActivation')
 addon:RegisterEvent('UNIT_FACTION', function(event, unit)
 	if unit == "player" then return addon:CheckActivation(event) end
 end)
