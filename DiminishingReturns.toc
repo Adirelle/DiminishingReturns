@@ -10,6 +10,7 @@
 
 ## SavedVariables: DiminishingReturnsDB
 ## OptionalDeps: LibStub, CallbackHandler-1.0, Ace3, LibDualSpec-1.0, DRData-1.0, LibSharedMedia-3.0, LibNameplateRegistry-1.0, ButtonFacade, LibButtonFacade, AdiDebug
+## X-Embeds: LibStub, CallbackHandler-1.0, AceDB-3.0, LibDualSpec-1.0, DRData-1.0, LibSharedMedia-3.0, LibNameplateRegistry-1.0
 
 ## LoadManagers: AddonLoader
 ## X-LoadOn-Always: delayed
@@ -20,6 +21,7 @@ libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
 libs\AceDB-3.0\AceDB-3.0.xml
 libs\DRData-1.0\DRData-1.0.lua
 libs\LibSharedMedia-3.0\lib.xml
+libs\Libs\LibNameplateRegistry-1.0\LibNameplateRegistry-1.0.xml
 #@end-no-lib-strip@
 
 DiminishingReturns.lua

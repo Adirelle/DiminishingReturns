@@ -25,6 +25,9 @@ externals:
   libs/AceGUI-3.0-SharedMediaWidgets: 
     url: svn://svn.wowace.com/wow/ace-gui-3-0-shared-media-widgets/mainline/trunk/AceGUI-3.0-SharedMediaWidgets
     tag: latest
+  Libs/LibNameplateRegistry-1.0:
+    url: git://git.wowace.com/wow/libnameplateregistry-1-0/mainline.git/LibNameplateRegistry-1.0
+    tag: latest
   libs/DRData-1.0: git://git.wowace.com/wow/drdata-1-0/mainline.git
 
 move-folders:
