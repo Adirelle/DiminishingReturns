@@ -7,7 +7,9 @@ All rights reserved.
 local addon = _G.DiminishingReturns
 if not addon then return end
 
-addon:RegisterAddonSupport('XPerl', function()
+local db
+
+local function XPerlSupport(addonName)
 	--<GLOBALS
 	local _G = _G
 	local GetAddOnMetadata = _G.GetAddOnMetadata
@@ -15,7 +17,7 @@ addon:RegisterAddonSupport('XPerl', function()
 	local hooksecurefunc = _G.hooksecurefunc
 	--GLOBALS>
 
-	local db = addon.db:RegisterNamespace('XPerl', {profile={
+	local db = addon.db:RegisterNamespace(addonName, {profile={
 		['*'] = {
 			enabled = true,
 			iconSize = 24,
@@ -43,6 +45,8 @@ addon:RegisterAddonSupport('XPerl', function()
 
 	hooksecurefunc('XPerl_SecureUnitButton_OnLoad', addon.CheckFrame)
 
-	return 'unknown', GetAddOnMetadata('XPerl', 'Version')
-end)
+	return 'unknown', GetAddOnMetadata(addonName, 'Version')
+end
 
+addon:RegisterAddonSupport('XPerl', XPerlSupport('XPerl'))
+addon:RegisterAddonSupport('ZPerl', XPerlSupport('ZPerl'))
