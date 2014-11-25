@@ -36,7 +36,7 @@ local function XPerlSupport(addonName)
 		addon:RegisterCommonFrames(function(unit)
 			local refUnit = gsub(unit, "%d+$", "")
 			local function GetDatabase() return db.profile[refUnit], db end
-			addon:RegisterFrameConfig('XPerl: '..addon.L[refUnit], GetDatabase)
+			addon:RegisterFrameConfig(addonName..': '..addon.L[refUnit], GetDatabase)
 			return addon:RegisterFrame('XPerl_'..ucfirst(unit), function(frame)
 				return addon:SpawnFrame(frame, frame, GetDatabase)
 			end)
