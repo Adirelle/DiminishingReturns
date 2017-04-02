@@ -1,7 +1,7 @@
 --[[
 Diminishing Returns - Attach diminishing return icons to unit frames.
 Copyright 2009-2012 Adirelle (adirelle@gmail.com)
-All rights reserved.
+See LICENSE.md.
 --]]
 
 local addon = _G.DiminishingReturns
